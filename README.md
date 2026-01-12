@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE.md)
 [![Tests](https://img.shields.io/badge/tests-12%20passing-brightgreen.svg)](tests/)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](notebooks/cd_pde_demo.ipynb)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18225664.svg)](https://doi.org/10.5281/zenodo.18225664)
 
 **Creative Determinant (CD)** is a framework for understanding how coherent presence emerges and sustains itself in cognitive and computational systems. It bridges three traditionally separate domains:
 
