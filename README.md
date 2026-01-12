@@ -98,6 +98,8 @@ If you build on this work, please cite:
 
 ## Get Involved
 
+> *The knowledge is free, the community is open. If you wish to support our mission, [buy a t-shirt](https://projectnavi.printful.me/).* 🐘
+
 See **[CONTRIBUTING.md](CONTRIBUTING.md)** for how to participate. See **[ROADMAP.md](docs/ROADMAP.md)** for open research directions. See **[OPEN_PROBLEMS.md](docs/OPEN_PROBLEMS.md)** for unresolved theoretical questions.
 
 Please read our **[Code of Conduct](CODE_OF_CONDUCT.md)**—a trauma-informed, peer support-based community covenant that reflects how we work together.
