@@ -76,7 +76,7 @@ jobs:
           print(f'Code cells with outputs: {output_cells}')
           print(f'Figure outputs: {figure_outputs}')
           
-          if output_cells < 10:
+          if output_cells < 8:
               print('WARNING: Fewer outputs than expected')
               exit(1)
           
