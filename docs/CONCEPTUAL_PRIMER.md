@@ -28,7 +28,7 @@ Let's develop this with an analogy. Imagine a vast, detailed landscape:
 
 This "map of meaning" is the stage upon which all the dynamics of change in the CD framework take place. It's the world a system—whether a person or an AI—navigates as it learns and adapts.
 
-This isn't just an abstract map. For me, it was a way to visualize the terrain my patients in behavioral health were navigating—a landscape of beliefs where some paths led to growth and others to crisis. For AI researchers, figuring out what this map actually looks like for a complex neural network is a major open research question, but the concept gives us a powerful way to think about the problem.
+This isn't just an abstract map. For me, it was a way to visualize the terrain I observed individuals in or seeking recovery were navigating—a landscape of beliefs where some paths led to growth and others to crisis. For AI researchers, figuring out what this map actually looks like for a complex neural network is a major open research question, but the concept gives us a powerful way to think about the problem.
 
 Now that we have our landscape, we need to understand the forces that shape our journey across it.
 
