@@ -8,7 +8,6 @@ Provides utilities for constructing the characteristic fields:
 """
 
 import numpy as np
-from typing import Tuple, Optional
 
 
 def viability_canonical(
@@ -19,9 +18,9 @@ def viability_canonical(
 ) -> np.ndarray:
     """
     Compute canonical viability potential.
-    
+
     b(x) = κγ - λμ(x)
-    
+
     Parameters
     ----------
     kappa : float
@@ -32,18 +31,18 @@ def viability_canonical(
         Contradiction field ∈ [0, 1].
     lam : float
         Contradiction cost parameter λ > 0.
-        
+
     Returns
     -------
     b : ndarray
         Viability potential (same shape as mu).
-        
+
     Notes
     -----
     The canonical closure encodes:
     - κγ: baseline support from care × coherence
     - λμ: cost imposed by contradiction
-    
+
     When b(x) > 0: local viability supports presence
     When b(x) < 0: local environment hostile to presence
     """
@@ -57,9 +56,9 @@ def creative_drive(
 ) -> np.ndarray:
     """
     Compute creative drive field.
-    
+
     a(x) = κγμ(x)
-    
+
     Parameters
     ----------
     kappa : float
@@ -68,12 +67,12 @@ def creative_drive(
         Coherence intensity.
     mu : ndarray
         Contradiction field.
-        
+
     Returns
     -------
     a : ndarray
         Creative drive (same shape as mu).
-        
+
     Notes
     -----
     The gradient term a|∇Φ| contributes to presence
@@ -95,9 +94,9 @@ def gaussian_bump_2d(
 ) -> np.ndarray:
     """
     Create a 2D Gaussian bump field.
-    
+
     f(x,y) = amplitude × exp(-((x-x₀)² + (y-y₀)²) / (2σ²))
-    
+
     Parameters
     ----------
     X, Y : ndarray
@@ -108,32 +107,32 @@ def gaussian_bump_2d(
         Width (standard deviation).
     amplitude : float, default=1.0
         Peak value.
-        
+
     Returns
     -------
     field : ndarray
         Gaussian bump (same shape as X, Y).
-        
+
     Example
     -------
     >>> X, Y = np.meshgrid(np.linspace(0, 1, 50), np.linspace(0, 1, 50))
     >>> mu = gaussian_bump_2d(X, Y, 0.5, 0.5, 0.1)  # Contradiction at center
     """
-    r2 = (X - x0)**2 + (Y - y0)**2
+    r2 = (X - x0) ** 2 + (Y - y0) ** 2
     return amplitude * np.exp(-r2 / (2 * sigma**2))
 
 
-def constant_field(shape: Tuple[int, ...], value: float) -> np.ndarray:
+def constant_field(shape: tuple[int, ...], value: float) -> np.ndarray:
     """
     Create a constant field.
-    
+
     Parameters
     ----------
     shape : tuple
         Output shape.
     value : float
         Constant value.
-        
+
     Returns
     -------
     field : ndarray
@@ -145,14 +144,14 @@ def constant_field(shape: Tuple[int, ...], value: float) -> np.ndarray:
 def linear_gradient_1d(N: int, v0: float, v1: float) -> np.ndarray:
     """
     Create a linear gradient in 1D (interior points only).
-    
+
     Parameters
     ----------
     N : int
         Number of interior points.
     v0, v1 : float
         Values at left and right boundaries.
-        
+
     Returns
     -------
     field : ndarray
@@ -164,7 +163,7 @@ def linear_gradient_1d(N: int, v0: float, v1: float) -> np.ndarray:
 def step_function_1d(N: int, x_step: float, L: float, v_left: float, v_right: float) -> np.ndarray:
     """
     Create a step function in 1D (interior points only).
-    
+
     Parameters
     ----------
     N : int
@@ -177,7 +176,7 @@ def step_function_1d(N: int, x_step: float, L: float, v_left: float, v_right: fl
         Value for x < x_step.
     v_right : float
         Value for x >= x_step.
-        
+
     Returns
     -------
     field : ndarray

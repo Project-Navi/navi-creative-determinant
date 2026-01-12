@@ -11,25 +11,26 @@ Validates core mathematical claims:
 Run with: pytest tests/test_core.py -v
 """
 
-import numpy as np
-import pytest
 import sys
 from pathlib import Path
+
+import numpy as np
+import pytest
 
 # Add src to path for development installs
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from cd import (
     principal_eigenvalue_1d,
-    solve_1d_picard,
     residual_1d,
+    solve_1d_picard,
 )
 from cd.eigenvalues import viability_threshold_1d
-
 
 # =============================================================================
 # Test 1: Eigenvalue matches analytic formula
 # =============================================================================
+
 
 class TestEigenvalueComputation:
     """Verify λ₁(-Δ - βb) = (π/L)² - βb for constant b."""
@@ -46,7 +47,9 @@ class TestEigenvalueComputation:
 
             # Should match within 0.1% for this grid resolution
             rel_error = abs(lam_numeric - lam_analytic) / abs(lam_analytic)
-            assert rel_error < 0.001, f"β={beta}: numeric={lam_numeric:.6f}, analytic={lam_analytic:.6f}, error={rel_error:.2%}"
+            assert rel_error < 0.001, (
+                f"β={beta}: numeric={lam_numeric:.6f}, analytic={lam_analytic:.6f}, error={rel_error:.2%}"
+            )
 
     def test_eigenvalue_sign_at_threshold(self):
         """Eigenvalue should be positive below threshold, negative above."""
@@ -67,6 +70,7 @@ class TestEigenvalueComputation:
 # =============================================================================
 # Test 2: Picard iteration converges
 # =============================================================================
+
 
 class TestPicardConvergence:
     """Verify Picard iteration converges within tolerance."""
@@ -109,6 +113,7 @@ class TestPicardConvergence:
 # Test 3: Residuals are small
 # =============================================================================
 
+
 class TestResidualSmall:
     """Verify computed solutions actually satisfy the PDE."""
 
@@ -135,6 +140,7 @@ class TestResidualSmall:
 # Test 4: Threshold behavior
 # =============================================================================
 
+
 class TestThresholdBehavior:
     """Verify bifurcation: trivial below threshold, nontrivial above."""
 
@@ -153,7 +159,9 @@ class TestThresholdBehavior:
         x, Phi, info = solve_1d_picard(L, N, a=a, beta_b=beta_below * b, c=c, p=p)
 
         # Should be essentially zero (< 1e-6)
-        assert info["maxPhi"] < 1e-6, f"Below threshold: expected trivial solution, got maxPhi = {info['maxPhi']}"
+        assert info["maxPhi"] < 1e-6, (
+            f"Below threshold: expected trivial solution, got maxPhi = {info['maxPhi']}"
+        )
 
     def test_nontrivial_above_threshold(self):
         """Above threshold, solution should have significant presence."""
@@ -170,7 +178,9 @@ class TestThresholdBehavior:
         x, Phi, info = solve_1d_picard(L, N, a=a, beta_b=beta_above * b, c=c, p=p)
 
         # Should be nontrivial (> 0.01)
-        assert info["maxPhi"] > 0.01, f"Above threshold: expected nontrivial solution, got maxPhi = {info['maxPhi']}"
+        assert info["maxPhi"] > 0.01, (
+            f"Above threshold: expected nontrivial solution, got maxPhi = {info['maxPhi']}"
+        )
 
     def test_threshold_sharpness(self):
         """Transition should be sharp: small change in β causes large change in maxΦ."""
@@ -194,12 +204,13 @@ class TestThresholdBehavior:
             assert ratio > 100, f"Transition not sharp enough: ratio = {ratio}"
         else:
             # Below is essentially zero, above should be nonzero
-            assert info_above["maxPhi"] > 0.001, f"Above threshold should be nontrivial"
+            assert info_above["maxPhi"] > 0.001, "Above threshold should be nontrivial"
 
 
 # =============================================================================
 # Test 5: Grid refinement convergence
 # =============================================================================
+
 
 class TestGridRefinement:
     """Verify O(h²) convergence under grid refinement."""
@@ -265,6 +276,7 @@ class TestGridRefinement:
 # Test 6: Edge cases
 # =============================================================================
 
+
 class TestEdgeCases:
     """Document and verify edge case behavior."""
 
@@ -279,7 +291,9 @@ class TestEdgeCases:
 
         x, Phi, info = solve_1d_picard(L, N, a=a, beta_b=beta_b, c=c, p=p)
 
-        assert info["maxPhi"] < 1e-6, f"Negative viability: expected trivial, got maxPhi = {info['maxPhi']}"
+        assert info["maxPhi"] < 1e-6, (
+            f"Negative viability: expected trivial, got maxPhi = {info['maxPhi']}"
+        )
 
     def test_large_domain(self):
         """Large domain should lower threshold (larger L → smaller (π/L)²)."""
@@ -299,8 +313,9 @@ class TestEdgeCases:
         _, _, info_large = solve_1d_picard(L_large, N, a=a, beta_b=beta * b, c=c, p=p)
 
         # Larger domain should have higher presence (easier to cross threshold)
-        assert info_large["maxPhi"] >= info_small["maxPhi"], \
+        assert info_large["maxPhi"] >= info_small["maxPhi"], (
             f"Larger domain should have >= presence: L=0.5 → {info_small['maxPhi']}, L=2.0 → {info_large['maxPhi']}"
+        )
 
 
 # =============================================================================

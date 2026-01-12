@@ -19,11 +19,11 @@ Where:
 Key result: Nontrivial solutions exist iff λ₁(-Δ - βb; M) < 0
 """
 
-from .operators import laplacian_1d_dirichlet, laplacian_2d_dirichlet
+from .analysis import check_convergence, residual_1d
 from .eigenvalues import principal_eigenvalue_1d, principal_eigenvalue_2d
+from .fields import gaussian_bump_2d, viability_canonical
+from .operators import laplacian_1d_dirichlet, laplacian_2d_dirichlet
 from .solvers import solve_1d_picard, solve_2d_picard
-from .analysis import residual_1d, check_convergence
-from .fields import viability_canonical, gaussian_bump_2d
 
 __version__ = "0.1.0"
 __author__ = "Nelson Spence"
