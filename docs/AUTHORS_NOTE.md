@@ -34,7 +34,7 @@ The math is real. The witnesses are testable. The gaps are explicit. If you find
 
 ## What This Framework Actually Is
 
-**Creative Determinant (CD)** is an attempt to formalize something that matters: how coherent presence emerges and sustains itself through the dynamic interplay of care, coherence, contradiction, and viability. 
+**Creative Determinant (CD)** is an attempt to formalize something that matters: how coherent presence emerges and sustains itself through the dynamic interplay of care, coherence, contradiction, and viability.
 
 Mathematically, it's rigorous—built on Schaefer's fixed-point theorem, spectral analysis, and elliptic PDEs. You can check the proofs. You can run the code. You can look for counterexamples.
 
@@ -80,7 +80,7 @@ If you see where it goes, if you have the skills to build out the empirical test
 
 Go to [ROADMAP.md](ROADMAP.md). Pick a direction. Open an issue. Build something.
 
-The only thing that would disappoint me is if this sat unused because it felt too fragile, too unpolished, too uncertain to engage with. 
+The only thing that would disappoint me is if this sat unused because it felt too fragile, too unpolished, too uncertain to engage with.
 
 Uncertainty is where knowledge gets born.
 

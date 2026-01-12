@@ -1,0 +1,64 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! The Creative Determinant framework is research-grade software, and we welcome ideas that extend its capabilities.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Motivation
+      description: What problem does this feature solve? What's the use case?
+      placeholder: "I'm trying to study X, but the current framework doesn't support..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the feature you'd like.
+      placeholder: "It would be helpful to have a function that..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      options:
+        - Mathematical (new equations, theorems, dimensions)
+        - Numerical (new solvers, better convergence)
+        - Visualization (new plots, interactive features)
+        - API/Usability (easier interface, better ergonomics)
+        - Integration (other frameworks, tools)
+        - Documentation (tutorials, examples)
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered other approaches?
+
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: Would you be willing to contribute this?
+      options:
+        - "Yes, I'd like to implement this"
+        - "Yes, with guidance"
+        - "No, but I'd help test it"
+        - "No"
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, references, or examples.

@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License").
 See LICENSE file for full terms.
 
 Users are invited (but not required) to honor the Ethical Covenant
-described in ETHICAL_COVENANT.md.
+described in docs/ETHICAL_COVENANT.md.
 
 This framework includes:
 - Mathematical formalization (Sections 2-3 of the paper)

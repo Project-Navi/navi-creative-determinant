@@ -1,0 +1,63 @@
+name: Theoretical Question
+description: Ask about the mathematical or philosophical foundations
+title: "[Theory]: "
+labels: ["question", "theory"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Welcome! This framework sits at the intersection of PDEs, cognitive science, and philosophy. We encourage thoughtful questions about any aspect.
+        
+        **Note:** This is for genuine inquiry. For challenges to the framework's claims, please see [OPEN_PROBLEMS.md](docs/OPEN_PROBLEMS.md) first.
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Question Domain
+      options:
+        - Mathematical (PDEs, eigenvalues, convergence)
+        - Philosophical (enactivism, semiotics, phenomenology)
+        - Cognitive Science (embodiment, meaning, coherence)
+        - AI/Interpretability (CD condition, applications)
+        - Connections (how CD relates to other frameworks)
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to understand better?
+      placeholder: |
+        I'm trying to understand how the viability threshold relates to...
+        
+        The paper mentions X, but I'm confused about how it connects to Y...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What's your background? What have you already read?
+      placeholder: |
+        I have a background in X. I've read the paper sections 1-3 and the conceptual primer.
+
+  - type: dropdown
+    id: depth
+    attributes:
+      label: Desired Response Depth
+      description: How technical should the answer be?
+      options:
+        - "Intuitive (explain like I'm new to this)"
+        - "Conceptual (main ideas, minimal math)"
+        - "Technical (full mathematical detail)"
+        - "Research-level (open problems, cutting edge)"
+
+  - type: textarea
+    id: attempted
+    attributes:
+      label: What You've Tried
+      description: Have you attempted to answer this yourself?
+      placeholder: "I thought it might be because X, but that doesn't explain Y..."

@@ -94,9 +94,18 @@ All contributions should meet these minimal criteria:
 
 ## Licensing
 
-By contributing, you agree that your contributions will be licensed under the same license as this repository [specify: MIT, Apache 2.0, CC BY 4.0, etc.].
+By contributing, you agree that your contributions will be licensed under the same license as this repository (Apache 2.0).
 
 If you are contributing substantial original content (e.g., a new theorem, a major empirical study), you may also publish it separately under your own name—no permission needed. We encourage parallel publication.
+
+---
+
+## Related Documents
+
+- **[OPEN_PROBLEMS.md](docs/OPEN_PROBLEMS.md)**: Explicit theoretical gaps where contributions are needed
+- **[ROADMAP.md](docs/ROADMAP.md)**: Research directions and proposed experiments
+- **[The Paper](paper/spence_creative_determinant_2026.pdf)**: Full theoretical treatment
+- **[Jupyter Notebook](notebooks/cd_pde_demo.ipynb)**: Numerical demonstrations to extend
 
 ---
 

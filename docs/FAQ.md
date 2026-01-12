@@ -24,7 +24,7 @@ Short answers to common questions about the Creative Determinant (CD) framework.
 
 ## Is the CD condition testable on real systems?
 
-**Yes, in principle.** Definition 5.1 specifies measurable quantities: a coherence observable and Jacobian determinants. The challenge is operationalizing these on high-dimensional systems (e.g., neural networks). See [experiments/](experiments/) and [ROADMAP.md](ROADMAP.md) for proposed tests.
+**Yes, in principle.** Definition 5.1 specifies measurable quantities: a coherence observable and Jacobian determinants. The challenge is operationalizing these on high-dimensional systems (e.g., neural networks). See [experiments/](../experiments/) and [ROADMAP.md](ROADMAP.md) for proposed tests.
 
 ---
 
@@ -42,19 +42,19 @@ Short answers to common questions about the Creative Determinant (CD) framework.
 
 ## Is there existing code I can run?
 
-**Yes.** The Jupyter notebook [`cd_pde_demo.ipynb`](cd_pde_demo.ipynb) demonstrates the PDE framework numerically in 1D, 2D, and 3D. It includes eigenvalue verification, nonlinear solves, viability threshold crossings, and canonical closure sweeps. You can run it locally with Python, NumPy, SciPy, and Matplotlib.
+**Yes.** The Jupyter notebook [`cd_pde_demo.ipynb`](../notebooks/cd_pde_demo.ipynb) demonstrates the PDE framework numerically in 1D, 2D, and 3D. It includes eigenvalue verification, nonlinear solves, viability threshold crossings, and canonical closure sweeps. You can run it locally with Python, NumPy, SciPy, and Matplotlib.
 
 ---
 
 ## Can I propose changes to the core framework?
 
-**Yes.** Open an issue tagged `proposal` or `critical` describing your proposed change or challenge. Constructive critiques and falsification attempts are first-class contributions. See [CONTRIBUTING.md](CONTRIBUTING.md).
+**Yes.** Open an issue tagged `proposal` or `critical` describing your proposed change or challenge. Constructive critiques and falsification attempts are first-class contributions. See [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ---
 
 ## What license is this under?
 
-[Specify: MIT, Apache 2.0, CC BY 4.0, etc.]
+Apache 2.0. See [LICENSE.md](../LICENSE.md) for full terms.
 
 All contributions are licensed under the same terms. If you contribute substantial original work, you may also publish it separately under your own name without asking permission.
 
@@ -71,9 +71,18 @@ CD is intended for:
 
 ## How do I cite this work?
 
-> Nelson Spence. *On the Existence and Stability of Recursive Semiotic Fields: A Formalization of the Creative Determinant.* Project Navi LLC, January 2025.
+> Nelson Spence. *On the Existence and Stability of Recursive Semiotic Fields: A Formalization of the Creative Determinant.* Project Navi LLC, January 2026.
 
-[Add BibTeX or other citation formats as appropriate.]
+```bibtex
+@techreport{spence2026creative,
+  author = {Spence, Nelson},
+  title = {On the Existence and Stability of Recursive Semiotic Fields: A Formalization of the Creative Determinant},
+  institution = {Project Navi LLC},
+  year = {2026},
+  month = {January},
+  address = {Austin, Texas}
+}
+```
 
 ---
 

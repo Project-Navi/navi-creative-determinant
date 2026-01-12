@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+title: "Creative Determinant: A Field Theory of Coherence and Meaning"
+message: "If you use this framework, please cite it using the metadata from this file."
+type: software
+authors:
+  - family-names: Spence
+    given-names: Nelson
+    email: nelson@projectnavi.ai
+    affiliation: Project Navi LLC
+    orcid: ""
+repository-code: "https://github.com/Project-Navi/navi-creative-determinant"
+url: "https://projectnavi.ai"
+abstract: >-
+  Creative Determinant (CD) is a framework for understanding how coherent
+  presence emerges and sustains itself in cognitive and computational systems.
+  It bridges mathematical rigor (nonlinear elliptic PDEs), philosophical depth
+  (enactivist and semiotic foundations), and empirical testability (the CD
+  condition with explicit falsifiability criteria).
+keywords:
+  - coherence
+  - viability
+  - elliptic PDE
+  - enactivism
+  - semiotics
+  - AI safety
+  - alignment
+  - cognitive science
+license: Apache-2.0
+version: "1.0.0"
+date-released: "2026-01-12"
+preferred-citation:
+  type: report
+  authors:
+    - family-names: Spence
+      given-names: Nelson
+  title: "On the Existence and Stability of Recursive Semiotic Fields: A Formalization of the Creative Determinant"
+  year: 2026
+  month: 1
+  institution:
+    name: Project Navi LLC
+  address: Austin, Texas

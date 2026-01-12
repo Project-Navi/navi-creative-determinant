@@ -24,7 +24,7 @@ The Creative Determinant framework (this repository) is released under
 Apache 2.0 to maximize accessibility for research, education, and innovation.
 
 Users are invited (but not required) to honor the Ethical Covenant
-described in ETHICAL_COVENANT.md.
+described in docs/ETHICAL_COVENANT.md.
 
 For commercial users seeking support, co-development, or ethical assurance
 agreements: contact nelson@projectnavi.ai

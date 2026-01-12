@@ -1,5 +1,9 @@
 # Creative Determinant (CD): A Field Theory of Coherence and Meaning
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE.md)
+[![Tests](https://img.shields.io/badge/tests-12%20passing-brightgreen.svg)](tests/)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](notebooks/cd_pde_demo.ipynb)
+
 **Creative Determinant (CD)** is a framework for understanding how coherent presence emerges and sustains itself in cognitive and computational systems. It bridges three traditionally separate domains:
 
 - **Mathematical rigor**: Nonlinear elliptic PDEs on Riemannian manifolds, with existence theorems, spectral viability thresholds, and numerical validation.
@@ -10,17 +14,52 @@ The goal is a cognitive theory that is **not three separate things, but one inte
 
 ---
 
-## What's in This Repository
+## Table of Contents
 
-- **[`spence_creative_determinant_2026.pdf`](spence_creative_determinant_2026.pdf)**: The core paper, presenting the mathematical framework, interpretive layer, and operational proposals.
-- **[`cd_pde_demo.ipynb`](cd_pde_demo.ipynb)**: Jupyter notebook with numerical demonstrations of viability thresholds, equilibrium emergence, and canonical closure in 1D, 2D, and 3D.
-- **[ROADMAP.md](ROADMAP.md)**: Research directions and open questions—invitations for others to contribute.
-- **[CONTRIBUTING.md](CONTRIBUTING.md)**: How to participate, extend, or challenge the framework.
-- **[OPEN_PROBLEMS.md](OPEN_PROBLEMS.md)**: Explicit gaps and unresolved theoretical questions.
-- **[experiments/](experiments/)**: Scaffolding for empirical instantiations and tests.
-- **[FAQ.md](FAQ.md)**: Short answers to common questions.
+- [Quick Start](#quick-start)
+- [What's in This Repository](#whats-in-this-repository)
+- [Entry Ramps by Background](#entry-ramps-by-background)
+- [Core Concepts](#core-concepts-30-second-version)
+- [Citation](#citation)
+- [Get Involved](#get-involved)
+- [License and Ethical Use](#license-and-ethical-use)
+- [Contact](#contact)
 
 ---
+
+## Quick Start
+
+**Requirements:** Python 3.10+, NumPy, SciPy, Matplotlib
+
+```bash
+# Clone the repository
+git clone https://github.com/Project-Navi/navi-creative-determinant.git
+cd navi-creative-determinant
+
+# Install dependencies
+pip install numpy scipy matplotlib
+
+# Run the tests
+pytest tests/test_core.py -v
+
+# Open the notebook
+jupyter notebook notebooks/cd_pde_demo.ipynb
+```
+
+---
+
+## What's in This Repository
+
+- **[`spence_creative_determinant_2026.pdf`](paper/spence_creative_determinant_2026.pdf)**: The core paper, presenting the mathematical framework, interpretive layer, and operational proposals.
+- **[`cd_pde_demo.ipynb`](notebooks/cd_pde_demo.ipynb)**: Jupyter notebook with numerical demonstrations of viability thresholds, equilibrium emergence, and canonical closure in 1D, 2D, and 3D.
+- **[ROADMAP.md](docs/ROADMAP.md)**: Research directions and open questions—invitations for others to contribute.
+- **[CONTRIBUTING.md](CONTRIBUTING.md)**: How to participate, extend, or challenge the framework.
+- **[OPEN_PROBLEMS.md](docs/OPEN_PROBLEMS.md)**: Explicit gaps and unresolved theoretical questions.
+- **[experiments/](experiments/)**: Scaffolding for empirical instantiations and tests.
+- **[FAQ.md](docs/FAQ.md)**: Short answers to common questions.
+- **[CONCEPTUAL_PRIMER.md](docs/CONCEPTUAL_PRIMER.md)**: A gentle introduction for non-technical audiences.
+- **[AUTHORS_NOTE.md](docs/AUTHORS_NOTE.md)**: Origin story and motivation behind the framework.
+- **[figures/](figures/)**: Publication-quality visualizations of framework dynamics.
 
 ## Entry Ramps by Background
 
@@ -59,7 +98,9 @@ If you build on this work, please cite:
 
 ## Get Involved
 
-See **[CONTRIBUTING.md](CONTRIBUTING.md)** for how to participate. See **[ROADMAP.md](ROADMAP.md)** for open research directions. See **[OPEN_PROBLEMS.md](OPEN_PROBLEMS.md)** for unresolved theoretical questions.
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** for how to participate. See **[ROADMAP.md](docs/ROADMAP.md)** for open research directions. See **[OPEN_PROBLEMS.md](docs/OPEN_PROBLEMS.md)** for unresolved theoretical questions.
+
+Please read our **[Code of Conduct](CODE_OF_CONDUCT.md)**—a trauma-informed, peer support-based community covenant that reflects how we work together.
 
 **This is a research seed, not a finished theory.** The goal is for knowledge to flourish through collective engagement.
 
@@ -72,9 +113,11 @@ Project Navi LLC
 nelson@projectnavi.ai  
 Austin, Texas
 
+**I've carried this as far as I could alone. African wisdom provides our community principle, "If you want to go fast, go alone. If you want to go far, go together." Let's go far.**
+
 ## License and Ethical Use
 
-The Creative Determinant framework is licensed under **[Apache 2.0](LICENSE)** to maximize accessibility for research, education, and innovation.
+The Creative Determinant framework is licensed under **[Apache 2.0](LICENSE.md)** to maximize accessibility for research, education, and innovation.
 
 ### Why Apache 2.0?
 
@@ -87,7 +130,7 @@ Apache 2.0 allows you to use, modify, and build upon this work—even commercial
 
 ### Ethical Covenant (Voluntary)
 
-While the license grants you broad rights, we invite you to honor the **[Ethical Covenant](ETHICAL_COVENANT.md)**—a voluntary commitment to:
+While the license grants you broad rights, we invite you to honor the **[Ethical Covenant](docs/ETHICAL_COVENANT.md)**—a voluntary commitment to:
 - Use CD responsibly in systems that affect people
 - Be intellectually honest about what CD does and doesn't prove
 - Contribute back to the research community where feasible

@@ -1,0 +1,113 @@
+# Notebook Validation CI
+#
+# Validates that the Jupyter notebook executes without errors and produces
+# expected outputs. The notebook is the primary pedagogical artifact—it must work.
+
+name: Notebook Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'notebooks/**'
+      - 'src/**'
+      - '.github/workflows/notebooks.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'notebooks/**'
+      - 'src/**'
+  workflow_dispatch:
+
+jobs:
+  execute-notebooks:
+    name: Execute Notebooks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install nbconvert ipykernel
+          python -m ipykernel install --user --name python3
+      
+      - name: Execute notebook
+        run: |
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "  NOTEBOOK EXECUTION: cd_pde_demo.ipynb"
+          echo "═══════════════════════════════════════════════════════════════"
+          cd notebooks
+          jupyter nbconvert --to notebook --execute \
+            --ExecutePreprocessor.timeout=600 \
+            --ExecutePreprocessor.kernel_name=python3 \
+            --output executed_demo.ipynb \
+            cd_pde_demo.ipynb
+          echo "✓ Notebook executed successfully"
+      
+      - name: Validate notebook outputs
+        run: |
+          echo "Validating notebook produces expected outputs..."
+          python -c "
+          import json
+          
+          with open('notebooks/executed_demo.ipynb') as f:
+              nb = json.load(f)
+          
+          # Count cells with outputs
+          output_cells = sum(1 for cell in nb['cells'] 
+                            if cell['cell_type'] == 'code' and cell.get('outputs'))
+          
+          # Count figure outputs
+          figure_outputs = sum(1 for cell in nb['cells']
+                              if cell['cell_type'] == 'code'
+                              for output in cell.get('outputs', [])
+                              if output.get('output_type') == 'display_data')
+          
+          print(f'Code cells with outputs: {output_cells}')
+          print(f'Figure outputs: {figure_outputs}')
+          
+          if output_cells < 10:
+              print('WARNING: Fewer outputs than expected')
+              exit(1)
+          
+          print('✓ Notebook outputs validated')
+          "
+      
+      - name: Upload executed notebook
+        uses: actions/upload-artifact@v4
+        with:
+          name: executed-notebook
+          path: notebooks/executed_demo.ipynb
+          retention-days: 7
+
+  notebook-lint:
+    name: Notebook Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install linters
+        run: pip install nbqa ruff
+      
+      - name: Check notebook code quality
+        run: |
+          echo "Checking notebook code quality..."
+          nbqa ruff notebooks/cd_pde_demo.ipynb --ignore E501,E402 || true
+          echo "✓ Notebook lint complete (warnings shown above)"

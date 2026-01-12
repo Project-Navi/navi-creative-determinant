@@ -1,0 +1,88 @@
+name: Bug Report
+description: Report a bug in the Creative Determinant framework
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the sections below.
+        
+        **Before submitting**, please check:
+        - [ ] I've searched existing issues to make sure this isn't a duplicate
+        - [ ] I've read the [FAQ](docs/FAQ.md)
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear description of what the bug is.
+      placeholder: "When I run solve_1d_picard with parameters X, Y, Z, I get..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Minimal code to reproduce the issue.
+      placeholder: |
+        ```python
+        from cd import solve_1d_picard
+        x, Phi, info = solve_1d_picard(...)
+        # Expected: ...
+        # Actual: ...
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Bug Category
+      options:
+        - Numerical/Mathematical (wrong results)
+        - Convergence (solver doesn't converge)
+        - Performance (too slow, memory issues)
+        - API/Interface (unexpected behavior)
+        - Documentation (incorrect docs)
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version
+      placeholder: "3.12.0"
+    validations:
+      required: true
+
+  - type: input
+    id: package-versions
+    attributes:
+      label: Package Versions
+      description: Output of `pip freeze | grep -E 'numpy|scipy|creative-determinant'`
+      placeholder: "numpy==1.26.0, scipy==1.12.0"
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem.

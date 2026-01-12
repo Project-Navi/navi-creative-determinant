@@ -1,0 +1,95 @@
+# Figure Validation CI
+#
+# Validates that figure generation script works and produces expected outputs.
+# Figures are the visual evidence for the framework's claims.
+
+name: Figure Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'figures/**'
+      - 'src/**'
+      - '.github/workflows/figures.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'figures/**'
+      - 'src/**'
+  workflow_dispatch:
+
+jobs:
+  regenerate-figures:
+    name: Regenerate Figures
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+      
+      - name: Regenerate figures
+        run: |
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "  FIGURE REGENERATION"
+          echo "═══════════════════════════════════════════════════════════════"
+          cd figures
+          python generate_figures.py
+      
+      - name: Verify figure outputs
+        run: |
+          echo "Verifying generated figures..."
+          
+          expected_figures=(
+            "fig1_eigenvalue_threshold.png"
+            "fig1_eigenvalue_threshold.pdf"
+            "fig2_threshold_comparison.png"
+            "fig2_threshold_comparison.pdf"
+            "fig3_canonical_closure_sweep.png"
+            "fig3_canonical_closure_sweep.pdf"
+            "fig4_2d_presence_field.png"
+            "fig4_2d_presence_field.pdf"
+            "fig5_grid_refinement.png"
+            "fig5_grid_refinement.pdf"
+            "fig6_field_decomposition.png"
+            "fig6_field_decomposition.pdf"
+            "fig7_2d_phase_transition.png"
+            "fig7_2d_phase_transition.pdf"
+          )
+          
+          missing=0
+          for fig in "${expected_figures[@]}"; do
+            if [[ -f "figures/$fig" ]]; then
+              size=$(stat -f%z "figures/$fig" 2>/dev/null || stat -c%s "figures/$fig")
+              echo "  ✓ $fig (${size} bytes)"
+            else
+              echo "  ✗ $fig (MISSING)"
+              missing=$((missing + 1))
+            fi
+          done
+          
+          if [[ $missing -gt 0 ]]; then
+            echo ""
+            echo "ERROR: $missing figures missing!"
+            exit 1
+          fi
+          
+          echo ""
+          echo "✓ All figures generated successfully"
+      
+      - name: Upload regenerated figures
+        uses: actions/upload-artifact@v4
+        with:
+          name: regenerated-figures
+          path: figures/*.png
+          retention-days: 7

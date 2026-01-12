@@ -1,0 +1,12 @@
+# Creative Determinant - Core Dependencies
+# Install with: pip install -r requirements.txt
+
+numpy>=1.24.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+
+# Optional: for running tests
+pytest>=7.0.0
+
+# Optional: for running notebooks
+jupyter>=1.0.0

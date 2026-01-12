@@ -1,0 +1,79 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "creative-determinant"
+version = "0.1.0"
+description = "A field theory of coherence and meaning: nonlinear elliptic PDEs for presence emergence"
+readme = "README.md"
+license = {file = "LICENSE.md"}
+authors = [
+    {name = "Nelson Spence", email = "nelson@projectnavi.ai"}
+]
+maintainers = [
+    {name = "Nelson Spence", email = "nelson@projectnavi.ai"}
+]
+keywords = [
+    "coherence",
+    "viability",
+    "elliptic-pde",
+    "enactivism",
+    "semiotics",
+    "ai-safety",
+    "cognitive-science",
+    "dynamical-systems"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "matplotlib>=3.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "jupyter>=1.0.0",
+    "nbconvert>=7.0.0",
+]
+docs = [
+    "sphinx>=6.0.0",
+    "sphinx-rtd-theme>=1.2.0",
+]
+
+[project.urls]
+Homepage = "https://projectnavi.ai"
+Documentation = "https://github.com/Project-Navi/navi-creative-determinant"
+Repository = "https://github.com/Project-Navi/navi-creative-determinant"
+Issues = "https://github.com/Project-Navi/navi-creative-determinant/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cd"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+ignore = ["E501"]  # Line length handled separately
