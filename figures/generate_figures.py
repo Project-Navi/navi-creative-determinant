@@ -356,7 +356,7 @@ def fig4_2d_presence_field():
 
     print(f"  Parameters: b0={b0:.3f}, lam={lam}, beta={beta:.2f}, b_min={b.min():.3f}, b_max={b.max():.3f}")
 
-    Xg, Yg, Phi, info, (hx, hy) = solve_V1prime_2d_picard(Lx, Ly, Nx, Ny, a, beta_b, c, p=p, damping=0.6, tol=1e-8)
+    Xg, Yg, Phi, info, _ = solve_V1prime_2d_picard(Lx, Ly, Nx, Ny, a, beta_b, c, p=p, damping=0.6, tol=1e-8)
     print(f"  2D solve completed: {info}")
 
     fig, axs = plt.subplots(1, 2, figsize=(12, 5))
@@ -372,7 +372,7 @@ def fig4_2d_presence_field():
     # Right: Presence field with contours
     im1 = axs[1].imshow(Phi, origin="lower", extent=[0, Lx, 0, Ly], cmap="viridis")
     if Phi.max() > 1e-6:  # Only add contours if there's actual structure
-        contours = axs[1].contour(Xg, Yg, Phi, levels=10, colors="white", linewidths=0.8, alpha=0.7)
+        axs[1].contour(Xg, Yg, Phi, levels=10, colors="white", linewidths=0.8, alpha=0.7)
     axs[1].set_title(r"Presence Field $\Phi(x,y)$ — V1′ Equilibrium", fontsize=13)
     axs[1].set_xlabel("$x$", fontsize=12)
     axs[1].set_ylabel("$y$", fontsize=12)
