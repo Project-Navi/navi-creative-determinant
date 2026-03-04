@@ -51,7 +51,8 @@ jupyter notebook notebooks/cd_pde_demo.ipynb
 
 ## What's in This Repository
 
-- **[`spence_creative_determinant_2026.pdf`](paper/spence_creative_determinant_2026.pdf)**: The core paper, presenting the mathematical framework, interpretive layer, and operational proposals.
+- **[`creative_determinant.pdf`](paper/creative_determinant.pdf)**: The core paper, presenting the mathematical framework, interpretive layer, and operational proposals.
+- **[`CdFormal_aristotle.lean`](paper/CdFormal_aristotle.lean)**: Machine-verified Lean 4 formalization of the boundary value problem (BVP) — including the semiotic manifold, viability closure, PDE operators, and weak coherent configuration. The existence and stability theorems (Theorems 3.11, 3.12) are not yet machine-verified.
 - **[`cd_pde_demo.ipynb`](notebooks/cd_pde_demo.ipynb)**: Jupyter notebook with numerical demonstrations of viability thresholds, equilibrium emergence, and canonical closure in 1D, 2D, and 3D.
 - **[ROADMAP.md](docs/ROADMAP.md)**: Research directions and open questions—invitations for others to contribute.
 - **[CONTRIBUTING.md](CONTRIBUTING.md)**: How to participate, extend, or challenge the framework.

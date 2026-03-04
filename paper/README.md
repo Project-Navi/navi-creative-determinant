@@ -4,7 +4,7 @@ The core theoretical paper for the Creative Determinant framework.
 
 ## Contents
 
-**spence_creative_determinant_2026.pdf** — *On the Existence and Stability of Recursive Semiotic Fields: A Formalization of the Creative Determinant*
+**creative_determinant.pdf** — *On the Existence and Stability of Recursive Semiotic Fields: A Formalization of the Creative Determinant*
 
 ## Structure
 

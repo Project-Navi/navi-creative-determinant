@@ -104,7 +104,7 @@ If you are contributing substantial original content (e.g., a new theorem, a maj
 
 - **[OPEN_PROBLEMS.md](docs/OPEN_PROBLEMS.md)**: Explicit theoretical gaps where contributions are needed
 - **[ROADMAP.md](docs/ROADMAP.md)**: Research directions and proposed experiments
-- **[The Paper](paper/spence_creative_determinant_2026.pdf)**: Full theoretical treatment
+- **[The Paper](paper/creative_determinant.pdf)**: Full theoretical treatment
 - **[Jupyter Notebook](notebooks/cd_pde_demo.ipynb)**: Numerical demonstrations to extend
 
 ---

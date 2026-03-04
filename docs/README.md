@@ -18,7 +18,7 @@ Supplementary documentation for the Creative Determinant framework.
 ### If you're new to CD:
 1. [CONCEPTUAL_PRIMER.md](CONCEPTUAL_PRIMER.md) — Get the intuition
 2. [FAQ.md](FAQ.md) — Clear up confusion
-3. [The Paper](../paper/spence_creative_determinant_2026.pdf) — Go deeper
+3. [The Paper](../paper/creative_determinant.pdf) — Go deeper
 
 ### If you want to contribute:
 1. [ROADMAP.md](ROADMAP.md) — See what's needed

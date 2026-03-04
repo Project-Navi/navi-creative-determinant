@@ -157,7 +157,7 @@ The framework's final lesson is its most profound:
 
 For the mathematical formalization and computational demonstrations, see the companion materials in this repository:
 
-- **[The Paper](../paper/spence_creative_determinant_2026.pdf)** — Full theoretical treatment with proofs and existence theorems
+- **[The Paper](../paper/creative_determinant.pdf)** — Full theoretical treatment with proofs and existence theorems
 - **[Jupyter Notebook](../notebooks/cd_pde_demo.ipynb)** — Numerical demonstrations you can run and modify
 - **[Open Problems](OPEN_PROBLEMS.md)** — Specific research questions where contributions are needed
 - **[Contributing Guide](../CONTRIBUTING.md)** — How to get involved
