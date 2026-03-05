@@ -23,7 +23,7 @@ The goal is a cognitive theory that is **not three separate things, but one inte
 - [Core Concepts](#core-concepts-30-second-version)
 - [Citation](#citation)
 - [Get Involved](#get-involved)
-- [License and Ethical Use](#license-and-ethical-use)
+- [License](#license)
 - [Contact](#contact)
 
 ---
@@ -146,40 +146,6 @@ Austin, Texas
 
 **I've carried this as far as I could alone. African wisdom provides our community principle, "If you want to go fast, go alone. If you want to go far, go together." Let's go far.**
 
-## License and Ethical Use
+## License
 
-The Creative Determinant framework is licensed under **[Apache 2.0](LICENSE.md)** to maximize accessibility for research, education, and innovation.
-
-### Why Apache 2.0?
-
-We want this framework to be freely usable by:
-- Academic researchers exploring cognitive science, AI interpretability, or formal theories of meaning
-- AI safety organizations testing new approaches to coherence and alignment
-- Independent researchers and students learning at the intersection of math, philosophy, and computation
-
-Apache 2.0 allows you to use, modify, and build upon this work—even commercially—with minimal restrictions. You must preserve copyright notices and include the LICENSE file, but you are not required to release your modifications or derivatives.
-
-### Ethical Covenant (Voluntary)
-
-While the license grants you broad rights, we invite you to honor the **[Ethical Covenant](docs/ETHICAL_COVENANT.md)**—a voluntary commitment to:
-- Use CD responsibly in systems that affect people
-- Be intellectually honest about what CD does and doesn't prove
-- Contribute back to the research community where feasible
-- Consider humanitarian alignment if your work generates commercial value
-
-**This invitation is voluntary.** It cannot be enforced legally. Its power comes from community norms and scholarly integrity.
-
-### Commercial Services
-
-For organizations seeking:
-- Support and co-development (help instantiating CD on your systems)
-- Ethical assurance agreements (formal commitments to responsible use)
-- IP indemnity or custom extensions
-
-Contact: nelson@projectnavi.ai
-
-Such agreements are available under our standard PNEUL-D dual-license structure but are **not required** to use this framework.
-
----
-
-**The goal is simple: let knowledge flourish through collective engagement, not extraction.**
+Copyright 2026 Nelson Spence. Licensed under [Apache 2.0](LICENSE.md).
