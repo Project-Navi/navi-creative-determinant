@@ -9,7 +9,7 @@ import numpy as np
 from scipy.sparse import diags, eye, kron
 
 
-def laplacian_1d_dirichlet(N: int, L: float) -> tuple[np.ndarray, float]:
+def laplacian_1d_dirichlet(N: int, L: float) -> tuple["scipy.sparse.csr_matrix", float]:
     """
     Construct sparse matrix for -d²/dx² on (0, L) with Dirichlet BC.
 
@@ -50,7 +50,7 @@ def laplacian_1d_dirichlet(N: int, L: float) -> tuple[np.ndarray, float]:
 
 def laplacian_2d_dirichlet(
     Nx: int, Ny: int, Lx: float, Ly: float
-) -> tuple[np.ndarray, float, float]:
+) -> tuple["scipy.sparse.csr_matrix", float, float]:
     """
     Construct sparse matrix for -Δ on (0,Lx) × (0,Ly) with Dirichlet BC.
 

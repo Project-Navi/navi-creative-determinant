@@ -93,6 +93,8 @@ def solve_1d_picard(
         return np.abs(d)
 
     converged = False
+    err = float("inf")
+    it = 0
     for it in range(max_iter):
         # Build full array with BCs
         Phi_full = np.zeros(N + 2)
@@ -210,6 +212,8 @@ def solve_2d_picard(
         return np.sqrt(Phi_x**2 + Phi_y**2).flatten()
 
     converged = False
+    err = float("inf")
+    it = 0
     for it in range(max_iter):
         # Build full array
         Phi_full = np.zeros((Ny + 2, Nx + 2))

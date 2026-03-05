@@ -139,10 +139,15 @@ def presence_statistics(Phi: np.ndarray, x: np.ndarray) -> dict:
     Phi_int = Phi.ravel()[Phi.ravel() > 0]
     max_phi = float(Phi.max())
 
+    # Use actual grid spacing if x is provided
+    if x is not None and len(x) > 1:
+        dx = float(x.ravel()[1] - x.ravel()[0])
+    else:
+        dx = 1.0
     stats = {
         "max": max_phi,
         "mean": float(Phi_int.mean()) if len(Phi_int) > 0 else 0.0,
-        "total": float(np.trapezoid(Phi.ravel(), dx=1.0)),
+        "total": float(np.trapezoid(Phi.ravel(), dx=dx)),
     }
 
     if max_phi > 1e-10:

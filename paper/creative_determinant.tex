@@ -30,8 +30,9 @@
 \newcommand{\abs}[1]{\left\lvert #1\right\rvert}
 \newcommand{\ip}[2]{\left\langle #1,#2\right\rangle}
 
-\title{On the Existence and Stability of Recursive Semiotic Fields:\\
-A Formalization of the Creative Determinant}
+\title{The Creative Determinant: Autopoietic Closure as a\\
+Nonlinear Elliptic Boundary Value Problem\\
+with Lean~4-Verified Existence Conditions}
 \author{Nelson Spence\\
 Project Navi LLC, Austin, Texas\\
 \texttt{nelson@projectnavi.ai}}
@@ -41,17 +42,21 @@ Project Navi LLC, Austin, Texas\\
 \maketitle
 
 \begin{abstract}
-We introduce the \emph{Creative Determinant} (CD), a recursive field formalism intended to characterize systems that exhibit coupled coherence--exploration behavior. The central question is: \emph{when can coherent presence sustain itself?} Mathematically, we work on a compact Riemannian manifold \(M\) (the \emph{semiotic manifold}) and study a nonlinear elliptic boundary value problem (BVP) with logistic saturation,
+We present a formal mathematical realization of autopoietic closure in the sense of Maturana and Varela~\cite{MaturanaVarela1980}, expressed as a nonlinear elliptic boundary value problem on a compact Riemannian manifold.
+The \emph{Creative Determinant} (CD) framework asks: \emph{when can coherent presence sustain itself?}
+On a compact Riemannian manifold \(M\) (the \emph{semiotic manifold}), we study the BVP with logistic saturation,
 \[
 -\Delta \Phi = a(x)\,\abs{\nabla \Phi} + b(x)\,\Phi - c(x)\,\Phi^p\quad\text{in }M,\qquad \Phi=0\quad\text{on }\partial M,
 \]
-where \(a(x)=\kappa(x)\gamma(x)\mu(x)\in[0,1]\) encodes the \emph{creative drive} (care \(\times\) coherence \(\times\) contradiction---gradient activity contributes to presence only where all three fields jointly support it), \(b(x)\) is the \emph{viability potential} (autopoietic support minus dissolution, with canonical closure \(b=\kappa\gamma - \lambda\mu\)), and \(c(x)\Phi^p\) enforces \emph{carrying capacity} (finite-resource constraint).
-We establish existence of \emph{weak coherent configurations} using Schaefer's fixed-point theorem (Leray--Schauder continuation) with explicit a priori bounds, and prove a nontriviality theorem: when \(\lambda_1(-\Delta - b; M) < 0\)---that is, when \emph{viability exceeds dissipation}---the BVP admits a positive solution and coherent presence can be self-maintained.
-Beyond the PDE core, we present an interpretive layer distinguishing weak from strong coherence (a distinction we treat not as a limitation but as the framework's central generative tension), formulate conditional geometric statements (a conservation law for a blessing--contradiction 1-form under an equilibrium ansatz; a care-weighted homotopy/energy principle), and propose an operational \emph{Creative Determinant condition} \(CD(\alpha,\varepsilon,\delta)\) linking coherence observables to Jacobian volume deformation.
+where \(a(x)=\kappa(x)\gamma(x)\mu(x)\in[0,1]\) encodes the \emph{creative drive} (care \(\times\) coherence \(\times\) contradiction), \(b(x)\) is the \emph{viability potential} (autopoietic support minus dissolution, with canonical closure \(b=\kappa\gamma - \lambda\mu\)), and \(c(x)\Phi^p\) enforces \emph{carrying capacity}.
+The principal eigenvalue condition \(\lambda_1(-\Delta - b; M) < 0\) provides an exact, computable threshold for the emergence of self-sustaining coherent configurations---formalizing, for the first time, the transition from incoherence to autopoietic organization.
+We establish existence of \emph{weak coherent configurations} via Schaefer's fixed-point theorem with explicit a priori bounds, and prove a nontriviality theorem: when viability exceeds dissipation, the BVP admits a positive solution and coherent presence can be self-maintained.
+Beyond the PDE core, we distinguish weak from strong coherence (a gap we treat as the framework's central generative tension), formulate conditional geometric statements, and propose an operational \emph{Creative Determinant condition} \(CD(\alpha,\varepsilon,\delta)\) with five explicit falsifiability criteria.
+Core definitions---the semiotic manifold, viability closure, PDE operators, and boundary value problem structure---together with the spectral characterization theorem are machine-verified in Lean~4 against the Mathlib library; numerical validation confirms \(O(h^2)\) convergence across grid resolutions. All proofs, computations, and verification artifacts are open source.
 \end{abstract}
 
 \paragraph{Keywords.}
-dynamical systems; fixed-point theorems; elliptic PDE; homotopy; topological invariants; autopoiesis; enactivism; AI measurement.
+autopoiesis; elliptic PDE; formal verification; Lean~4; fixed-point theorems; enactivism; dynamical systems; AI measurement.
 
 \paragraph{MSC 2020.}
 37C25; 47H10; 35J60; 55P99.
@@ -81,6 +86,9 @@ This gap is not a limitation---it is the \emph{core philosophical commitment}. R
 \item \textbf{Nontriviality (Theorem~\ref{thm:nontrivialV1prime}):} When the viability threshold is exceeded (\(\lambda_1(-\Delta - b; M) < 0\)), there exists a positive solution---coherent presence can be self-maintained.
 \item \textbf{Canonical viability closure (Definition~\ref{def:canonicalClosure}):} The viability potential \(b = \kappa\gamma - \lambda\mu\) provides a principled link between the PDE coefficient and the CD characteristic fields.
 \end{enumerate}
+
+\subsection*{Formal verification}
+The mathematical foundations of this framework are machine-verified using the Lean~4 theorem prover with the Mathlib library. The formalization covers the semiotic manifold structure, coefficient bounds, the Laplace--Beltrami and gradient-norm operators, the full boundary value problem~\eqref{eq:mainBVP}, and the definition of weak coherent configurations. The spectral characterization theorem---that \(\beta > (\pi/L)^2/b\) implies \(\lambda_1 < 0\)---and a scaling algebraic lemma used in uniqueness arguments are proved in Lean~4 without \texttt{sorry} axioms. The existence theorems (Theorems~\ref{thm:existenceV1prime} and~\ref{thm:nontrivialV1prime}) are proved in Lean conditional on a \texttt{PdeInfra} typeclass that axiomatizes the classical PDE infrastructure (Schaefer fixed point, Schauder estimates, maximum principle, sub-/super-solution theory); these results are not yet available in Mathlib for abstract Riemannian manifolds. The axiom boundary is explicit: each assumption corresponds to a named classical result, and the \texttt{\#print axioms} command in the verification module confirms that no \texttt{sorry} axioms appear. Numerical validation with \(O(h^2)\) grid convergence supplements the formal proofs. All Lean source files, continuous integration pipelines, and computational artifacts are available at \url{https://github.com/Project-Navi/navi-creative-determinant}.
 
 \subsection*{Main mathematical object and scope}
 The primary analytic object is the Dirichlet BVP with logistic saturation
@@ -287,22 +295,26 @@ Assume \ref{assump:bupper}. Then \(\mathcal{S}\) is bounded in \(X=C^{1,\alpha}\
 
 \begin{proof}
 Let \(u\in\mathcal{S}\) solve \eqref{eq:schaeferEq}. By Lemma \ref{lem:LinftyBound}, \(\|u\|_{L^\infty}\le K\).
-We estimate the forcing in \(C^{0,\alpha}\):
+Write the forcing as
 \[
 f_u := \tau\Big(a|\nabla u| + b\,u - c\,(u_+)^p\Big).
 \]
-The terms \(b\,u\) and \(c(u_+)^p\) are bounded in \(C^{0,\alpha}\) in terms of \(\|b\|_{C^{0,\alpha}},\|c\|_{C^{0,\alpha}}\) and \(\|u\|_{C^{0,\alpha}}\le K\).
-The remaining term \(a|\nabla u|\) is bounded in \(C^0\) by \(\|\nabla u\|_{C^0}\).
-Using standard elliptic regularity in H\"older spaces (Schauder estimates; \cite[Ch.~6]{Evans2010}) in the form
+The zero-order terms \(b\,u\) and \(c(u_+)^p\) are bounded in \(C^{0,\alpha}\) by a constant depending only on \(\|b\|_{C^{0,\alpha}},\|c\|_{C^{0,\alpha}}\) and \(K\).
+For the gradient term, apply the Schauder interior estimates~\cite[Thm.~6.6]{GilbargTrudinger2001}:
 \[
-\|u\|_{C^{2,\alpha}} \le C\Big(\|f_u\|_{C^{0,\alpha}} + \|u\|_{C^0}\Big),
+\|u\|_{C^{2,\alpha}} \le C_1\Big(\|f_u\|_{C^{0,\alpha}} + \|u\|_{C^0}\Big).
 \]
-and the interpolation inequality \(\|\nabla u\|_{C^0}\le C_\ast \|u\|_{C^{2,\alpha}}\),
-one can absorb the gradient term and obtain a bound
+The term \(\|a|\nabla u|\|_{C^{0,\alpha}}\) appearing in \(\|f_u\|_{C^{0,\alpha}}\) is controlled by
+\(\|a\|_{C^{0,\alpha}}\|\nabla u\|_{C^{0,\alpha}}\).
+Now apply the interpolation inequality~\cite[Lemma~6.32]{GilbargTrudinger2001}: for any \(\varepsilon>0\),
 \[
-\|u\|_{C^{2,\alpha}} \le C'\Big(1 + \|u\|_{C^0}\Big) \le C''.
+\|\nabla u\|_{C^{0,\alpha}} \le \varepsilon\,\|u\|_{C^{2,\alpha}} + C(\varepsilon)\,\|u\|_{C^0}.
 \]
-Consequently \(\|u\|_{C^{1,\alpha}}\) is uniformly bounded.
+Substituting and choosing \(\varepsilon>0\) small enough that \(C_1\|a\|_{C^{0,\alpha}}\varepsilon < \tfrac{1}{2}\), we absorb the \(\|u\|_{C^{2,\alpha}}\) term from the right-hand side:
+\[
+\|u\|_{C^{2,\alpha}} \le C_2\Big(1 + \|u\|_{C^0}\Big) \le C_2(1+K).
+\]
+Consequently \(\|u\|_{C^{1,\alpha}}\le \|u\|_{C^{2,\alpha}}\) is uniformly bounded.
 \end{proof}
 
 \begin{theorem}[Existence of weak coherent configurations for \eqref{eq:V1prime}]\label{thm:existenceV1prime}
@@ -403,31 +415,29 @@ since \(a|\nabla\phi_1|\ge 0\). Thus \(\underline{\Phi}\) is a sub-solution.
 Also \(\underline{\Phi}=0\) on \(\partial M\).
 
 \paragraph{Step 2: Dirichlet-compatible super-solution.}
-Let \(\psi\in C^{2,\alpha}(M)\cap C^0(\overline M)\) be the unique solution of
+Define \(\overline{\Phi}:=K\phi_1^2\) with \(K>0\) to be chosen.
+Since \(\phi_1=0\) on \(\partial M\), we have \(\overline{\Phi}=0\) on \(\partial M\) and \(\overline{\Phi}>0\) in \(M^\circ\).
+Computing the Laplacian using the product rule and the eigenequation \eqref{eq:eigRewrite}:
 \[
--\Delta\psi = 1 \ \text{in }M,\qquad \psi=0\ \text{on }\partial M.
+-\Delta(\phi_1^2) = 2|\nabla\phi_1|^2 + 2\phi_1(-\Delta\phi_1) = 2|\nabla\phi_1|^2 + 2(b-\beta)\phi_1^2.
 \]
-By the maximum principle, \(\psi>0\) in \(M^\circ\).
-Define \(\overline{\Phi}:=K\psi\) with \(K>0\) to be chosen. Then
-\[
--\Delta\overline{\Phi} = K.
-\]
-We require \(\overline{\Phi}\) to satisfy
-\[
-K \ge a|K\nabla\psi| + b(K\psi) - c(K\psi)^p
-= K a|\nabla\psi| + K b\psi - cK^p\psi^p.
-\]
-Divide by \(K>0\):
-\[
-1 \ge a|\nabla\psi| + b\psi - cK^{p-1}\psi^p.
-\]
-Since \(\psi\) and \(\nabla\psi\) are continuous on \(\overline M\), the terms \(a|\nabla\psi| + b\psi\) are bounded above by some constant \(C_\psi\).
-Choose \(K\) large enough that for all \(x\in M\),
-\[
-c_0 K^{p-1}\psi(x)^p \ge a(x)|\nabla\psi(x)| + b(x)\psi(x) - 1,
-\]
-which is possible because the left-hand side grows like \(K^{p-1}\) and the right-hand side is \(K\)-independent.
-Then \(\overline{\Phi}=K\psi\) is a super-solution and \(\overline{\Phi}=0\) on \(\partial M\).
+Thus \(-\Delta\overline{\Phi} = K\big(2|\nabla\phi_1|^2 + 2(b-\beta)\phi_1^2\big)\).
+The super-solution condition \(-\Delta\overline{\Phi}\ge a|\nabla\overline{\Phi}| + b\overline{\Phi} - c(\overline{\Phi})^p\) reads, after dividing by \(K>0\):
+\begin{equation}\label{eq:supersol_ineq}
+2|\nabla\phi_1|^2 + 2(b-\beta)\phi_1^2 \ge 2a\phi_1|\nabla\phi_1| + b\phi_1^2 - cK^{p-1}\phi_1^{2p}.
+\end{equation}
+We verify \eqref{eq:supersol_ineq} in two regions.
+
+\emph{Near the boundary} (\(\phi_1<\delta\)):
+The dominant terms on the left are \(2|\nabla\phi_1|^2\), while on the right the leading term is \(2a\phi_1|\nabla\phi_1|\).
+By the Hopf lemma, \(|\nabla\phi_1|\ge c_H>0\) in a collar neighborhood of \(\partial M\), while \(\phi_1\to 0\).
+Hence for \(\delta\) small enough, \(2|\nabla\phi_1|^2 \ge 2a\phi_1|\nabla\phi_1|\) (since \(a\le 1\) and \(\phi_1<\delta\ll |\nabla\phi_1|\)), and the remaining terms are controlled.
+
+\emph{In the interior} (\(\phi_1\ge\delta\)):
+The saturation term \(cK^{p-1}\phi_1^{2p}\ge c_0 K^{p-1}\delta^{2p}\) grows without bound as \(K\to\infty\), while the other terms are \(K\)-independent and bounded on the compact set \(\{\phi_1\ge\delta\}\).
+Choose \(K\) large enough that this term absorbs all others.
+
+Combining, \(\overline{\Phi}=K\phi_1^2\) is a super-solution for \(K\) sufficiently large.
 
 \paragraph{Step 3: ordering and conclusion.}
 By construction, \(\underline{\Phi}=\varepsilon\phi_1\ge 0\) and \(\overline{\Phi}=K\psi\ge 0\).

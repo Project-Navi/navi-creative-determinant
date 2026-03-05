@@ -1,0 +1,3 @@
+[submodule "cd_formalization"]
+	path = cd_formalization
+	url = https://github.com/Project-Navi/cd-formalization.git
