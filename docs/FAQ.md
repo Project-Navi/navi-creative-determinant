@@ -89,7 +89,7 @@ CD is intended for:
 
 Open an issue tagged `question` or contact:
 
-Nelson Spence  
+Nelson Spence
 nelson@projectnavi.ai
 
 ---

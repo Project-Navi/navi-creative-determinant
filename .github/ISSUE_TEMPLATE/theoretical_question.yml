@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Welcome! This framework sits at the intersection of PDEs, cognitive science, and philosophy. We encourage thoughtful questions about any aspect.
-        
+
         **Note:** This is for genuine inquiry. For challenges to the framework's claims, please see [OPEN_PROBLEMS.md](docs/OPEN_PROBLEMS.md) first.
 
   - type: dropdown
@@ -31,7 +31,7 @@ body:
       description: What would you like to understand better?
       placeholder: |
         I'm trying to understand how the viability threshold relates to...
-        
+
         The paper mentions X, but I'm confused about how it connects to Y...
     validations:
       required: true

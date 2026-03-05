@@ -200,7 +200,7 @@ def fig1_eigenvalue_threshold():
     ax.plot(beta_values, lam_ana, "-", linewidth=2, label=r"Analytic: $\lambda_1 = (\pi/L)^2 - \beta b$")
     ax.axhline(0.0, color="k", linewidth=1)
     ax.axvline(beta_star, color="r", linestyle="--", linewidth=1.5, label=rf"$\beta^* = {beta_star:.2f}$")
-    
+
     # Shade regions
     ax.fill_between(beta_values, lam_ana, 0, where=(lam_ana > 0), alpha=0.15, color="blue", label="Subcritical (no emergence)")
     ax.fill_between(beta_values, lam_ana, 0, where=(lam_ana < 0), alpha=0.15, color="green", label="Supercritical (emergence)")
@@ -211,7 +211,7 @@ def fig1_eigenvalue_threshold():
     ax.legend(loc="upper right")
     ax.set_xlim(0, 30)
     ax.set_ylim(-15, 12)
-    
+
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / "fig1_eigenvalue_threshold.png", dpi=300, bbox_inches="tight")
     plt.savefig(OUTPUT_DIR / "fig1_eigenvalue_threshold.pdf", bbox_inches="tight")
@@ -241,13 +241,13 @@ def fig2_threshold_comparison():
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.plot(x1, Phi1, linewidth=2, color="steelblue", label=rf"Below threshold: $\beta = 0.8\beta^*$ (max = {Phi1.max():.2g})")
     ax.plot(x2, Phi2, linewidth=2, color="forestgreen", label=rf"Above threshold: $\beta = 1.2\beta^*$ (max = {Phi2.max():.3f})")
-    
+
     ax.set_xlabel(r"$x$", fontsize=12)
     ax.set_ylabel(r"$\Phi(x)$ (presence field)", fontsize=12)
     ax.set_title("Presence Emergence: Nontrivial Equilibrium Above Viability Threshold", fontsize=14)
     ax.legend(loc="upper right")
     ax.set_xlim(0, 1)
-    
+
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / "fig2_threshold_comparison.png", dpi=300, bbox_inches="tight")
     plt.savefig(OUTPUT_DIR / "fig2_threshold_comparison.pdf", bbox_inches="tight")
@@ -412,7 +412,7 @@ def fig5_grid_refinement():
     for Nn in Ns:
         xN, PhiN, infoN = solve_V1prime_1d_picard(L, Nn, a=a, beta_b=beta_above * b, c=c, p=p)
         max_vals.append(PhiN.max())
-        
+
         # Compute residual
         h = L / (Nn + 1)
         Phi_xx = (PhiN[2:] - 2 * PhiN[1:-1] + PhiN[:-2]) / h**2
@@ -420,7 +420,7 @@ def fig5_grid_refinement():
         res = -Phi_xx - (a * np.abs(Phi_x) + beta_above * b * PhiN[1:-1] - c * np.maximum(PhiN[1:-1], 0.0) ** p)
         rinf = float(np.linalg.norm(res, np.inf))
         residuals.append(rinf)
-        
+
         ax1.plot(xN, PhiN, linewidth=1.5, label=rf"$N={Nn}$")
 
     ax1.set_xlabel(r"$x$", fontsize=12)
@@ -433,7 +433,7 @@ def fig5_grid_refinement():
     ax2.set_xlabel("Grid points $N$", fontsize=12)
     ax2.set_ylabel(r"Residual $\|\mathcal{R}\|_\infty$", fontsize=12)
     ax2.set_title("Residual Decay (Second-Order Convergence)", fontsize=14)
-    
+
     # Add reference line for O(h²)
     h_ref = np.array(Ns)
     ax2.loglog(h_ref, 0.5 * (h_ref[0] / h_ref) ** (-2) * residuals[0], "r--", linewidth=1.5, label=r"$O(h^2)$ reference")

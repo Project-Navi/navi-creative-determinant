@@ -139,9 +139,9 @@ The math doesn't care who typed it. Clone the repo and verify.
 
 ## Contact
 
-Nelson Spence  
-Project Navi LLC  
-nelson@projectnavi.ai  
+Nelson Spence
+Project Navi LLC
+nelson@projectnavi.ai
 Austin, Texas
 
 **I've carried this as far as I could alone. African wisdom provides our community principle, "If you want to go fast, go alone. If you want to go far, go together." Let's go far.**

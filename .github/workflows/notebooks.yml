@@ -28,24 +28,24 @@ jobs:
   execute-notebooks:
     name: Execute Notebooks
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      
+
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
           cache: 'pip'
-      
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
           pip install nbconvert ipykernel
           python -m ipykernel install --user --name python3
-      
+
       - name: Execute notebook
         run: |
           echo "═══════════════════════════════════════════════════════════════"
@@ -58,36 +58,36 @@ jobs:
             --output executed_demo.ipynb \
             cd_pde_demo.ipynb
           echo "✓ Notebook executed successfully"
-      
+
       - name: Validate notebook outputs
         run: |
           echo "Validating notebook produces expected outputs..."
           python -c "
           import json
-          
+
           with open('notebooks/executed_demo.ipynb') as f:
               nb = json.load(f)
-          
+
           # Count cells with outputs
-          output_cells = sum(1 for cell in nb['cells'] 
+          output_cells = sum(1 for cell in nb['cells']
                             if cell['cell_type'] == 'code' and cell.get('outputs'))
-          
+
           # Count figure outputs
           figure_outputs = sum(1 for cell in nb['cells']
                               if cell['cell_type'] == 'code'
                               for output in cell.get('outputs', [])
                               if output.get('output_type') == 'display_data')
-          
+
           print(f'Code cells with outputs: {output_cells}')
           print(f'Figure outputs: {figure_outputs}')
-          
+
           if output_cells < 7:
               print('WARNING: Fewer outputs than expected')
               exit(1)
-          
+
           print('✓ Notebook outputs validated')
           "
-      
+
       - name: Upload executed notebook
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
@@ -98,19 +98,19 @@ jobs:
   notebook-lint:
     name: Notebook Quality Checks
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      
+
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
-      
+
       - name: Install linters
         run: pip install nbqa ruff
-      
+
       - name: Check notebook code quality
         run: |
           echo "Checking notebook code quality..."

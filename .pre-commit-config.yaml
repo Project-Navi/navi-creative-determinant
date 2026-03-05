@@ -1,0 +1,24 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+  - repo: https://github.com/lucas-c/pre-commit-hooks
+    rev: v1.5.5
+    hooks:
+      - id: insert-license
+        name: SPDX header (Python files)
+        files: \.py$
+        exclude: ^\.venv/|^cd_formalization/|^\.copyright-header
+        args:
+          - --license-filepath=.copyright-header.py
+          - --detect-license-in-X-top-lines=3
+      - id: insert-license
+        name: SPDX header (YAML workflow files)
+        files: \.ya?ml$
+        exclude: ^\.venv/|^cd_formalization/|^\.github/ISSUE_TEMPLATE/|^\.copyright-header|^\.pre-commit
+        args:
+          - --license-filepath=.copyright-header.yaml
+          - --detect-license-in-X-top-lines=3

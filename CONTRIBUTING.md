@@ -113,7 +113,7 @@ If you are contributing substantial original content (e.g., a new theorem, a maj
 
 Open an issue tagged `question` or contact:
 
-Nelson Spence  
+Nelson Spence
 nelson@projectnavi.ai
 
 ---

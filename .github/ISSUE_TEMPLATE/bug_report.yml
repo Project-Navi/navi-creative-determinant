@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Thanks for taking the time to report a bug! Please fill out the sections below.
-        
+
         **Before submitting**, please check:
         - [ ] I've searched existing issues to make sure this isn't a duplicate
         - [ ] I've read the [FAQ](docs/FAQ.md)
