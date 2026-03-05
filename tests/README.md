@@ -32,7 +32,7 @@ python tests/test_core.py
 
 These tests validate **mathematical correctness**, not implementation details:
 
-1. **Eigenvalue tests** verify the spectral theory (Theorem 3.12)
+1. **Eigenvalue tests** verify the spectral theory (Definition 3.13, Theorem 3.16)
 2. **Threshold tests** verify the bifurcation prediction
 3. **Residual tests** verify numerical accuracy
 4. **Convergence tests** verify solver reliability

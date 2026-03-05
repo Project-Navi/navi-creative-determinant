@@ -6,7 +6,7 @@ This document outlines open research directions stemming from the Creative Deter
 
 ## 1. Construct Semiotic Manifolds from Real Systems
 
-**Motivation**: The framework assumes a manifold \(M\) of meanings, but how do you extract \(M\) from a real neural network or cognitive system?
+**Motivation**: The framework assumes a manifold $M$ of meanings, but how do you extract $M$ from a real neural network or cognitive system?
 
 **What this involves**:
 - Techniques for dimensionality reduction or manifold learning (e.g., UMAP, diffusion maps, autoencoders) applied to activation spaces.
@@ -37,16 +37,16 @@ This document outlines open research directions stemming from the Creative Deter
 
 ## 3. Alternative Viability Closures
 
-**Motivation**: The canonical closure \(b = \eta - \lambda\,\mu\) is one choice. Are there others that fit different cognitive or computational contexts?
+**Motivation**: The canonical closure $b = κγ - λμ$ is one choice. Are there others that fit different cognitive or computational contexts?
 
 **What this involves**:
-- Propose alternative functional forms for \(b(x)\) (e.g., nonlinear couplings, multiplicative terms).
-- Analyze how viability thresholds \(\lambda_1^{(b)}\) change under these alternatives.
+- Propose alternative functional forms for $b(x)$ (e.g., nonlinear couplings, multiplicative terms).
+- Analyze how viability thresholds $λ_1^{(b)}$ change under these alternatives.
 - Numerical experiments: does changing the closure qualitatively alter bifurcation structure?
 
 **Technical prerequisites**: PDE theory, finite-difference or FEM solvers.
 
-**Starting point**: Try \(b = \eta\,e^{-\lambda\mu}\) or \(b = \eta - \lambda\mu^2\) in the 1D notebook and observe threshold shifts.
+**Starting point**: Try $b = κγ \cdot e^{-λμ}$ or $b = κγ - λμ^2$ in the 1D notebook and observe threshold shifts.
 
 ---
 
@@ -55,23 +55,23 @@ This document outlines open research directions stemming from the Creative Deter
 **Motivation**: The existence theorem guarantees at least one solution, but enactivist intuition suggests multiple "interpretive frames" might coexist. Are there regimes with multiple equilibria?
 
 **What this involves**:
-- Bifurcation analysis: vary parameters \(\beta, \lambda\) and look for saddle-node, pitchfork, or transcritical bifurcations.
+- Bifurcation analysis: vary parameters β, λ and look for saddle-node, pitchfork, or transcritical bifurcations.
 - Numerical experiments: initialize Picard iteration from different seeds and find distinct solutions.
 - Theoretical analysis: prove multiplicity using variational or topological methods.
 
 **Technical prerequisites**: Nonlinear analysis, bifurcation theory, numerical continuation.
 
-**Starting point**: Extend the 1D notebook to sweep \(\lambda\) more finely and check for hysteresis.
+**Starting point**: Extend the 1D notebook to sweep λ more finely and check for hysteresis.
 
 ---
 
 ## 5. Master Equation with Nonzero Forcing
 
-**Motivation**: The driven case \(f \neq 0\) (Remark 3.15) models systems receiving exogenous input. What does coherence look like under external driving?
+**Motivation**: The driven case $f ≠ 0$ (Remark 3.17) models systems receiving exogenous input. What does coherence look like under external driving?
 
 **What this involves**:
-- Formulate boundary-value or initial-value problems with \(f(x)\) representing external significance or environmental input.
-- Study how \(f\) perturbs equilibria or creates new stable patterns.
+- Formulate boundary-value or initial-value problems with $f(x)$ representing external significance or environmental input.
+- Study how $f$ perturbs equilibria or creates new stable patterns.
 - Interpretation: when does external input stabilize vs. destabilize coherence?
 
 **Technical prerequisites**: Elliptic/parabolic PDE theory, numerical time-stepping.
@@ -130,7 +130,7 @@ This document outlines open research directions stemming from the Creative Deter
 **Motivation**: Real cognition involves multiple modalities (vision, language, affect) and social interaction. Can CD scale to these?
 
 **What this involves**:
-- Vector-valued presence fields \(\mathbf{u}(x)\) with different components for modalities or agents.
+- Vector-valued presence fields $\mathbf{Φ}(x)$ with different components for modalities or agents.
 - Coupled PDEs on shared or overlapping manifolds.
 - Interpretation: multi-modal coherence as alignment across components; social meaning-making as coupled dynamics.
 
@@ -145,8 +145,8 @@ This document outlines open research directions stemming from the Creative Deter
 **Motivation**: Can CD formalize cognitive/psychiatric pathologies as breakdown regimes of coherence?
 
 **What this involves**:
-- Model depression as \(\theta \to 0\) (zero care everywhere).
-- Model schizophrenia as high \(\mu\) without resolution (contradictions persist).
+- Model depression as $κ → 0$ (zero care everywhere).
+- Model schizophrenia as high μ without resolution (contradictions persist).
 - Model OCD as failure of saturation (presence fields don't stabilize).
 
 **Technical prerequisites**: Conceptual modeling, clinical intuition, dynamical systems.

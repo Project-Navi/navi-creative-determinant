@@ -122,6 +122,36 @@ def gaussian_bump_2d(
     return amplitude * np.exp(-r2 / (2 * sigma**2))
 
 
+def gaussian_bump_1d(
+    x: np.ndarray,
+    center: float,
+    sigma: float,
+    amplitude: float = 1.0,
+) -> np.ndarray:
+    """
+    Create a 1D Gaussian bump field.
+
+    f(x) = amplitude * exp(-((x - center)^2) / (2 * sigma^2))
+
+    Parameters
+    ----------
+    x : ndarray
+        1D grid points.
+    center : float
+        Center of the bump.
+    sigma : float
+        Width (standard deviation).
+    amplitude : float, default=1.0
+        Peak value.
+
+    Returns
+    -------
+    field : ndarray
+        Gaussian bump (same shape as x).
+    """
+    return amplitude * np.exp(-((x - center) ** 2) / (2 * sigma**2))
+
+
 def constant_field(shape: tuple[int, ...], value: float) -> np.ndarray:
     """
     Create a constant field.

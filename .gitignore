@@ -31,7 +31,22 @@ build/
 .pytest_cache/
 .coverage
 htmlcov/
+coverage.xml
+
+# Linting / type checking caches
+.mypy_cache/
+.ruff_cache/
+*.egg
+.eggs/
 
 # Generated figures (optional - may want to commit key figures)
 # figures/*.png
 # figures/*.pdf
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.fdb_latexmk
+*.fls

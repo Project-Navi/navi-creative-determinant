@@ -1,0 +1,772 @@
+% !TEX program = pdflatex
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathrsfs}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+
+% ---------- Theorem environments ----------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newtheorem{heuristic}[theorem]{Heuristic Principle}
+
+% ---------- Macros ----------
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\lVert #1\right\rVert}
+\newcommand{\abs}[1]{\left\lvert #1\right\rvert}
+\newcommand{\ip}[2]{\left\langle #1,#2\right\rangle}
+
+\title{The Creative Determinant: Autopoietic Closure as a\\
+Nonlinear Elliptic Boundary Value Problem\\
+with Lean~4-Verified Existence Conditions}
+\author{Nelson Spence\\
+Project Navi LLC, Austin, Texas\\
+\texttt{nelson@projectnavi.ai}}
+\date{January 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present a formal mathematical realization of autopoietic closure in the sense of Maturana and Varela~\cite{MaturanaVarela1980}, expressed as a nonlinear elliptic boundary value problem on a compact Riemannian manifold.
+The \emph{Creative Determinant} (CD) framework asks: \emph{when can coherent presence sustain itself?}
+On a compact Riemannian manifold \(M\) (the \emph{semiotic manifold}), we study the BVP with logistic saturation,
+\[
+-\Delta \Phi = a(x)\,\abs{\nabla \Phi} + b(x)\,\Phi - c(x)\,\Phi^p\quad\text{in }M,\qquad \Phi=0\quad\text{on }\partial M,
+\]
+where \(a(x)=\kappa(x)\gamma(x)\mu(x)\in[0,1]\) encodes the \emph{creative drive} (care \(\times\) coherence \(\times\) contradiction), \(b(x)\) is the \emph{viability potential} (autopoietic support minus dissolution, with canonical closure \(b=\kappa\gamma - \lambda\mu\)), and \(c(x)\Phi^p\) enforces \emph{carrying capacity}.
+The principal eigenvalue condition \(\lambda_1(-\Delta - b; M) < 0\) provides an exact, computable threshold for the emergence of self-sustaining coherent configurations---formalizing, for the first time, the transition from incoherence to autopoietic organization.
+We establish existence of \emph{weak coherent configurations} via Schaefer's fixed-point theorem with explicit a priori bounds, and prove a nontriviality theorem: when viability exceeds dissipation, the BVP admits a positive solution and coherent presence can be self-maintained.
+Beyond the PDE core, we distinguish weak from strong coherence (a gap we treat as the framework's central generative tension), formulate conditional geometric statements, and propose an operational \emph{Creative Determinant condition} \(CD(\alpha,\varepsilon,\delta)\) with five explicit falsifiability criteria.
+Core definitions---the semiotic manifold, viability closure, PDE operators, and boundary value problem structure---together with the spectral characterization theorem are machine-verified in Lean~4 against the Mathlib library; numerical validation confirms \(O(h^2)\) convergence across grid resolutions. All proofs, computations, and verification artifacts are open source.
+\end{abstract}
+
+\paragraph{Keywords.}
+autopoiesis; elliptic PDE; formal verification; Lean~4; fixed-point theorems; enactivism; dynamical systems; AI measurement.
+
+\paragraph{MSC 2020.}
+37C25; 47H10; 35J60; 55P99.
+
+\section{Introduction (interdisciplinary orientation)}
+Symbolic and subsymbolic approaches to cognition and computation are often treated as fundamentally distinct: symbols as discrete tokens vs.\ patterns as distributed fields. This paper develops a synthesis in which ``symbolic'' structure is represented as a continuous field over a manifold of meanings. The resulting framework---the \emph{Creative Determinant} (CD)---formalizes the emergence and maintenance of coherent ``presence'' through the interaction of four ingredients:
+(i) gradient structure, (ii) care/adaptivity, (iii) coherence/consistency, and (iv) contradiction/curvature.
+
+The manuscript is structured intentionally for an interdisciplinary audience while maintaining a rigorous mathematical spine:
+\begin{itemize}[leftmargin=2em]
+\item \textbf{Mathematical core (Sections 2--3).} A nonlinear elliptic PDE with logistic saturation on a compact Riemannian manifold, with a complete existence proof using Schaefer/Leray--Schauder machinery, and a nontriviality theorem using eigenvalue thresholds and sub-/super-solution barriers.
+\item \textbf{Interpretive/structural layer (Section 4).} A careful distinction between weak (PDE) and strong (pointwise) coherence; conditional geometric statements framed as explicit ans\"atze rather than theorems about the PDE.
+\item \textbf{Operational layer (Section 5).} A testable dynamical-systems condition and empirical falsification protocols, stated as proposals rather than proved consequences.
+\end{itemize}
+
+\subsection*{The central generative tension}
+A defining feature of this framework is the \emph{necessary gap} between two notions of coherence:
+\begin{itemize}[leftmargin=2em]
+\item \textbf{Strong coherence}: the idealized pointwise constraint \(\Phi = |\nabla\Phi|\kappa\gamma\mu\).
+\item \textbf{Weak coherence}: solutions to the associated PDE~\eqref{eq:mainBVP}, which are mathematically tractable.
+\end{itemize}
+This gap is not a limitation---it is the \emph{core philosophical commitment}. Real systems do not achieve idealized coherence; they \emph{strive toward it} while settling into achievable configurations. The distance between strong and weak coherence represents the \emph{work of living}---the ongoing effort required to approach but never fully reach ideal integration. This aligns with enactivist insights~\cite{Thompson2007}: meaning is not a static state but an ongoing process of sense-making in the face of environmental perturbation.
+
+\subsection*{Main mathematical contributions}
+\begin{enumerate}[label=(\roman*)]
+\item \textbf{Existence (Theorem~\ref{thm:existenceV1prime}):} Under mild coefficient assumptions, the autonomous viability model with saturation admits at least one weak coherent configuration.
+\item \textbf{Nontriviality (Theorem~\ref{thm:nontrivialV1prime}):} When the viability threshold is exceeded (\(\lambda_1(-\Delta - b; M) < 0\)), there exists a positive solution---coherent presence can be self-maintained.
+\item \textbf{Canonical viability closure (Definition~\ref{def:canonicalClosure}):} The viability potential \(b = \kappa\gamma - \lambda\mu\) provides a principled link between the PDE coefficient and the CD characteristic fields.
+\end{enumerate}
+
+\subsection*{Formal verification}
+The mathematical foundations of this framework are machine-verified using the Lean~4 theorem prover with the Mathlib library. The formalization covers the semiotic manifold structure, coefficient bounds, the Laplace--Beltrami and gradient-norm operators, the full boundary value problem~\eqref{eq:mainBVP}, and the definition of weak coherent configurations. The spectral characterization theorem---that \(\beta > (\pi/L)^2/b\) implies \(\lambda_1 < 0\)---and a scaling algebraic lemma used in uniqueness arguments are proved in Lean~4 without \texttt{sorry} axioms. The existence theorems (Theorems~\ref{thm:existenceV1prime} and~\ref{thm:nontrivialV1prime}) are proved in Lean conditional on a \texttt{PdeInfra} typeclass that axiomatizes the classical PDE infrastructure (Schaefer fixed point, Schauder estimates, maximum principle, sub-/super-solution theory); these results are not yet available in Mathlib for abstract Riemannian manifolds. The axiom boundary is explicit: each assumption corresponds to a named classical result, and the \texttt{\#print axioms} command in the verification module confirms that no \texttt{sorry} axioms appear. Numerical validation with \(O(h^2)\) grid convergence supplements the formal proofs. All Lean source files, continuous integration pipelines, and computational artifacts are available at \url{https://github.com/Project-Navi/navi-creative-determinant}.
+
+\subsection*{Main mathematical object and scope}
+The primary analytic object is the Dirichlet BVP with logistic saturation
+\begin{equation}\label{eq:mainBVP}
+\begin{cases}
+-\Delta \Phi = a(x)\,\abs{\nabla \Phi} + b(x)\,\Phi - c(x)\,\Phi^p & \text{in } M,\\
+\Phi = 0 & \text{on } \partial M,
+\end{cases}
+\end{equation}
+where \(a(x):=\kappa(x)\gamma(x)\mu(x)\in[0,1]\), \(b\in C^{0,\alpha}(M)\), \(c(x)\ge c_0 > 0\), and \(p>1\).
+Solutions of \eqref{eq:mainBVP} are called \emph{weak coherent configurations}. The pointwise CD constraint
+\(\Phi=\abs{\nabla\Phi}\,\kappa\gamma\mu\) is treated as a constitutive idealization that motivates \eqref{eq:mainBVP}, but is not asserted equivalent; clarifying their relationship is an explicit open problem.
+
+\section{Mathematical setup}
+\subsection{Semiotic manifold and function spaces}
+\begin{definition}[Semiotic manifold]
+Let \((M,g)\) be a compact, connected, smooth Riemannian manifold of dimension \(n\ge 1\), possibly with smooth boundary \(\partial M\).
+We denote by \(\nabla\) the Riemannian gradient and by \(\Delta\) the Laplace--Beltrami operator.
+\end{definition}
+
+\begin{remark}[Terminology: ``semiotic'']
+The term \emph{semiotic manifold} reflects the framework's roots in Peircean semiotics~\cite{Peirce1931}, where meaning emerges through sign relations. The manifold \(M\) is interpreted as a space of possible meanings or interpretations.
+\end{remark}
+
+We use standard H\"older spaces \(C^{k,\alpha}(M)\) for \(k\in\mathbb{N}\), \(\alpha\in(0,1)\), with the usual norms; see \cite{GilbargTrudinger2001,Evans2010}.
+We write
+\[
+X := C^{1,\alpha}(M)\cap C^0(\overline M),\qquad X_0 := \{\psi\in X:\ \psi|_{\partial M}=0\},
+\]
+and we interpret \(\abs{\nabla \psi}\) pointwise using the Riemannian norm induced by \(g\).
+
+\subsection{Core scalar fields and the coefficient \(a\)}
+\begin{definition}[Characteristic fields]
+Let \(\kappa,\gamma,\mu\in C^{0,\alpha}(M)\) be scalar fields with values in \([0,1]\). Define
+\[
+a(x) := \kappa(x)\gamma(x)\mu(x)\in[0,1].
+\]
+\end{definition}
+
+\begin{remark}[Primary boundary condition]
+Dirichlet boundary conditions are taken as primary for analytic clarity and interpretive meaning: \(\Phi=0\) on \(\partial M\) represents boundary contexts where sustained presence/coherence is absent.
+Neumann conditions are discussed only as a secondary variant.
+\end{remark}
+
+\section{Main PDE Results}\label{sec:mainPDE}
+
+\noindent\textbf{Guiding intuition.}
+Before the formal machinery, here is the central question: \emph{when can coherent presence sustain itself?}
+The answer involves a spectral condition---when the viability potential \(b(x) = \kappa\gamma - \lambda\mu\) (care-coherence support minus contradiction cost) is strong enough to overcome boundary dissipation. This is made precise by the condition \(\lambda_1(-\Delta - b; M) < 0\), which we call the \emph{viability threshold}. The theorems below establish that crossing this threshold guarantees the existence of non-trivial coherent configurations. The proofs use classical fixed-point machinery, but the conceptual payoff is immediate: \emph{viability exceeds dissipation} $\Rightarrow$ \emph{coherent presence can be self-maintained}.
+
+\subsection{Primary model: autonomous viability with logistic saturation (V1')}
+Let
+\[
+a(x) := \kappa(x)\gamma(x)\mu(x)\in[0,1]
+\]
+be the CD modulation coefficient. We introduce a \emph{viability potential} \(b\) and a \emph{saturation (carrying capacity) field} \(c\) to obtain a mathematically nondegenerate autonomous equilibrium model.
+
+\begin{definition}[Autonomous viability model with saturation (V1')]\label{def:V1prime}
+Fix \(p>1\). Given coefficients
+\[
+a\in C^{0,\alpha}(M),\quad 0\le a\le 1;\qquad
+b\in C^{0,\alpha}(M);\qquad
+c\in C^{0,\alpha}(M),\quad c(x)\ge c_0>0,
+\]
+we consider the Dirichlet problem
+\begin{equation}\label{eq:V1prime}
+\begin{cases}
+-\Delta \Phi = a(x)\,|\nabla \Phi| + b(x)\,\Phi - c(x)\,\Phi^{p} & \text{in }M,\\
+\Phi=0 & \text{on }\partial M.
+\end{cases}
+\end{equation}
+A solution \(\Phi\in C^{2,\alpha}(M)\) of \eqref{eq:V1prime} is called a \emph{weak coherent configuration} for the autonomous CD model.
+\end{definition}
+
+\begin{remark}[Interpretive glossary for \eqref{eq:V1prime}]
+In \eqref{eq:V1prime}:
+\begin{itemize}
+\item \(a(x)=\kappa\gamma\mu\) is the \emph{creative drive} term: gradient activity contributes to presence only where care, coherence, and contradiction jointly support it.
+\item \(b(x)>0\) is \emph{viability gain} / autopoietic support: presence amplifies where sustainable.
+\item \(b(x)<0\) is a \emph{dissolution zone}: presence decays locally.
+\item \(c(x)\Phi^p\) enforces \emph{carrying capacity} / resource limitation: it prevents unbounded growth and encodes finite-resource autopoiesis.
+\end{itemize}
+\end{remark}
+
+\begin{definition}[Canonical viability closure]\label{def:canonicalClosure}
+Under the \emph{canonical viability closure}, the viability potential is defined by
+\begin{equation}\label{eq:canonicalb}
+b(x) := \kappa(x)\gamma(x) - \lambda\,\mu(x),
+\end{equation}
+where \(\lambda>0\) is a contradiction-weighting parameter.
+\end{definition}
+
+\begin{remark}[Empirical motivation for the linear closure]
+The canonical closure \(b = \kappa\gamma - \lambda\mu\) is not derived from first principles, but it is not arbitrary either. It represents the \emph{simplest mass-action balance} reflecting a fundamental trade-off observed across biological, psychological, and social systems: \textbf{support} (care \(\times\) coherence) competes against \textbf{contradiction cost} (\(\lambda \times\) contradiction level).
+
+This structure echoes the ``recovery capital'' framework in behavioral health~\cite{White2008,Granfield1999}: sustained wellbeing emerges when supportive resources outweigh risk factors. The linear form is the minimal assumption---the V1 approximation---before introducing higher-order effects. Alternative closures (multiplicative, exponential, threshold-based) remain open for investigation, but the linear closure captures the essential bifurcation structure: when support dominates cost, nontrivial configurations exist; when cost dominates, the system collapses to triviality.
+
+Seven years of observation in peer support and recovery research informed this choice: systems that sustain coherence reliably exhibit this support-versus-cost dynamic. The math formalizes what experience revealed.
+\end{remark}
+
+\begin{remark}[The contradiction-cost parameter \(\lambda\)]\label{rem:lambdaCost}
+The parameter \(\lambda\) is not merely a tuning knob---it is an \emph{empirically observable characteristic} of a system's sensitivity to internal contradiction. Crucially, in the closure \eqref{eq:canonicalb}, \(\lambda\) functions as a \textbf{cost multiplier}: increasing \(\lambda\) decreases \(b\) for fixed \(\mu>0\), making the spectral condition \(\lambda_1(-\Delta-b;M)<0\) harder to satisfy.
+\begin{itemize}
+\item A system with \textbf{high \(\lambda\)} (contradiction-sensitive) experiences contradiction as costly: even moderate \(\mu\) significantly reduces viability. Example: a brittle belief system that fragments when faced with counter-evidence.
+\item A system with \textbf{low \(\lambda\)} (contradiction-resilient) can sustain coherence even when \(\mu\) is elevated, because contradiction exerts less drag on viability. Example: a healthy cognitive system that integrates conflicting information without destabilizing.
+\end{itemize}
+This interpretation provides a concrete empirical program: estimate \(\lambda\) from observed bifurcation points where systems transition from coherent to incoherent behavior. Systems at the ``cliff edge'' of viability (small negative \(\lambda_1\)) are those where care-coherence support barely exceeds contradiction cost---a measurable condition of precarious stability.
+
+We emphasize that the closure parameter \(\lambda\) in \eqref{eq:canonicalb} is distinct from the principal eigenvalue \(\lambda_1(-\Delta-b;M)\): the former weights contradiction in the viability potential, while the latter is a spectral indicator of whether nontrivial coherence can exist (Theorem~\ref{thm:nontrivialV1prime}).
+\end{remark}
+
+\begin{remark}[Limiting case: the homogeneous model (V1)]
+If \(c\equiv 0\), \eqref{eq:V1prime} reduces to the positively homogeneous equation
+\[
+-\Delta\Phi = a(x)|\nabla\Phi| + b(x)\Phi,\qquad \Phi|_{\partial M}=0,
+\]
+which is an idealized ``no-saturation'' limit. The saturation term is mathematically and interpretively important: it breaks homogeneity and enables barrier constructions yielding nontrivial equilibria.
+\end{remark}
+
+\subsection{Existence of weak coherent configurations (Schaefer/Leray--Schauder)}
+We now prove existence of solutions to \eqref{eq:V1prime}.
+The proof follows the same compactness spine as the original Schauder approach, but uses Schaefer's fixed-point theorem~\cite{Schaefer1955} (a variant of the Leray--Schauder continuation principle~\cite{LeraySchauder1934}) to avoid invariant-ball vulnerabilities.
+
+\subsubsection*{Operator formulation}
+Let
+\[
+X := \left\{\psi\in C^{1,\alpha}(M):\ \psi|_{\partial M}=0\right\},
+\qquad
+Y := C^{0,\alpha}(M).
+\]
+For \(\psi\in X\), define
+\[
+F_\psi(x) := a(x)|\nabla\psi(x)| + b(x)\psi(x) - c(x)\big(\psi_+(x)\big)^p,
+\qquad \psi_+ := \max\{\psi,0\}.
+\]
+Let \(S:Y\to C^{2,\alpha}(M)\cap X\) denote the Dirichlet solution operator for \(-\Delta u = f\) in \(M\), \(u|_{\partial M}=0\).
+Define the compact operator
+\[
+T:X\to X,\qquad T(\psi):= S(F_\psi).
+\]
+
+\begin{lemma}[Compactness]\label{lem:TcompactV1prime}
+The operator \(T:X\to X\) is continuous and compact.
+\end{lemma}
+
+\begin{proof}
+The map \(\psi\mapsto |\nabla\psi|\) is continuous \(C^{1,\alpha}\to C^{0,\alpha}\), multiplication by \(a,b,c\in C^{0,\alpha}\) is continuous on \(C^{0,\alpha}\), and \(\psi\mapsto (\psi_+)^p\) is continuous \(C^{0,\alpha}\to C^{0,\alpha}\) for \(p>1\).
+Thus \(\psi\mapsto F_\psi\) is continuous \(X\to Y\).
+The Dirichlet solution operator \(S:Y\to C^{2,\alpha}\cap X\) is continuous and maps bounded sets in \(Y\) into bounded sets in \(C^{2,\alpha}\); see \cite[Ch.~6]{GilbargTrudinger2001}.
+Since the embedding \(C^{2,\alpha}(M)\hookrightarrow C^{1,\alpha}(M)\) is compact on compact \(M\) (Arzel\`a--Ascoli), the composition \(T\) is compact \(X\to X\).
+\end{proof}
+
+\subsubsection*{A priori bounds for Schaefer}
+We use Schaefer's theorem: it suffices to show that the set
+\[
+\mathcal{S} := \left\{u\in X:\ u = \tau T(u)\text{ for some }\tau\in[0,1]\right\}
+\]
+is bounded in \(X\).
+
+\begin{assumption}[Standard coercivity sign condition on \(b\)]\label{assump:bupper}
+There exists \(B\ge 0\) such that \(b(x)\le B\) for all \(x\in M\).
+\end{assumption}
+
+\begin{remark}
+Assumption \ref{assump:bupper} is mild (automatic if \(b\in C^{0,\alpha}\)) and is used only to control the linear reaction term from above in the a priori estimates.
+\end{remark}
+
+\begin{lemma}[Uniform \(L^\infty\) bound for Schaefer set]\label{lem:LinftyBound}
+Assume \ref{assump:bupper}. Then there exists \(K>0\), depending only on \(B,c_0,p\), such that every \(u\in\mathcal{S}\) satisfies
+\[
+\|u\|_{L^\infty(M)} \le K.
+\]
+\end{lemma}
+
+\begin{proof}
+Let \(u\in\mathcal{S}\). Then \(u=\tau T(u)\) for some \(\tau\in[0,1]\), hence \(u\in C^{2,\alpha}(M)\cap X\) solves
+\begin{equation}\label{eq:schaeferEq}
+-\Delta u = \tau\Big(a|\nabla u| + b\,u - c\,(u_+)^p\Big),\qquad u|_{\partial M}=0.
+\end{equation}
+Let \(x_0\in \overline M\) be a point where \(u\) attains its maximum. Since \(u=0\) on \(\partial M\), either \(\max u\le 0\) or the maximum is achieved in the interior and is positive.
+Assume \(\max_M u = u(x_0)>0\). Then \(x_0\in M^\circ\), \(\nabla u(x_0)=0\), and \(\Delta u(x_0)\le 0\), so \(-\Delta u(x_0)\ge 0\).
+Evaluating \eqref{eq:schaeferEq} at \(x_0\) and using \(\nabla u(x_0)=0\) gives
+\[
+0 \le -\Delta u(x_0)
+= \tau\Big(b(x_0)\,u(x_0) - c(x_0)\,u(x_0)^p\Big)
+\le \tau\Big(B\,u(x_0) - c_0\,u(x_0)^p\Big).
+\]
+Since \(u(x_0)>0\) and \(\tau\ge 0\), this implies
+\[
+B\,u(x_0) - c_0\,u(x_0)^p \ge 0
+\quad\Longrightarrow\quad
+u(x_0)^{p-1} \le \frac{B}{c_0}.
+\]
+Hence
+\[
+\max_M u \le \left(\frac{B}{c_0}\right)^{\!1/(p-1)} =: K.
+\]
+If \(\max_M u\le 0\) then the same bound holds trivially.
+\end{proof}
+
+\begin{lemma}[Uniform \(C^{1,\alpha}\) bound for Schaefer set]\label{lem:C1alphaBound}
+Assume \ref{assump:bupper}. Then \(\mathcal{S}\) is bounded in \(X=C^{1,\alpha}\).
+\end{lemma}
+
+\begin{proof}
+Let \(u\in\mathcal{S}\) solve \eqref{eq:schaeferEq}. By Lemma \ref{lem:LinftyBound}, \(\|u\|_{L^\infty}\le K\).
+Write the forcing as
+\[
+f_u := \tau\Big(a|\nabla u| + b\,u - c\,(u_+)^p\Big).
+\]
+The zero-order terms \(b\,u\) and \(c(u_+)^p\) are bounded in \(C^{0,\alpha}\) by a constant depending only on \(\|b\|_{C^{0,\alpha}},\|c\|_{C^{0,\alpha}}\) and \(K\).
+For the gradient term, apply the Schauder interior estimates~\cite[Thm.~6.6]{GilbargTrudinger2001}:
+\[
+\|u\|_{C^{2,\alpha}} \le C_1\Big(\|f_u\|_{C^{0,\alpha}} + \|u\|_{C^0}\Big).
+\]
+The term \(\|a|\nabla u|\|_{C^{0,\alpha}}\) appearing in \(\|f_u\|_{C^{0,\alpha}}\) is controlled by
+\(\|a\|_{C^{0,\alpha}}\|\nabla u\|_{C^{0,\alpha}}\).
+Now apply the interpolation inequality~\cite[Lemma~6.32]{GilbargTrudinger2001}: for any \(\varepsilon>0\),
+\[
+\|\nabla u\|_{C^{0,\alpha}} \le \varepsilon\,\|u\|_{C^{2,\alpha}} + C(\varepsilon)\,\|u\|_{C^0}.
+\]
+Substituting and choosing \(\varepsilon>0\) small enough that \(C_1\|a\|_{C^{0,\alpha}}\varepsilon < \tfrac{1}{2}\), we absorb the \(\|u\|_{C^{2,\alpha}}\) term from the right-hand side:
+\[
+\|u\|_{C^{2,\alpha}} \le C_2\Big(1 + \|u\|_{C^0}\Big) \le C_2(1+K).
+\]
+Consequently \(\|u\|_{C^{1,\alpha}}\le \|u\|_{C^{2,\alpha}}\) is uniformly bounded.
+\end{proof}
+
+\begin{theorem}[Existence of weak coherent configurations for \eqref{eq:V1prime}]\label{thm:existenceV1prime}
+Assume the coefficient hypotheses of Definition~\ref{def:V1prime} and the upper bound Assumption~\ref{assump:bupper}.
+Then the Dirichlet problem \eqref{eq:V1prime} admits at least one solution \(\Phi\in C^{2,\alpha}(M)\).
+Moreover, there exists a nonnegative solution \(\Phi\ge 0\).
+\end{theorem}
+
+\begin{proof}
+By Lemma \ref{lem:TcompactV1prime}, \(T:X\to X\) is continuous and compact.
+By Lemmas \ref{lem:LinftyBound}--\ref{lem:C1alphaBound}, the Schaefer set \(\mathcal{S}\) is bounded in \(X\).
+Therefore, by Schaefer's fixed-point theorem~\cite{Schaefer1955,Deimling1985}, \(T\) has a fixed point \(\Phi\in X\), which solves \eqref{eq:V1prime}.
+Elliptic regularity upgrades \(\Phi\) to \(C^{2,\alpha}(M)\).
+
+To obtain a nonnegative solution, note that the operator uses \(\psi_+\) in the saturation term and the PDE preserves the ordering under standard maximum principle arguments.
+\end{proof}
+
+\subsection{Viability exceeds dissipation: the condition for non-trivial coherence}
+The existence theorem above guarantees \emph{some} solution exists, but it might be trivial (\(\Phi\equiv 0\)). The following theorem provides the key criterion: when does the system support \emph{genuine} coherent presence? The answer is a spectral condition on the viability potential---precisely, when integrated care-coherence support dominates contradiction load strongly enough to overcome boundary dissipation.
+
+\begin{definition}[Principal eigenvalue and viability threshold]\label{def:lambda1}
+Let \(\lambda_1(-\Delta - b;M)\) denote the principal Dirichlet eigenvalue of the operator
+\(\mathcal{L}_b u := -\Delta u - b(x)u\) on \(M\).
+We say the \emph{viability threshold is exceeded} if
+\[
+\lambda_1(-\Delta - b;M) < 0.
+\]
+\end{definition}
+
+\begin{remark}[Spectral theory]
+The existence of a principal eigenvalue with positive eigenfunction for uniformly elliptic operators follows from the Krein--Rutman theorem~\cite{KreinRutman1948}; see also~\cite[Ch.~2]{Evans2010} for the PDE context.
+\end{remark}
+
+\begin{remark}[Interpretation of the viability threshold]\label{rem:viabilityInterpretation}
+Under the canonical closure \(b=\kappa\gamma-\lambda\mu\) (Definition~\ref{def:canonicalClosure}), the spectral condition
+\(\lambda_1(-\Delta - b;M)<0\) becomes a precise \emph{``viability exceeds dissipation''} criterion:
+integrated care--coherence support dominates contradiction load strongly enough to overcome boundary dissipation imposed by \(\Phi|_{\partial M}=0\).
+\end{remark}
+
+\begin{theorem}[Existence of nontrivial weak coherent configurations]\label{thm:nontrivialV1prime}
+Assume the hypotheses of Theorem~\ref{thm:existenceV1prime}.
+Suppose additionally that
+\[
+\lambda_1(-\Delta - b;M) < 0.
+\]
+Then \eqref{eq:V1prime} admits a nontrivial nonnegative solution \(\Phi\in C^{2,\alpha}(M)\), \(\Phi\not\equiv 0\).
+In fact, \(\Phi>0\) in \(M^\circ\).
+\end{theorem}
+
+\begin{proof}
+Let \(\phi_1\in C^{2,\alpha}(M)\cap C^0(\overline M)\) be the positive principal eigenfunction of \(\mathcal{L}_b\),
+normalized so that \(\|\phi_1\|_{L^\infty(M)}=1\). Thus
+\[
+-\Delta\phi_1 - b(x)\phi_1 = \lambda_1\,\phi_1,\qquad \phi_1|_{\partial M}=0,
+\]
+with \(\lambda_1<0\). Write \(\beta := -\lambda_1>0\); then
+\begin{equation}\label{eq:eigRewrite}
+-\Delta\phi_1 = b(x)\phi_1 - \beta \phi_1.
+\end{equation}
+
+\paragraph{Step 1: sub-solution.}
+Define \(\underline{\Phi}:=\varepsilon\phi_1\) with \(\varepsilon>0\) to be chosen.
+Using \eqref{eq:eigRewrite},
+\[
+-\Delta\underline{\Phi} = \varepsilon b\phi_1 - \varepsilon \beta \phi_1.
+\]
+On the other hand,
+\[
+a|\nabla\underline{\Phi}| + b\underline{\Phi} - c(\underline{\Phi})^p
+= \varepsilon a|\nabla\phi_1| + \varepsilon b\phi_1 - c\,\varepsilon^p \phi_1^p.
+\]
+To show \(\underline{\Phi}\) is a sub-solution, we need
+\[
+\varepsilon b\phi_1 - \varepsilon\beta\phi_1
+\le
+\varepsilon a|\nabla\phi_1| + \varepsilon b\phi_1 - c\,\varepsilon^p \phi_1^p.
+\]
+Cancel the common term \(\varepsilon b\phi_1\) and divide by \(\varepsilon>0\):
+\[
+-\beta\phi_1 \le a|\nabla\phi_1| - c\,\varepsilon^{p-1}\phi_1^p.
+\]
+Choose \(\varepsilon>0\) such that
+\begin{equation}\label{eq:epsChoice}
+\varepsilon^{p-1}\le \frac{\beta}{2\|c\|_{L^\infty(M)}},
+\end{equation}
+so that \(c\,\varepsilon^{p-1}\phi_1^p \le (\beta/2)\phi_1\) (since \(\phi_1\le 1\)).
+Then
+\[
+a|\nabla\phi_1| - c\,\varepsilon^{p-1}\phi_1^p
+\ge
+- \frac{\beta}{2}\phi_1,
+\]
+and hence
+\[
+-\beta\phi_1 \le -\frac{\beta}{2}\phi_1 \le a|\nabla\phi_1| - c\,\varepsilon^{p-1}\phi_1^p,
+\]
+since \(a|\nabla\phi_1|\ge 0\). Thus \(\underline{\Phi}\) is a sub-solution.
+Also \(\underline{\Phi}=0\) on \(\partial M\).
+
+\paragraph{Step 2: Dirichlet-compatible super-solution.}
+Define \(\overline{\Phi}:=K\phi_1^2\) with \(K>0\) to be chosen.
+Since \(\phi_1=0\) on \(\partial M\), we have \(\overline{\Phi}=0\) on \(\partial M\) and \(\overline{\Phi}>0\) in \(M^\circ\).
+Computing the Laplacian using the product rule and the eigenequation \eqref{eq:eigRewrite}:
+\[
+-\Delta(\phi_1^2) = 2|\nabla\phi_1|^2 + 2\phi_1(-\Delta\phi_1) = 2|\nabla\phi_1|^2 + 2(b-\beta)\phi_1^2.
+\]
+Thus \(-\Delta\overline{\Phi} = K\big(2|\nabla\phi_1|^2 + 2(b-\beta)\phi_1^2\big)\).
+The super-solution condition \(-\Delta\overline{\Phi}\ge a|\nabla\overline{\Phi}| + b\overline{\Phi} - c(\overline{\Phi})^p\) reads, after dividing by \(K>0\):
+\begin{equation}\label{eq:supersol_ineq}
+2|\nabla\phi_1|^2 + 2(b-\beta)\phi_1^2 \ge 2a\phi_1|\nabla\phi_1| + b\phi_1^2 - cK^{p-1}\phi_1^{2p}.
+\end{equation}
+We verify \eqref{eq:supersol_ineq} in two regions.
+
+\emph{Near the boundary} (\(\phi_1<\delta\)):
+The dominant terms on the left are \(2|\nabla\phi_1|^2\), while on the right the leading term is \(2a\phi_1|\nabla\phi_1|\).
+By the Hopf lemma, \(|\nabla\phi_1|\ge c_H>0\) in a collar neighborhood of \(\partial M\), while \(\phi_1\to 0\).
+Hence for \(\delta\) small enough, \(2|\nabla\phi_1|^2 \ge 2a\phi_1|\nabla\phi_1|\) (since \(a\le 1\) and \(\phi_1<\delta\ll |\nabla\phi_1|\)), and the remaining terms are controlled.
+
+\emph{In the interior} (\(\phi_1\ge\delta\)):
+The saturation term \(cK^{p-1}\phi_1^{2p}\ge c_0 K^{p-1}\delta^{2p}\) grows without bound as \(K\to\infty\), while the other terms are \(K\)-independent and bounded on the compact set \(\{\phi_1\ge\delta\}\).
+Choose \(K\) large enough that this term absorbs all others.
+
+Combining, \(\overline{\Phi}=K\phi_1^2\) is a super-solution for \(K\) sufficiently large.
+
+\paragraph{Step 3: ordering and conclusion.}
+By construction, \(\underline{\Phi}=\varepsilon\phi_1\ge 0\) and \(\overline{\Phi}=K\psi\ge 0\).
+Choose \(K\) further so that \(\underline{\Phi}\le \overline{\Phi}\) in \(M\) (possible since \(\underline{\Phi}\) is bounded and \(\overline{\Phi}\) scales with \(K\)).
+Then by the classical sub-/super-solution theorem for Dirichlet problems~\cite[Thm.~10.2]{GilbargTrudinger2001} (see also~\cite{Amann1976} for a comprehensive treatment), there exists a solution \(\Phi\) of \eqref{eq:V1prime} such that
+\[
+\underline{\Phi}\le \Phi\le \overline{\Phi}\quad\text{in }M.
+\]
+Since \(\underline{\Phi}\not\equiv 0\) and \(\underline{\Phi}>0\) on \(M^\circ\), it follows that \(\Phi\not\equiv 0\) and \(\Phi\ge 0\).
+Finally, applying the strong maximum principle to \eqref{eq:V1prime} yields \(\Phi>0\) in \(M^\circ\).
+\end{proof}
+
+\subsection{Master equation and the driven/coupled case}
+\begin{remark}[Master equation and specializations]\label{rem:masterEquation}
+For generality one may consider the master form
+\[
+-\Delta\Phi = a(x)|\nabla\Phi| + b(x)\Phi - c(x)\Phi^p + f(x),
+\qquad \Phi|_{\partial M}=0,
+\]
+where \(f\) encodes exogenous significance / environmental input.
+\begin{itemize}
+\item \textbf{Autonomous (closed) case:} \(f\equiv 0\), yielding \eqref{eq:V1prime}.
+\item \textbf{Driven (coupled) case:} \(b\equiv 0\), \(c\equiv 0\), yielding a forced, interaction-sustained presence model.
+\end{itemize}
+\end{remark}
+
+\begin{remark}[Forcing as the cost of striving]
+The exogenous forcing function \(f(x)\) admits a novel interpretation connecting the master equation to the weak/strong coherence distinction. Suppose \(\Phi_{\mathrm{weak}}\) is a stable weak coherent configuration (a solution of the autonomous PDE) and \(\Phi_{\mathrm{strong}}\) is the idealized strong coherence target. Then \(f(x)\) may be modeled as the \emph{measurable residual}---the energy required to pull the system from its stable weak configuration toward the strong coherence ideal.
+
+If the gap between strong and weak coherence is large, the required \(f(x)\) is large; if they nearly coincide, \(f(x)\) is negligible. This reframing provides a roadmap for empirical testing: measure the forcing required to achieve near-ideal coherence, and this quantifies the ``cost of striving.'' The master equation thus bridges the conceptual distinction (Section~4.1) with a measurable dynamical quantity.
+\end{remark}
+
+\subsection{Temporal resilience and coherence debt: unpacking contradiction cost}\label{sec:temporal_resilience_debt}
+
+The canonical viability closure
+\begin{equation}\label{eq:canonical_closure_static}
+b(x)=\kappa(x)\gamma(x)-\lambda\,\mu(x)
+\end{equation}
+introduces a parameter $\lambda>0$ weighting contradiction as a reduction in viability.
+In the present section we clarify the two distinct ``lambdas'' introduced in Remark~\ref{rem:lambdaCost} and then propose a temporal refinement of the closure in which contradiction cost is no longer an undetermined constant but an \emph{effective} quantity determined by temporal coherence dynamics.
+
+\paragraph{Two lambdas.}
+We distinguish:
+\begin{enumerate}
+\item $\lambda_1(\mathcal{L})$, the \emph{principal Dirichlet eigenvalue} of a linear operator $\mathcal{L}$ (e.g.\ $\mathcal{L}=-\Delta-b$). In the saturated CD model, the spectral sign condition $\lambda_1(-\Delta-b;M)<0$ is a viability indicator: more negative values correspond to stronger distance from the threshold $\lambda_1=0$.
+\item $\lambda$ in \eqref{eq:canonical_closure_static}, a \emph{closure parameter} multiplying contradiction $\mu$. In \eqref{eq:canonical_closure_static}, increasing $\lambda$ decreases $b$ for fixed $\mu>0$ and thus makes spectral viability harder to satisfy. Consequently, $\lambda$ functions as a \emph{contradiction cost/sensitivity parameter} (high $\lambda$ = contradiction costly/fragile; low $\lambda$ = contradiction less costly/resilient).
+\end{enumerate}
+
+\subsubsection*{Temporal witness function and resilience factor}
+Let $\psi(t)\in[0,1]$ denote a \emph{temporal witness function} measuring instantaneous coherence at time $t$, with higher values indicating greater coherence and temporal integration. Following a temporal-coherence framework developed in companion work, we interpret derivatives as dynamical signatures:
+$\psi'(t)$ (volatility), $\psi''(t)$ (stabilizing vs destabilizing acceleration), and $\psi'''(t)$ (jerk/rupture).
+
+\begin{definition}[Base temporal resilience factor]\label{def:Rbase}
+Fix constants $\alpha_1,\alpha_3>0$ and $\beta\ge 0$. Define the \emph{base temporal resilience factor}
+\begin{equation}\label{eq:Rbase}
+R_{\mathrm{base}}(t)
+:=
+\frac{1+\beta[\psi''(t)]^{+}}{1+\alpha_1|\psi'(t)|+\alpha_3|\psi'''(t)|},
+\qquad [u]^+:=\max\{u,0\}.
+\end{equation}
+\end{definition}
+
+\begin{remark}[Interpretation]
+The numerator rewards ``acceleration toward coherence'' (as encoded by $\psi''>0$ in the $\psi\in[0,1]$ convention), while the denominator penalizes volatility and jerk. Thus $R_{\mathrm{base}}$ is large when coherence dynamics are smooth and stabilizing, and small when coherence changes rapidly or discontinuously.
+\end{remark}
+
+\subsubsection*{Spectral capacity witness and the capacity envelope}
+A key architectural principle is that the system has a \emph{sustainable capacity} to maintain coherent presence given its current geometry/boundary conditions and coefficient fields. We encode this capacity spectrally.
+
+Let $M(t)$ denote the effective semiotic manifold at time $t$, allowing for the possibility that the operative system boundary/blanket changes with environment (e.g.\ infrastructure, community, housing). In practice, this can be represented equivalently by changes in effective boundary conditions, domain, or coefficient fields; we do not assume these are separable contributions.
+
+\begin{definition}[Spectral capacity witness]\label{def:psispectral}
+Let $b(\cdot,t)$ denote the viability potential at time $t$ and define the principal eigenvalue
+\[
+\lambda_1(t):=\lambda_1\!\big(-\Delta - b(\cdot,t);\; M(t)\big),
+\]
+with Dirichlet boundary conditions on $\partial M(t)$.
+Fix a scale parameter $s>0$ and define the \emph{spectral capacity witness}
+\begin{equation}\label{eq:psispectral}
+\psi_s(t):=\frac{1}{1+\exp(\lambda_1(t)/s)}\in(0,1).
+\end{equation}
+\end{definition}
+
+\begin{remark}[Meaning of $\psi_s$]
+The mapping \eqref{eq:psispectral} converts the real-valued spectral margin $\lambda_1(t)$ into a bounded witness comparable to $\psi(t)$:
+more negative $\lambda_1$ (deeper viability) yields $\psi_s$ closer to $1$, while $\lambda_1$ near or above $0$ yields $\psi_s$ near $1/2$ or below.
+Other monotone maps $\mathbb{R}\to(0,1)$ are possible; \eqref{eq:psispectral} is chosen for smoothness.
+\end{remark}
+
+We interpret $\psi_s(t)$ as a \emph{capacity envelope}: what the current system can sustain given its current structural conditions. In contrast, $\psi(t)$ is an empirical witness of what the system is actually doing.
+
+\subsubsection*{Coherence debt: chronic operation beyond capacity}
+The central burnout/recovery phenomenon motivating this section is the possibility that a system can temporarily \emph{perform coherence beyond sustainable capacity}. Formally, this corresponds to $\psi(t)>\psi_s(t)$. Acute excursions are not necessarily pathological; the pathological regime is \emph{sustained} overcapacity operation. We encode this temporally via a debt variable.
+
+\begin{definition}[Coherence debt dynamics]\label{def:debt}
+Fix parameters $\eta,\rho>0$. Define the \emph{coherence debt} $D(t)\ge 0$ as the solution of
+\begin{equation}\label{eq:debtODE}
+\dot D(t)=\eta[\psi(t)-\psi_s(t)]^{+}-\rho D(t),
+\qquad D(0)\ge 0.
+\end{equation}
+\end{definition}
+
+\begin{remark}[Interpretation: asymmetric cost of mismatch]
+The positive-part term in \eqref{eq:debtODE} implements a structural asymmetry:
+only the regime $\psi>\psi_s$ (performing above capacity) accumulates debt.
+The decay term $\rho D$ models recovery/repayment when the system is no longer overextended.
+Equation \eqref{eq:debtODE} is equivalent to an exponentially weighted integral of past overcapacity, hence captures the chronicity of burnout (``debt that builds over time'') rather than a pointwise discrepancy.
+\end{remark}
+
+\subsubsection*{From temporal resilience to effective contradiction cost}
+We now interpret the contradiction weight in \eqref{eq:canonical_closure_static} as an effective cost determined by temporal resilience and debt.
+
+\begin{definition}[Total resilience and effective contradiction cost]\label{def:Reff}
+Let $\lambda_0>0$ denote baseline contradiction cost. Define
+\begin{equation}\label{eq:Rtotal}
+R(t):=\frac{R_{\mathrm{base}}(t)}{1+D(t)},
+\end{equation}
+and the \emph{effective contradiction cost}
+\begin{equation}\label{eq:lambdaeff}
+\lambda_{\mathrm{eff}}(t):=\frac{\lambda_0}{R(t)}.
+\end{equation}
+\end{definition}
+
+\begin{remark}[Burnout spiral as feedback]
+When $\psi>\psi_s$ persists, debt $D(t)$ increases, reducing $R(t)$ and therefore increasing $\lambda_{\mathrm{eff}}(t)$.
+Through the viability closure below, this reduces $b(\cdot,t)$, which pushes the spectral indicator $\lambda_1(t)$ upward (toward $0$) and lowers $\psi_s(t)$.
+Thus sustained overcapacity operation creates a self-reinforcing fragility loop: capacity declines as debt accumulates.
+\end{remark}
+
+\subsubsection*{Dynamical viability closure}
+We replace the constant contradiction weight in \eqref{eq:canonical_closure_static} by $\lambda_{\mathrm{eff}}(t)$.
+
+\begin{definition}[Dynamical viability closure]\label{def:dynamical_closure}
+Define the viability potential as
+\begin{equation}\label{eq:dynamical_closure}
+b(x,t):=\kappa(x,t)\gamma(x,t)-\lambda_{\mathrm{eff}}(t)\,\mu(x,t),
+\end{equation}
+where $\lambda_{\mathrm{eff}}$ is given by \eqref{eq:lambdaeff}.
+\end{definition}
+
+\begin{remark}[Architectural interpretation]
+The dynamical closure \eqref{eq:dynamical_closure} makes explicit that contradiction cost is not a free constant but a compressed representation of temporal stability dynamics:
+\begin{itemize}
+\item smooth, stabilizing coherence trajectories (large $R_{\mathrm{base}}$) reduce effective contradiction cost,
+\item chronic overcapacity operation (large $D$) increases effective contradiction cost,
+\item changes in the effective system boundary/blanket (encoded by $M(t)$ and the fields on it) shift the capacity envelope $\psi_s$ through $\lambda_1(t)$.
+\end{itemize}
+This provides a principled bridge between temporal coherence (as measured by $\psi$) and viability in the CD PDE model.
+\end{remark}
+
+\subsubsection*{Capacity erosion (deferred extension)}
+The model above treats debt $D$ as a penalty on resilience but does not allow debt to permanently degrade the structural fields that generate capacity. In many real systems, prolonged overcapacity operation can erode care/coherence or increase contradiction exposure (``burning the furniture to heat the house'').
+
+\begin{remark}[Capacity erosion as a future-work extension]\label{rem:capacity_erosion}
+A natural extension is to let prolonged debt degrade the characteristic fields or effective system definition. For example, one may posit thresholded degradation laws such as
+\[
+\dot\kappa = -\delta_\kappa [D-D_{\mathrm{crit}}]^+,\qquad
+\dot\gamma = -\delta_\gamma [D-D_{\mathrm{crit}}]^+,\qquad
+\dot\mu = +\delta_\mu [D-D_{\mathrm{crit}}]^+,
+\]
+or alternatively encode erosion by time-dependent boundary/geometry changes in $M(t)$.
+We do not analyze such extended dynamics here; the present contribution is the minimal debt-resilience closure \eqref{eq:debtODE}--\eqref{eq:dynamical_closure}.
+\end{remark}
+
+\section{Interpretive/structural layer}
+This section is conditional by design: it collects definitions and geometric statements that connect the PDE layer to the broader Creative Determinant framework.
+
+\subsection{Weak vs.\ strong coherence (logical status)}
+\begin{definition}[Pointwise CD constraint (strong coherence)]
+A \emph{strong coherent configuration} is a field \(\Phi\) satisfying
+\[
+\Phi(x) = \abs{\nabla \Phi(x)}\,\kappa(x)\gamma(x)\mu(x)\qquad\text{for all }x\in M.
+\]
+\end{definition}
+
+\begin{definition}[Weak coherence]
+A \emph{weak coherent configuration} is a solution \(\Phi\) of an associated PDE model (e.g.\ \eqref{eq:V1prime}) with stated boundary conditions.
+\end{definition}
+
+\begin{remark}[The generative gap]
+The relationship between weak and strong coherence is not merely an open mathematical problem---it is a \emph{structural feature} of the framework. Strong coherence represents an idealization that real systems approximate but cannot fully achieve. Weak coherence captures the stable configurations that systems actually reach. The \emph{distance} between them measures the cost of striving---the energy required to pull a system from its achievable state toward the ideal.
+
+This perspective transforms an apparent limitation into a research program: Under what conditions is the gap small? When is it irreducible? How does the gap evolve under perturbation? The framework is defined by this necessary tension between the ideal and the messy achievable configurations---a commitment that aligns with enactivist insights about cognition as ongoing sense-making rather than static representation~\cite{Thompson2007}.
+\end{remark}
+
+\subsection{Conditional conservation of blessing--contradiction coupling}
+\begin{definition}[Blessing--contradiction 1-form]
+Let \(\Phi,\mu\in C^1(M)\). Define the 1-form
+\[
+\omega := \Phi\,d\mu - \mu\,d\Phi.
+\]
+\end{definition}
+
+\begin{proposition}[Conditional conservation under equilibrium ansatz]\label{prop:conservation}
+Let \(U\subseteq M\) be open, and assume an \emph{equilibrium ansatz} on \(U\): there exists a \(C^1\) function \(g:[0,1]\to\R\) such that
+\[
+\Phi(x)=g(\mu(x))\qquad\text{for all }x\in U.
+\]
+Then \(\omega\) is closed on \(U\), i.e.\ \(d\omega=0\) on \(U\).
+Consequently, for any two homotopic loops \(\Gamma_1,\Gamma_2\subset U\),
+\[
+\int_{\Gamma_1}\omega = \int_{\Gamma_2}\omega.
+\]
+\end{proposition}
+
+\begin{proof}
+Compute
+\[
+d\omega = d(\Phi\,d\mu)-d(\mu\,d\Phi)=d\Phi\wedge d\mu - d\mu\wedge d\Phi = 2\,d\Phi\wedge d\mu.
+\]
+Under the ansatz \(\Phi=g(\mu)\), we have \(d\Phi=g'(\mu)\,d\mu\), hence \(d\Phi\wedge d\mu=0\) and thus \(d\omega=0\) on \(U\).
+Homotopy invariance follows by Stokes' theorem.
+\end{proof}
+
+\begin{remark}[Interpretation]
+The ansatz \(\Phi=g(\mu)\) expresses a local functional dependence of presence on contradiction, i.e.\ a phase where the presence field is slaved to contradiction level sets.
+This is a strong idealization and is stated explicitly as such.
+\end{remark}
+
+\subsection{Care-weighted homotopy/energy principle (geometric interpretation)}
+\begin{definition}[Care-weighted metric]
+On the open set \(\{\kappa>0\}\subseteq M\), define the conformally rescaled metric
+\[
+g_\kappa := \kappa^{-1} g.
+\]
+\end{definition}
+
+\begin{definition}[Care-weighted homotopy energy]
+Let \(H:S^1\times[0,1]\to M\) be a homotopy such that \(H(S^1\times[0,1])\subset \{\kappa>0\}\).
+Define the energy
+\[
+E_\kappa[H] := \int_0^1\int_{S^1} \left\|\frac{\partial H}{\partial t}\right\|_{g_\kappa}^2\,ds\,dt.
+\]
+\end{definition}
+
+\begin{proposition}[Care as a sufficient obstruction to resolution]\label{prop:careObstruction}
+Let \(\gamma_0:S^1\to M\) be a loop. If every homotopy contracting \(\gamma_0\) to a point must intersect the zero-care set \(\{\kappa=0\}\), then there is no contracting homotopy \(H\) with finite \(E_\kappa[H]\).
+\end{proposition}
+
+\begin{proof}
+On \(\{\kappa=0\}\), the metric \(g_\kappa=\kappa^{-1}g\) is undefined (formally infinite). Any homotopy forced to pass through \(\{\kappa=0\}\) cannot be assigned finite \(g_\kappa\)-energy.
+\end{proof}
+
+\begin{remark}[Status]
+This is a geometric sufficient obstruction statement, not an ``iff'' characterization: we do not claim that finite-energy homotopy exists whenever a loop is null-homotopic in \(\{\kappa>0\}\), since that requires additional geometric hypotheses.
+\end{remark}
+
+\section{Operational layer}
+This section proposes testable conditions connecting the CD formalism to measurable dynamical systems.
+
+\subsection{The Creative Determinant condition}
+\begin{definition}[Creative Determinant condition \(CD(\alpha,\varepsilon,\delta)\)]
+Let \(F:X\to X\) be a \(C^1\) dynamical system on a smooth manifold \(X\), and let \(\varphi:X\to\R_{>0}\) be a pre-specified coherence observable.
+We say \((F,\varphi)\) satisfies \(CD(\alpha,\varepsilon,\delta)\) if
+\[
+\mathrm{Corr}\!\left[\log \varphi(F(x)),\ \alpha\log\abs{\det \nabla F(x)}\right]\ge 1-\varepsilon
+\quad\text{and}\quad
+\mathrm{Var}\!\left[\log\abs{\det \nabla F(x)}\right]>\delta,
+\]
+where correlation/variance are computed empirically along trajectories or ensembles.
+\end{definition}
+
+\begin{remark}[Connection to Lyapunov theory]
+By Oseledets' multiplicative ergodic theorem~\cite{Oseledets1968}, time averages of \(\log\abs{\det \nabla F}\) relate to sums of Lyapunov exponents~\cite{Lyapunov1892,Pesin1977}. The CD condition is intended to detect regimes where a coherence observable tracks cumulative phase-space volume deformation. When the CD condition holds with \(\alpha\approx 1\), the correlation suggests the system may exhibit fractal attractor structure, with dimension estimable via the Kaplan--Yorke formula~\cite{KaplanYorke1979}.
+\end{remark}
+
+\subsection{Falsifiability protocols (empirical proposals)}
+We list falsifiability criteria as operational proposals; they are not derived from the PDE theorem.
+
+\begin{definition}[Framework falsification (empirical)]
+The CD framework is empirically falsified if any of the following are demonstrated:
+\begin{enumerate}[label=(F\arabic*),leftmargin=2.5em]
+\item Coherence without coupling: stable high coherence with near-zero (or negative) correlation between coherence observables and Jacobian volume dynamics.
+\item Conservation violation: statistically significant disagreement of \(\int_\Gamma\omega\) between homotopic paths within a verified equilibrium region.
+\item Hamiltonian coherence: volume-preserving dynamics exhibiting the same coherence--exploration coupling as dissipative systems.
+\item Resolution without care: contradiction resolution along paths confined to low-/zero-care regions (as operationalized).
+\item Universal uniqueness: systematic absence of multiplicity where the heuristic non-uniqueness picture predicts multiple coherent configurations.
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[Protocols]
+Concrete testing protocols for large language models and other high-dimensional systems can be specified by choosing:
+(i) a coherence observable \(\varphi\) (e.g.\ compressibility/entropy/intrinsic dimension proxies),
+(ii) a feasible estimator for \(\log\abs{\det \nabla F}\) (e.g.\ factorization across steps, trace estimators, or low-rank sketches),
+and (iii) statistical thresholds for correlation and robustness checks.
+\end{remark}
+
+\section{Discussion and limitations}
+\subsection*{Mathematical contributions}
+The core mathematical results are:
+\begin{enumerate}
+\item \textbf{Existence (Theorem~\ref{thm:existenceV1prime}):} The autonomous viability model with saturation \eqref{eq:V1prime} admits weak coherent configurations under mild coefficient assumptions.
+\item \textbf{Nontriviality (Theorem~\ref{thm:nontrivialV1prime}):} When the viability threshold is exceeded (\(\lambda_1(-\Delta - b; M) < 0\)), there exists a positive solution. This gives a precise criterion for when coherent presence can be self-maintained.
+\end{enumerate}
+
+\subsection*{Mathematical limitations}
+The saturation term \(-c\Phi^p\) is necessary to break positive homogeneity and enable nontrivial Dirichlet solutions. Without it (the V1 limiting case), the maximum principle forces only the trivial solution. This is a structural constraint, not a proof gap.
+
+\subsection*{Conceptual limitations}
+The pointwise CD constraint and the PDE proxy are not proven equivalent; this gap is treated as a structural feature (the ``generative tension'') rather than a deficiency. The canonical viability closure \(b = \kappa\gamma - \lambda\mu\) is a modeling choice grounded in observed support-versus-cost dynamics; alternative closures remain open for investigation.
+
+\subsection*{Validating the linear closure}
+The canonical closure \(b = \kappa\gamma - \lambda\mu\) is a modeling choice, but one that can be empirically tested. The accompanying computational notebooks (see \texttt{cd\_pde\_demo.ipynb}) include parameter sweeps showing how the bifurcation structure---the ``cliff edge'' where systems transition from nontrivial to trivial equilibria---depends on the closure form.
+
+Future work should:
+\begin{enumerate}
+\item Compare linear, multiplicative (\(b = \kappa\gamma/(1 + \lambda\mu)\)), and exponential (\(b = \kappa\gamma e^{-\lambda\mu}\)) closures.
+\item Identify which closure best captures observed bifurcation points in real systems.
+\item Use computation to validate the conceptual simplicity of the linear form.
+\end{enumerate}
+
+The linear closure is not the final word---it is the \emph{simplest hypothesis} against which alternatives must be tested.
+
+\subsection*{Operational limitations}
+The CD condition and falsifiability protocols require careful pre-registration of observables and estimators to avoid tautological fitting; they are empirical proposals.
+
+\subsection*{Relationship to existing frameworks}
+The CD framework shares conceptual DNA with several existing formalizations of self-organization:
+\begin{itemize}
+\item \textbf{Autopoiesis}~\cite{MaturanaVarela1980}: CD's ``viability threshold'' operationalizes the autopoietic notion of self-maintenance through boundary conditions.
+\item \textbf{Free Energy Principle}~\cite{Friston2010}: Both frameworks formalize how systems maintain coherence against environmental perturbation; CD emphasizes geometric/topological structure while FEP emphasizes information-theoretic bounds.
+\item \textbf{Enactivism}~\cite{Varela1991,Thompson2007}: The ``semiotic manifold'' reflects enactivism's emphasis on meaning as emergent from organism-environment coupling.
+\item \textbf{Dissipative structures}~\cite{Prigogine1984}: The viability threshold condition is analogous to criticality conditions for far-from-equilibrium self-organization.
+\end{itemize}
+
+\section*{Acknowledgments}
+The author thanks Project Navi LLC for supporting this research. This work builds on seven years of exploration at the intersection of behavioral health, mathematics, and AI systems.
+
+\bibliographystyle{unsrt}
+\bibliography{cd_refs}
+
+\end{document}

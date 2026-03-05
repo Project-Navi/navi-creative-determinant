@@ -185,7 +185,7 @@ jobs:
         with:
           files: |
             dist/*
-            paper/spence_creative_determinant_2026.pdf
+            paper/creative_determinant.pdf
           body: |
             ## Creative Determinant v${{ github.ref_name }}
             
@@ -204,6 +204,6 @@ jobs:
             - ✓ Bifurcation threshold: λ₁ < 0 ⟹ nontrivial solution
             - ✓ Numerical stability: O(h²) convergence
             
-            See the [paper](paper/spence_creative_determinant_2026.pdf) for full theoretical details.
+            See the [paper](paper/creative_determinant.pdf) for full theoretical details.
           draft: false
           prerelease: false

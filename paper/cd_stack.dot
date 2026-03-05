@@ -1,0 +1,126 @@
+digraph CDStack {
+  rankdir=TB;
+  bgcolor="white";
+  graph [
+    fontname="Helvetica",
+    fontsize=18,
+    labelloc="t",
+    label="CD Stack: PDE Core → Witnesses → Debt/Resilience → Dynamic Closure → Predictions",
+    pad="0.2",
+    nodesep="0.35",
+    ranksep="0.45"
+  ];
+  node [
+    fontname="Helvetica",
+    fontsize=11,
+    shape=box,
+    style="rounded,filled",
+    margin="0.18,0.10",
+    color="#333333"
+  ];
+  edge [
+    fontname="Helvetica",
+    fontsize=10,
+    color="#333333",
+    arrowsize=0.8
+  ];
+
+  // ---------- Layer 1 ----------
+  subgraph cluster_L1 {
+    label="Layer 1 — Mathematical Core (PDE + Spectral Viability)";
+    color="#2b6cb0"; fontcolor="#1a365d";
+    style="rounded";
+
+    PDE [fillcolor="#eef6ff", color="#2b6cb0",
+      label="Saturated CD PDE (V1′)\n−ΔΦ = a(x)|∇Φ| + b(x,t)Φ − c(x)Φᵖ\nΦ|∂M = 0"];
+    ADEF [fillcolor="#eef6ff", color="#2b6cb0",
+      label="Creative drive\n a(x)=κ(x,t)·γ(x,t)·μ(x,t) ∈ [0,1]"];
+    SYS [fillcolor="#eef6ff", color="#2b6cb0",
+      label="Effective system definition\n M(t), ∂M(t), boundary conditions\n(Dirichlet / Robin / geometry)"];
+    OP [fillcolor="#eef6ff", color="#2b6cb0",
+      label="Viability operator\nL(t)= −Δ − b(·,t) on M(t)"];
+    LAM [fillcolor="#eef6ff", color="#2b6cb0",
+      label="Principal eigenvalue\nλ₁(t)=λ₁(L(t))"];
+
+    PDE -> ADEF;
+    PDE -> OP;
+    SYS -> OP;
+    OP  -> LAM;
+  }
+
+  // ---------- Layer 2 ----------
+  subgraph cluster_L2 {
+    label="Layer 2 — Witnesses (Observed vs Capacity)";
+    color="#2f855a"; fontcolor="#22543d";
+    style="rounded";
+
+    PSI [fillcolor="#f0fff4", color="#2f855a",
+      label="Empirical witness\nψ(t) ∈ [0,1]\n(domain-specific: clinical/AI/org)"];
+    DER [fillcolor="#f0fff4", color="#2f855a",
+      label="Temporal derivatives\nψ′, ψ″, ψ‴\n(volatility / acceleration / jerk)"];
+    PSIS [fillcolor="#f0fff4", color="#2f855a",
+      label="Spectral witness (capacity envelope)\nψₛ(t)=1/(1+exp(λ₁/s)) ∈ (0,1)"];
+
+    PSI -> DER;
+    LAM -> PSIS;
+  }
+
+  // ---------- Layer 3 ----------
+  subgraph cluster_L3 {
+    label="Layer 3 — Debt / Resilience / Effective Cost (Bridge)";
+    color="#b7791f"; fontcolor="#744210";
+    style="rounded";
+
+    DEBT [fillcolor="#fffaf0", color="#b7791f",
+      label="Coherence debt\nD(t) ≥ 0\nḊ = η[ψ−ψₛ]⁺ − ρD"];
+    RBASE [fillcolor="#fffaf0", color="#b7791f",
+      label="Base resilience\nRbase=(1+β[ψ″]⁺)/(1+α₁|ψ′|+α₃|ψ‴|)"];
+    RTOT [fillcolor="#fffaf0", color="#b7791f",
+      label="Total resilience\nR = Rbase/(1 + D)"];
+    LAMEFF [fillcolor="#fffaf0", color="#b7791f",
+      label="Effective contradiction cost\nλeff = λ₀ / R"];
+    BDEF [fillcolor="#fffaf0", color="#b7791f",
+      label="Dynamic viability closure\nb(x,t)= κγ − λeff·μ"];
+
+    PSI  -> DEBT;
+    PSIS -> DEBT;
+
+    PSI -> RBASE;
+    DER -> RBASE;
+
+    DEBT -> RTOT;
+    RBASE -> RTOT;
+
+    RTOT -> LAMEFF;
+    LAMEFF -> BDEF;
+  }
+
+  // ---------- Layer 4 ----------
+  subgraph cluster_L4 {
+    label="Layer 4 — Loop + Predictions";
+    color="#c53030"; fontcolor="#742a2a";
+    style="rounded";
+
+    LOOP [fillcolor="#fff5f5", color="#c53030",
+      label="Closed loop (burnout / recovery)\nb → λ₁ → ψₛ → D → R → λeff → b"];
+    PRED [fillcolor="#fff5f5", color="#c53030",
+      label="Predictions / Tests\n• Hysteresis under slow λ or boundary sweeps\n• Debt accumulation predicts fragility\n• ψ vs ψₛ divergence predicts burnout\n• Interventions shift M(t), κ, γ, μ or reduce jerk/volatility"];
+
+    BDEF -> OP [label="updates b"];
+    BDEF -> LOOP;
+    LOOP -> PRED;
+  }
+
+  // ---------- Deferred Extension ----------
+  subgraph cluster_EXT {
+    label="Extension (Deferred) — Capacity Erosion";
+    color="#6b46c1"; fontcolor="#44337a";
+    style="rounded,dashed";
+
+    EROSION [fillcolor="#faf5ff", color="#6b46c1",
+      label="Optional slow damage\nwhen D > Dcrit:\nκ̇, γ̇ ↓ and/or μ̇ ↑\n(\"burning the furniture\")"];
+
+    DEBT -> EROSION;
+    EROSION -> BDEF [style=dashed, label="feeds back"];
+  }
+}

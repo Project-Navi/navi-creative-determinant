@@ -7,15 +7,29 @@ Provides tools for validating numerical solutions:
 - Solution characterization
 """
 
+from __future__ import annotations
+
 import numpy as np
+
+
+def _to_interior_1d(val, N):
+    """Convert scalar or array to interior array of length N."""
+    if np.isscalar(val):
+        return val  # scalar broadcasts naturally
+    val = np.asarray(val)
+    if val.shape == (N + 2,):
+        return val[1:-1]
+    if val.shape == (N,):
+        return val
+    raise ValueError(f"Expected scalar, length {N}, or length {N + 2}; got shape {val.shape}")
 
 
 def residual_1d(
     x: np.ndarray,
     Phi: np.ndarray,
-    a: float,
-    beta_b: float,
-    c: float,
+    a: float | np.ndarray,
+    beta_b: float | np.ndarray,
+    c: float | np.ndarray,
     p: float,
 ) -> np.ndarray:
     """
@@ -55,6 +69,11 @@ def residual_1d(
     N = len(x) - 2
     h = L / (N + 1)
 
+    # Convert coefficients to interior arrays (or leave as scalar)
+    a = _to_interior_1d(a, N)
+    beta_b = _to_interior_1d(beta_b, N)
+    c = _to_interior_1d(c, N)
+
     # Second derivative (interior)
     Phi_xx = (Phi[2:] - 2 * Phi[1:-1] + Phi[:-2]) / h**2
 
@@ -67,6 +86,57 @@ def residual_1d(
     res = -Phi_xx - rhs
 
     return res
+
+
+def residual_2d(
+    Phi: np.ndarray,
+    a_full: np.ndarray,
+    beta_b_full: np.ndarray,
+    c_full: np.ndarray,
+    p: float,
+    hx: float,
+    hy: float,
+) -> np.ndarray:
+    """
+    Compute 2D PDE residual on interior nodes.
+
+    Residual R = -LaplacianPhi - (a|gradPhi| + beta_b*Phi - c*Phi^p)
+
+    Parameters
+    ----------
+    Phi : ndarray
+        Solution including boundaries, shape (Ny+2, Nx+2).
+    a_full : ndarray
+        Creative drive on full grid, shape (Ny+2, Nx+2).
+    beta_b_full : ndarray
+        Viability field on full grid, shape (Ny+2, Nx+2).
+    c_full : ndarray
+        Saturation on full grid, shape (Ny+2, Nx+2).
+    p : float
+        Saturation exponent.
+    hx, hy : float
+        Grid spacings.
+
+    Returns
+    -------
+    res : ndarray
+        Residual on interior nodes, shape (Ny, Nx).
+    """
+    Phi_xx = (Phi[1:-1, 2:] - 2 * Phi[1:-1, 1:-1] + Phi[1:-1, :-2]) / hx**2
+    Phi_yy = (Phi[2:, 1:-1] - 2 * Phi[1:-1, 1:-1] + Phi[:-2, 1:-1]) / hy**2
+    lap = Phi_xx + Phi_yy
+
+    dPhidx = (Phi[1:-1, 2:] - Phi[1:-1, :-2]) / (2 * hx)
+    dPhidy = (Phi[2:, 1:-1] - Phi[:-2, 1:-1]) / (2 * hy)
+    gmag = np.sqrt(dPhidx**2 + dPhidy**2)
+
+    Phi_int = Phi[1:-1, 1:-1]
+    a_int = a_full[1:-1, 1:-1]
+    bb_int = beta_b_full[1:-1, 1:-1]
+    c_int = c_full[1:-1, 1:-1]
+
+    rhs = a_int * gmag + bb_int * Phi_int - c_int * np.maximum(Phi_int, 0.0) ** p
+    return -lap - rhs
 
 
 def check_convergence(info: dict, tol: float = 1e-8) -> tuple[bool, str]:
@@ -139,10 +209,15 @@ def presence_statistics(Phi: np.ndarray, x: np.ndarray) -> dict:
     Phi_int = Phi.ravel()[Phi.ravel() > 0]
     max_phi = float(Phi.max())
 
+    # Use actual grid spacing if x is provided
+    if x is not None and len(x) > 1:
+        dx = float(x.ravel()[1] - x.ravel()[0])
+    else:
+        dx = 1.0
     stats = {
         "max": max_phi,
         "mean": float(Phi_int.mean()) if len(Phi_int) > 0 else 0.0,
-        "total": float(np.trapezoid(Phi.ravel(), dx=1.0)),
+        "total": float(np.trapezoid(Phi.ravel(), dx=dx)),
     }
 
     if max_phi > 1e-10:
