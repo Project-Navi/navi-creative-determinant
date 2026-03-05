@@ -115,20 +115,24 @@ Please read our **[Code of Conduct](CODE_OF_CONDUCT.md)**—a trauma-informed, p
 
 ## Development Process
 
-**Mathematical framework**: The Creative Determinant equations, existence theory,
-and proof strategy were developed by Nelson Spence over 12 months (April 2025 –
-March 2026).
+**What the author did**: The mathematical framework — semiotic manifold formulation,
+nonlinear elliptic BVP, existence/nontriviality proof strategy, canonical closure,
+the CD condition, and the connection between enactivist philosophy and PDE theory —
+is original research by Nelson Spence, developed over 12 months (April 2025 – March 2026).
 
-**Implementation**: The Python numerical library (`src/cd/`), Jupyter notebook,
-figures, and documentation were developed with assistance from:
-- **Claude Opus**: Code generation, testing, documentation, project infrastructure
+**What AI tools did**: Claude Opus assisted with implementation — Python numerics,
+test infrastructure, notebook pedagogy, documentation, and Lean 4 formalization
+(Mathlib API navigation, proof term synthesis, project scaffolding). Aristotle
+(Harmonic.fun) automated proving of algebraic lemmas in Lean.
 
-**Lean formalization**: Translating the paper proofs into Lean 4 was assisted by:
-- **Claude Opus**: Mathlib API navigation, proof term generation, project structure
-- **Aristotle** (Harmonic.fun): Automated proving of algebraic/analysis lemmas
+**Why this isn't slop**: The intellectual contribution (theory, equations, proof
+strategy) is human-originated. AI helped transcribe those ideas into Python and
+Lean 4. The results are independently verifiable:
+- **Lean proofs**: `lake build --wfail` — type-checks or it doesn't. Zero `sorry`.
+- **Numerical code**: 24 tests against analytic solutions, O(h²) convergence, `solve_bvp` cross-checks.
+- **Axiom surface**: Every assumption is explicit in `PdeInfra` — nothing is hidden.
 
-All mathematical content originates from the author's research. AI tools were used
-as development and formalization assistants.
+The math doesn't care who typed it. Clone the repo and verify.
 
 ---
 
