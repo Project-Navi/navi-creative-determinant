@@ -146,3 +146,65 @@ def viability_threshold_2d(Lx: float, Ly: float, b: float) -> float:
         Critical value where λ₁ = 0.
     """
     return np.pi**2 * (1 / Lx**2 + 1 / Ly**2) / b
+
+
+def principal_eigenvalue_1d_spatial(
+    N: int,
+    L: float,
+    beta_b_field: np.ndarray,
+) -> float:
+    """
+    Compute principal eigenvalue of (-Δ - diag(βb(x))) on (0, L) with Dirichlet BC.
+
+    Parameters
+    ----------
+    N : int
+        Number of interior grid points.
+    L : float
+        Domain length.
+    beta_b_field : ndarray
+        Spatially-varying βb values on full grid (N+2 points including boundaries).
+        Only interior values [1:-1] are used.
+
+    Returns
+    -------
+    lam1 : float
+        Principal (smallest) eigenvalue.
+    """
+    A, _ = laplacian_1d_dirichlet(N, L)
+    bb_int = beta_b_field[1:-1]
+    M = A - diags([bb_int], [0], format="csr")
+    lam, _ = eigsh(M, k=1, which="SA")
+    return float(lam[0])
+
+
+def principal_eigenvalue_2d_spatial(
+    Nx: int,
+    Ny: int,
+    Lx: float,
+    Ly: float,
+    beta_b_field: np.ndarray,
+) -> float:
+    """
+    Compute principal eigenvalue of (-Δ - diag(βb(x,y))) on rectangle with Dirichlet BC.
+
+    Parameters
+    ----------
+    Nx, Ny : int
+        Number of interior grid points in each direction.
+    Lx, Ly : float
+        Domain lengths.
+    beta_b_field : ndarray
+        Spatially-varying βb on full grid, shape (Ny+2, Nx+2).
+        Only interior values [1:-1, 1:-1] are used.
+
+    Returns
+    -------
+    lam1 : float
+        Principal (smallest) eigenvalue.
+    """
+    A, _, _ = laplacian_2d_dirichlet(Nx, Ny, Lx, Ly)
+    bb_int = beta_b_field[1:-1, 1:-1].reshape(-1)
+    M = A - diags([bb_int], [0], format="csr")
+    lam, _ = eigsh(M, k=1, which="SA")
+    return float(lam[0])

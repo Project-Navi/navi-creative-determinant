@@ -22,7 +22,9 @@ Key result (Theorem 3.16): Nontrivial solutions exist when λ₁(-Δ - βb; M) <
 from .analysis import check_convergence, residual_1d, solution_type
 from .eigenvalues import (
     principal_eigenvalue_1d,
+    principal_eigenvalue_1d_spatial,
     principal_eigenvalue_2d,
+    principal_eigenvalue_2d_spatial,
     viability_threshold_1d,
     viability_threshold_2d,
 )
@@ -40,7 +42,9 @@ __all__ = [
     "laplacian_2d_dirichlet",
     # Eigenvalues
     "principal_eigenvalue_1d",
+    "principal_eigenvalue_1d_spatial",
     "principal_eigenvalue_2d",
+    "principal_eigenvalue_2d_spatial",
     "viability_threshold_1d",
     "viability_threshold_2d",
     # Solvers
