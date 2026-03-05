@@ -113,6 +113,25 @@ Please read our **[Code of Conduct](CODE_OF_CONDUCT.md)**—a trauma-informed, p
 
 ---
 
+## Development Process
+
+**Mathematical framework**: The Creative Determinant equations, existence theory,
+and proof strategy were developed by Nelson Spence over 12 months (April 2025 –
+March 2026).
+
+**Implementation**: The Python numerical library (`src/cd/`), Jupyter notebook,
+figures, and documentation were developed with assistance from:
+- **Claude Opus**: Code generation, testing, documentation, project infrastructure
+
+**Lean formalization**: Translating the paper proofs into Lean 4 was assisted by:
+- **Claude Opus**: Mathlib API navigation, proof term generation, project structure
+- **Aristotle** (Harmonic.fun): Automated proving of algebraic/analysis lemmas
+
+All mathematical content originates from the author's research. AI tools were used
+as development and formalization assistants.
+
+---
+
 ## Contact
 
 Nelson Spence  
