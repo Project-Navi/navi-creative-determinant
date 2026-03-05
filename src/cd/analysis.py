@@ -7,15 +7,29 @@ Provides tools for validating numerical solutions:
 - Solution characterization
 """
 
+from __future__ import annotations
+
 import numpy as np
+
+
+def _to_interior_1d(val, N):
+    """Convert scalar or array to interior array of length N."""
+    if np.isscalar(val):
+        return val  # scalar broadcasts naturally
+    val = np.asarray(val)
+    if val.shape == (N + 2,):
+        return val[1:-1]
+    if val.shape == (N,):
+        return val
+    raise ValueError(f"Expected scalar, length {N}, or length {N+2}; got shape {val.shape}")
 
 
 def residual_1d(
     x: np.ndarray,
     Phi: np.ndarray,
-    a: float,
-    beta_b: float,
-    c: float,
+    a: float | np.ndarray,
+    beta_b: float | np.ndarray,
+    c: float | np.ndarray,
     p: float,
 ) -> np.ndarray:
     """
@@ -54,6 +68,11 @@ def residual_1d(
     L = x[-1] - x[0]
     N = len(x) - 2
     h = L / (N + 1)
+
+    # Convert coefficients to interior arrays (or leave as scalar)
+    a = _to_interior_1d(a, N)
+    beta_b = _to_interior_1d(beta_b, N)
+    c = _to_interior_1d(c, N)
 
     # Second derivative (interior)
     Phi_xx = (Phi[2:] - 2 * Phi[1:-1] + Phi[:-2]) / h**2

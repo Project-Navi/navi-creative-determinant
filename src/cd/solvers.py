@@ -5,18 +5,32 @@ Implements Picard iteration for the nonlinear elliptic BVP:
     -ΔΦ = a|∇Φ| + βbΦ - cΦᵖ,  Φ|∂M = 0
 """
 
+from __future__ import annotations
+
 import numpy as np
 from scipy.sparse.linalg import spsolve
 
 from .operators import laplacian_1d_dirichlet, laplacian_2d_dirichlet
 
 
+def _to_interior_1d(val, N):
+    """Convert scalar or array to interior array of length N."""
+    if np.isscalar(val):
+        return val  # scalar broadcasts naturally
+    val = np.asarray(val)
+    if val.shape == (N + 2,):
+        return val[1:-1]
+    if val.shape == (N,):
+        return val
+    raise ValueError(f"Expected scalar, length {N}, or length {N+2}; got shape {val.shape}")
+
+
 def solve_1d_picard(
     L: float,
     N: int,
-    a: float,
-    beta_b: float,
-    c: float,
+    a: float | np.ndarray,
+    beta_b: float | np.ndarray,
+    c: float | np.ndarray,
     p: float = 2.0,
     max_iter: int = 8000,
     tol: float = 1e-10,
@@ -87,6 +101,11 @@ def solve_1d_picard(
     Phi = initial_amplitude * np.sin(np.pi * x / L)
     Phi_int = Phi[1:-1].copy()
 
+    # Convert coefficients to interior arrays (or leave as scalar)
+    a_int = _to_interior_1d(a, N)
+    bb_int = _to_interior_1d(beta_b, N)
+    c_int = _to_interior_1d(c, N)
+
     def grad_abs(Phi_full):
         """Central difference approximation of |Φ'|."""
         d = (Phi_full[2:] - Phi_full[:-2]) / (2 * h)
@@ -102,7 +121,7 @@ def solve_1d_picard(
 
         # Evaluate nonlinear terms at current iterate
         gabs = grad_abs(Phi_full)
-        rhs = a * gabs + beta_b * Phi_int - c * np.maximum(Phi_int, 0.0) ** p
+        rhs = a_int * gabs + bb_int * Phi_int - c_int * np.maximum(Phi_int, 0.0) ** p
 
         # Solve linear system
         Phi_new = spsolve(A, rhs)
