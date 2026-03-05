@@ -157,9 +157,9 @@ def solve_2d_picard(
     Ly: float,
     Nx: int,
     Ny: int,
-    a: float,
+    a: float | np.ndarray,
     beta_b: float,
-    c: float,
+    c: float | np.ndarray,
     p: float = 2.0,
     max_iter: int = 8000,
     tol: float = 1e-8,
@@ -218,6 +218,16 @@ def solve_2d_picard(
     Phi = initial_amplitude * np.sin(np.pi * X / Lx) * np.sin(np.pi * Y / Ly)
     Phi_int = Phi[1:-1, 1:-1].flatten()
 
+    # Convert array coefficients to flat interior arrays
+    if hasattr(a, '__len__'):
+        a_flat = np.asarray(a).flatten()
+    else:
+        a_flat = a  # scalar broadcasts
+    if hasattr(c, '__len__'):
+        c_flat = np.asarray(c).flatten()
+    else:
+        c_flat = c  # scalar broadcasts
+
     # Viability field
     if b_field is None:
         b_flat = np.ones(Nx * Ny)
@@ -240,7 +250,7 @@ def solve_2d_picard(
 
         # Nonlinear terms
         gabs = grad_abs_2d(Phi_full)
-        rhs = a * gabs + beta_b * b_flat * Phi_int - c * np.maximum(Phi_int, 0.0) ** p
+        rhs = a_flat * gabs + beta_b * b_flat * Phi_int - c_flat * np.maximum(Phi_int, 0.0) ** p
 
         # Solve
         Phi_new = spsolve(A, rhs)

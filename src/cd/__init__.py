@@ -19,7 +19,7 @@ Where:
 Key result (Theorem 3.16): Nontrivial solutions exist when λ₁(-Δ - βb; M) < 0
 """
 
-from .analysis import check_convergence, residual_1d, solution_type
+from .analysis import check_convergence, residual_1d, residual_2d, solution_type
 from .eigenvalues import (
     principal_eigenvalue_1d,
     principal_eigenvalue_1d_spatial,
@@ -52,6 +52,7 @@ __all__ = [
     "solve_2d_picard",
     # Analysis
     "residual_1d",
+    "residual_2d",
     "check_convergence",
     "solution_type",
     # Fields

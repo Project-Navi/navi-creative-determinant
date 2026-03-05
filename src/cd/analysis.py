@@ -88,6 +88,57 @@ def residual_1d(
     return res
 
 
+def residual_2d(
+    Phi: np.ndarray,
+    a_full: np.ndarray,
+    beta_b_full: np.ndarray,
+    c_full: np.ndarray,
+    p: float,
+    hx: float,
+    hy: float,
+) -> np.ndarray:
+    """
+    Compute 2D PDE residual on interior nodes.
+
+    Residual R = -LaplacianPhi - (a|gradPhi| + beta_b*Phi - c*Phi^p)
+
+    Parameters
+    ----------
+    Phi : ndarray
+        Solution including boundaries, shape (Ny+2, Nx+2).
+    a_full : ndarray
+        Creative drive on full grid, shape (Ny+2, Nx+2).
+    beta_b_full : ndarray
+        Viability field on full grid, shape (Ny+2, Nx+2).
+    c_full : ndarray
+        Saturation on full grid, shape (Ny+2, Nx+2).
+    p : float
+        Saturation exponent.
+    hx, hy : float
+        Grid spacings.
+
+    Returns
+    -------
+    res : ndarray
+        Residual on interior nodes, shape (Ny, Nx).
+    """
+    Phi_xx = (Phi[1:-1, 2:] - 2 * Phi[1:-1, 1:-1] + Phi[1:-1, :-2]) / hx**2
+    Phi_yy = (Phi[2:, 1:-1] - 2 * Phi[1:-1, 1:-1] + Phi[:-2, 1:-1]) / hy**2
+    lap = Phi_xx + Phi_yy
+
+    dPhidx = (Phi[1:-1, 2:] - Phi[1:-1, :-2]) / (2 * hx)
+    dPhidy = (Phi[2:, 1:-1] - Phi[:-2, 1:-1]) / (2 * hy)
+    gmag = np.sqrt(dPhidx**2 + dPhidy**2)
+
+    Phi_int = Phi[1:-1, 1:-1]
+    a_int = a_full[1:-1, 1:-1]
+    bb_int = beta_b_full[1:-1, 1:-1]
+    c_int = c_full[1:-1, 1:-1]
+
+    rhs = a_int * gmag + bb_int * Phi_int - c_int * np.maximum(Phi_int, 0.0) ** p
+    return -lap - rhs
+
+
 def check_convergence(info: dict, tol: float = 1e-8) -> tuple[bool, str]:
     """
     Check solver convergence and provide diagnostic message.
