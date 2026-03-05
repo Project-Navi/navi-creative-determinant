@@ -30,21 +30,21 @@ The goal is a cognitive theory that is **not three separate things, but one inte
 
 ## Quick Start
 
-**Requirements:** Python 3.10+, NumPy, SciPy, Matplotlib
+**Requirements:** Python 3.10+, [uv](https://docs.astral.sh/uv/)
 
 ```bash
 # Clone the repository
 git clone https://github.com/Project-Navi/navi-creative-determinant.git
 cd navi-creative-determinant
 
-# Install dependencies
-pip install numpy scipy matplotlib
+# Install all dependencies (creates venv, installs package + deps)
+uv sync
 
 # Run the tests
-pytest tests/test_core.py -v
+uv run pytest tests/ -v
 
 # Open the notebook
-jupyter notebook notebooks/cd_pde_demo.ipynb
+uv run jupyter lab notebooks/
 ```
 
 ---
