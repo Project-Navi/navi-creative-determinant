@@ -4,7 +4,7 @@ Eigenvalue computations for the Creative Determinant framework.
 Provides tools for computing the principal eigenvalue λ₁(-Δ - βb; M),
 which determines the viability threshold for presence emergence.
 
-Key result (Theorem 3.5 in paper):
+Key result (Theorem 3.16 in paper):
     Nontrivial solutions exist when λ₁ < 0.
 """
 

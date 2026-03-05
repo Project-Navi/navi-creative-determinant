@@ -28,15 +28,15 @@ Short answers to common questions about the Creative Determinant (CD) framework.
 
 ---
 
-## What is the "semiotic manifold" \(M\) in a real neural network?
+## What is the "semiotic manifold" $M$ in a real neural network?
 
-**Open question.** \(M\) is an abstract space of meanings or interpretations. Extracting it from a trained network requires manifold learning, dimensionality reduction, or other techniques. This is an active research direction. See [OPEN_PROBLEMS.md](OPEN_PROBLEMS.md) #7 and [ROADMAP.md](ROADMAP.md) #1.
+**Open question.** $M$ is an abstract space of meanings or interpretations. Extracting it from a trained network requires manifold learning, dimensionality reduction, or other techniques. This is an active research direction. See [OPEN_PROBLEMS.md](OPEN_PROBLEMS.md) #7 and [ROADMAP.md](ROADMAP.md) #1.
 
 ---
 
-## How do I extract the fields \(\theta, \phi, \mu\) from data?
+## How do I extract the fields κ, γ, μ from data?
 
-**No general method yet.** The canonical closure \(b = \eta - \lambda\mu\) provides a structure, but inferring \(\theta\) (care), \(\phi\) (coherence), and \(\mu\) (contradiction) from observables is system-dependent and currently requires hand-crafted proxies. Developing principled extraction methods is a key open problem.
+**No general method yet.** The canonical closure $b = κγ - λμ$ provides a structure, but inferring κ (care), γ (coherence), and μ (contradiction) from observables is system-dependent and currently requires hand-crafted proxies. Developing principled extraction methods is a key open problem.
 
 ---
 
@@ -71,15 +71,14 @@ CD is intended for:
 
 ## How do I cite this work?
 
-> Nelson Spence. *On the Existence and Stability of Recursive Semiotic Fields: A Formalization of the Creative Determinant.* Project Navi LLC, January 2026.
+> Nelson Spence. *The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions.* Project Navi LLC, 2026.
 
 ```bibtex
 @techreport{spence2026creative,
   author = {Spence, Nelson},
-  title = {On the Existence and Stability of Recursive Semiotic Fields: A Formalization of the Creative Determinant},
+  title = {The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions},
   institution = {Project Navi LLC},
   year = {2026},
-  month = {January},
   address = {Austin, Texas}
 }
 ```

@@ -25,6 +25,10 @@ Supplementary documentation for the Creative Determinant framework.
 2. [OPEN_PROBLEMS.md](OPEN_PROBLEMS.md) — Find a gap to fill
 3. [CONTRIBUTING.md](../CONTRIBUTING.md) — Learn the process
 
+### If you want to understand the Lean formalization:
+1. [cd_formalization/README.md](../cd_formalization/README.md) — What's proved, axiom boundary
+2. [cd_formalization/VERIFICATION_AUDIT.md](../cd_formalization/VERIFICATION_AUDIT.md) — Full proof audit
+
 ### If you want the backstory:
 1. [AUTHORS_NOTE.md](AUTHORS_NOTE.md) — Why this exists
 2. [ETHICAL_COVENANT.md](ETHICAL_COVENANT.md) — Values behind the work

@@ -43,7 +43,7 @@ jupyter nbconvert --to notebook --execute cd_pde_demo.ipynb
 
 The notebook provides computational evidence for claims in Sections 2–3 of the paper. Specifically:
 
-- **Theorem 3.12** (nontriviality) is verified numerically in Parts 1–3
+- **Theorem 3.12** (existence) and **Theorem 3.16** (nontriviality) are verified numerically in Parts 1–3
 - **Canonical closure** (§3.4) is explored in Part 4
 - **Spatial structure** (§4) is visualized in Parts 5, 7
 

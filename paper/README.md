@@ -4,7 +4,7 @@ The core theoretical paper for the Creative Determinant framework.
 
 ## Contents
 
-**creative_determinant.pdf** — *On the Existence and Stability of Recursive Semiotic Fields: A Formalization of the Creative Determinant*
+**creative_determinant.pdf** — *The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions*
 
 ## Structure
 
@@ -22,7 +22,7 @@ The core theoretical paper for the Creative Determinant framework.
 ```bibtex
 @techreport{spence2026creative,
   author = {Spence, Nelson},
-  title = {On the Existence and Stability of Recursive Semiotic Fields: A Formalization of the Creative Determinant},
+  title = {The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions},
   institution = {Project Navi LLC},
   year = {2026},
   month = {January},
@@ -32,7 +32,7 @@ The core theoretical paper for the Creative Determinant framework.
 
 ## Key Results
 
-- **Theorem 3.11** (Existence): Nontrivial coherent configurations exist when viability exceeds dissipation
-- **Theorem 3.12** (Nontriviality): Principal eigenvalue condition λ₁ < 0 guarantees emergence
+- **Theorem 3.12** (Existence): Weak coherent configurations exist under mild coefficient assumptions
+- **Theorem 3.16** (Nontriviality): When viability exceeds dissipation (λ₁ < 0), positive solutions emerge
 - **Definition 5.1** (CD Condition): Measurable correlation between coherence and Jacobian dynamics
 - **Definition 5.3** (Falsifiability): Five explicit criteria for empirical refutation
