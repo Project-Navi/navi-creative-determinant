@@ -115,10 +115,11 @@ Please read our **[Code of Conduct](CODE_OF_CONDUCT.md)**—a trauma-informed, p
 
 ## Development Process
 
-**What the author did**: The mathematical framework — semiotic manifold formulation,
-nonlinear elliptic BVP, existence/nontriviality proof strategy, canonical closure,
-the CD condition, and the connection between enactivist philosophy and PDE theory —
-is original research by Nelson Spence, developed over 12 months (April 2025 – March 2026).
+**What the author did**: The original equations, mathematical framework, and theory —
+semiotic manifold formulation, the nonlinear elliptic BVP (V1'), existence/nontriviality
+proof strategy, canonical closure, the CD condition, and the connection between
+enactivist philosophy and PDE theory — are original research by Nelson Spence,
+developed over 12 months (April 2025 – March 2026).
 
 **What AI tools did**: Claude Opus assisted with implementation — Python numerics,
 test infrastructure, notebook pedagogy, documentation, and Lean 4 formalization
