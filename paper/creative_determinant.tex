@@ -440,7 +440,7 @@ Choose \(K\) large enough that this term absorbs all others.
 Combining, \(\overline{\Phi}=K\phi_1^2\) is a super-solution for \(K\) sufficiently large.
 
 \paragraph{Step 3: ordering and conclusion.}
-By construction, \(\underline{\Phi}=\varepsilon\phi_1\ge 0\) and \(\overline{\Phi}=K\psi\ge 0\).
+By construction, \(\underline{\Phi}=\varepsilon\phi_1\ge 0\) and \(\overline{\Phi}=K\phi_1^2\ge 0\).
 Choose \(K\) further so that \(\underline{\Phi}\le \overline{\Phi}\) in \(M\) (possible since \(\underline{\Phi}\) is bounded and \(\overline{\Phi}\) scales with \(K\)).
 Then by the classical sub-/super-solution theorem for Dirichlet problems~\cite[Thm.~10.2]{GilbargTrudinger2001} (see also~\cite{Amann1976} for a comprehensive treatment), there exists a solution \(\Phi\) of \eqref{eq:V1prime} such that
 \[
@@ -790,7 +790,7 @@ Def.\ 2.1 (Semiotic manifold) & \texttt{SemioticManifold} & \texttt{Basic} & Def
 Def.\ 2.3 (Characteristic fields) & \texttt{SemioticContext}, \texttt{.a} & \texttt{Basic} & Definition \\
 Def.\ 3.1 (V1\('\)) & \texttt{SemioticBVP} & \texttt{Basic} & Definition \\
 Def.\ 3.3 (Canonical closure) & \texttt{.canonicalViability} & \texttt{Basic} & Definition \\
-Def.\ 3.6 (Weak coherent config.) & \texttt{IsWeakCoherentConfiguration} & \texttt{Basic} & Definition \\
+Def.\ 3.1 (Weak coherent config.) & \texttt{IsWeakCoherentConfiguration} & \texttt{Basic} & Definition \\
 Def.\ 3.13 (Principal eigenvalue) & \texttt{PrincipalEigendata} & \texttt{Axioms} & Definition \\
 \midrule
 Lemma 3.7 (Compactness of $T$) & \texttt{PDEInfra.T\_continuous\_compact} & \texttt{Axioms} & Axiom \\
@@ -800,6 +800,9 @@ Lemma 3.11 ($C^{1,\alpha}$ bound) & (subsumed by \texttt{linfty\_bound}) & --- &
 Thm.\ 3.12 (Existence) & \texttt{.exists\_isWeakCoherentConfiguration} & \texttt{Theorems} & Proved (PDEInfra) \\
 Thm.\ 3.16 (Nontriviality) & \texttt{.exists\_pos\_isWeakCoherentConfiguration} & \texttt{Theorems} & Proved (PDEInfra) \\
 \midrule
+--- (Viability threshold) & \texttt{viabilityThreshold} & \texttt{Theorems} & Definition \\
+--- (Solution operator) & \texttt{SolutionOperator} & \texttt{Axioms} & Definition \\
+--- (Abstract operators) & \texttt{SemioticOperators} & \texttt{Basic} & Definition \\
 --- (Spectral, 1D) & \texttt{spectral\_characterization\_1d} & \texttt{Theorems} & Proved \\
 --- (Scaling algebra) & \texttt{scaling\_algebraic\_contradiction} & \texttt{Theorems} & Proved \\
 --- (Scaling uniqueness) & \texttt{scaling\_uniqueness} & \texttt{ScalingUniqueness} & Proved \\
