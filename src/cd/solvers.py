@@ -22,7 +22,7 @@ def _to_interior_1d(val, N):
         return val[1:-1]
     if val.shape == (N,):
         return val
-    raise ValueError(f"Expected scalar, length {N}, or length {N+2}; got shape {val.shape}")
+    raise ValueError(f"Expected scalar, length {N}, or length {N + 2}; got shape {val.shape}")
 
 
 def solve_1d_picard(
@@ -219,11 +219,11 @@ def solve_2d_picard(
     Phi_int = Phi[1:-1, 1:-1].flatten()
 
     # Convert array coefficients to flat interior arrays
-    if hasattr(a, '__len__'):
+    if hasattr(a, "__len__"):
         a_flat = np.asarray(a).flatten()
     else:
         a_flat = a  # scalar broadcasts
-    if hasattr(c, '__len__'):
+    if hasattr(c, "__len__"):
         c_flat = np.asarray(c).flatten()
     else:
         c_flat = c  # scalar broadcasts

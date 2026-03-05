@@ -21,7 +21,7 @@ def _to_interior_1d(val, N):
         return val[1:-1]
     if val.shape == (N,):
         return val
-    raise ValueError(f"Expected scalar, length {N}, or length {N+2}; got shape {val.shape}")
+    raise ValueError(f"Expected scalar, length {N}, or length {N + 2}; got shape {val.shape}")
 
 
 def residual_1d(

@@ -30,7 +30,7 @@ class TestSpatialSolver1d:
         L, N = 1.0, 400
         x_int = np.linspace(0, L, N + 2)[1:-1]
         # Gaussian viability bump
-        bb = 15.0 * np.exp(-((x_int - 0.5) / 0.2) ** 2)
+        bb = 15.0 * np.exp(-(((x_int - 0.5) / 0.2) ** 2))
         _, _, info = solve_1d_picard(L, N, a=np.zeros(N), beta_b=bb, c=np.full(N, 10.0))
         assert info["converged"]
 
@@ -46,7 +46,8 @@ class TestSpatialResidual1d:
         x, Phi, _ = solve_1d_picard(L, N, a=0.0, beta_b=beta_b_val, c=10.0)
 
         res_s = residual_1d(x, Phi, a=0.0, beta_b=beta_b_val, c=10.0, p=2.0)
-        res_a = residual_1d(x, Phi, a=np.zeros(N), beta_b=np.full(N, beta_b_val),
-                           c=np.full(N, 10.0), p=2.0)
+        res_a = residual_1d(
+            x, Phi, a=np.zeros(N), beta_b=np.full(N, beta_b_val), c=np.full(N, 10.0), p=2.0
+        )
 
         assert np.allclose(res_s, res_a, atol=1e-12)

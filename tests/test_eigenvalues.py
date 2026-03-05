@@ -37,5 +37,5 @@ class TestSpatialEigenvalue2d:
         beta_b = 10.0
         beta_b_field = beta_b * np.ones((Ny + 2, Nx + 2))
         lam_spatial = principal_eigenvalue_2d_spatial(Nx, Ny, Lx, Ly, beta_b_field)
-        lam_analytic = np.pi**2 * (1/Lx**2 + 1/Ly**2) - beta_b
+        lam_analytic = np.pi**2 * (1 / Lx**2 + 1 / Ly**2) - beta_b
         assert abs(lam_spatial - lam_analytic) < 0.5

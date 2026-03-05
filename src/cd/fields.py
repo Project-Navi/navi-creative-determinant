@@ -149,7 +149,7 @@ def gaussian_bump_1d(
     field : ndarray
         Gaussian bump (same shape as x).
     """
-    return amplitude * np.exp(-((x - center) ** 2) / (2 * sigma ** 2))
+    return amplitude * np.exp(-((x - center) ** 2) / (2 * sigma**2))
 
 
 def constant_field(shape: tuple[int, ...], value: float) -> np.ndarray:
