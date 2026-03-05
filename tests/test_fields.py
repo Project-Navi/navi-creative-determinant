@@ -1,7 +1,6 @@
 """Tests for field constructors."""
 
 import numpy as np
-import pytest
 
 from cd.fields import gaussian_bump_1d
 

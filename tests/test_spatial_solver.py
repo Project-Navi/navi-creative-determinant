@@ -1,9 +1,8 @@
 """Tests for spatially-varying coefficient support in solver and residual."""
 
 import numpy as np
-import pytest
 
-from cd import solve_1d_picard, residual_1d
+from cd import residual_1d, solve_1d_picard
 from cd.eigenvalues import viability_threshold_1d
 
 

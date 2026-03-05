@@ -1,7 +1,6 @@
 """Tests for 2D solver extensions and residual."""
 
 import numpy as np
-import pytest
 
 from cd import solve_2d_picard
 from cd.analysis import residual_2d

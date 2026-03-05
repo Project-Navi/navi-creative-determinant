@@ -1,13 +1,11 @@
 """Tests for eigenvalue computations including spatially-varying fields."""
 
 import numpy as np
-import pytest
 
 from cd.eigenvalues import (
     principal_eigenvalue_1d,
     principal_eigenvalue_1d_spatial,
     principal_eigenvalue_2d_spatial,
-    viability_threshold_1d,
 )
 
 
