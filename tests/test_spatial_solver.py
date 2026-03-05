@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Nelson Spence
 """Tests for spatially-varying coefficient support in solver and residual."""
 
 import numpy as np

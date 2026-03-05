@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Nelson Spence
 """
 Discrete Laplacian operators for the Creative Determinant framework.
 

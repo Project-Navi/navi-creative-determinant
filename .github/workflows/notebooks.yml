@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Nelson Spence
 # Notebook Validation CI
 #
 # Validates that the Jupyter notebook executes without errors and produces

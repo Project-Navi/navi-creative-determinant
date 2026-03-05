@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Nelson Spence
 """
 Eigenvalue computations for the Creative Determinant framework.
 

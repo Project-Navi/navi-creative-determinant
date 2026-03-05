@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Nelson Spence
 """
 Creative Determinant (CD) - A Field Theory of Coherence and Meaning
 

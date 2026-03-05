@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Nelson Spence
 """Tests for eigenvalue computations including spatially-varying fields."""
 
 import numpy as np

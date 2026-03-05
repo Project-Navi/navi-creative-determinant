@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Nelson Spence
 """Tests for 2D solver extensions and residual."""
 
 import numpy as np

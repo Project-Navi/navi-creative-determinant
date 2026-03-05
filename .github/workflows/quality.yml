@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Nelson Spence
 # Code Quality CI
 #
 # Ensures code quality through linting, type checking, and coverage analysis.

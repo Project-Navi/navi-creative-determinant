@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Nelson Spence
 """
 Generate publication-quality figures for the Creative Determinant PDE framework.
 
