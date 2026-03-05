@@ -1,9 +1,33 @@
 \begin{thebibliography}{10}
 
+\bibitem{MaturanaVarela1980}
+Humberto~R. Maturana and Francisco~J. Varela.
+\newblock {\em Autopoiesis and Cognition: The Realization of the Living},
+  volume~42 of {\em Boston Studies in the Philosophy of Science}.
+\newblock D. Reidel, Dordrecht, 1980.
+
 \bibitem{Thompson2007}
 Evan Thompson.
 \newblock {\em Mind in Life: Biology, Phenomenology, and the Sciences of Mind}.
 \newblock Harvard University Press, Cambridge, MA, 2007.
+
+\bibitem{deMoura2021}
+Leonardo de~Moura and Sebastian Ullrich.
+\newblock The {L}ean 4 theorem prover and programming language.
+\newblock In {\em Automated Deduction -- CADE 28}, volume 12699 of {\em Lecture
+  Notes in Computer Science}, pages 625--635. Springer, 2021.
+
+\bibitem{Mathlib2020}
+{The mathlib Community}.
+\newblock The {L}ean mathematical library.
+\newblock \url{https://github.com/leanprover-community/mathlib4}, 2020.
+\newblock Accessed 2026.
+
+\bibitem{Spence2026Lean}
+Nelson Spence.
+\newblock Creative {D}eterminant: {L}ean 4 formalization.
+\newblock \url{https://github.com/Project-Navi/cd-formalization}, 2026.
+\newblock Lean 4.28.0, Mathlib v4.28.0. Zero \texttt{sorry}, CI-enforced.
 
 \bibitem{Peirce1931}
 Charles~Sanders Peirce.
@@ -91,12 +115,6 @@ James~L. Kaplan and James~A. Yorke.
 \newblock In {\em Functional Differential Equations and Approximation of Fixed
   Points}, volume 730 of {\em Lecture Notes in Mathematics}, pages 204--227.
   Springer, 1979.
-
-\bibitem{MaturanaVarela1980}
-Humberto~R. Maturana and Francisco~J. Varela.
-\newblock {\em Autopoiesis and Cognition: The Realization of the Living},
-  volume~42 of {\em Boston Studies in the Philosophy of Science}.
-\newblock D. Reidel, Dordrecht, 1980.
 
 \bibitem{Friston2010}
 Karl Friston.
