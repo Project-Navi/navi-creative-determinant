@@ -847,7 +847,7 @@ The \texttt{PDEInfra} typeclass packages five assumptions from classical ellipti
 \end{tabular}
 \end{table}
 
-The \texttt{T\_compact} field is currently \texttt{True} (a placeholder). The Schaefer axiom takes this as a hypothesis via \texttt{True $\to$}, preserving the structural dependency chain even though the content is trivial until Mathlib gains the requisite infrastructure. The algebraic core of the $L^\infty$ bound (Lemma~\ref{lem:LinftyBound})---that $bv \geq cv^p$ implies $v \leq (B/c_0)^{1/(p-1)}$---is proved in the main formalization (\texttt{LinftyAlgebraic.lean}); the maximum-principle step (that $\nabla u = 0$ and $\Delta u \leq 0$ at an interior maximum) remains an axiom.
+The \texttt{T\_compact} field uses Mathlib's bornological vocabulary: it asserts that $T$ maps von Neumann bounded sets to relatively compact sets (\texttt{IsVonNBounded} $\to$ \texttt{IsCompact}), following the compact-operator characterization suggested on the Lean Zulip. The Schaefer axiom takes this as an explicit hypothesis, making the dependency structurally visible. The algebraic core of the $L^\infty$ bound (Lemma~\ref{lem:LinftyBound})---that $bv \geq cv^p$ implies $v \leq (B/c_0)^{1/(p-1)}$---is proved in the main formalization (\texttt{LinftyAlgebraic.lean}); the maximum-principle step (that $\nabla u = 0$ and $\Delta u \leq 0$ at an interior maximum) remains an axiom.
 
 As Mathlib's PDE infrastructure grows, these axioms can be replaced one by one with real proofs. The logical structure of the existence and nontriviality theorems is already verified; only the analytic plumbing remains.
 
