@@ -52,7 +52,7 @@ where \(a(x)=\kappa(x)\gamma(x)\mu(x)\in[0,1]\) encodes the \emph{creative drive
 The principal eigenvalue condition \(\lambda_1(-\Delta - b; M) < 0\) provides an exact, computable threshold for the emergence of self-sustaining coherent configurations---formalizing, for the first time, the transition from incoherence to autopoietic organization.
 We establish existence of \emph{weak coherent configurations} via Schaefer's fixed-point theorem with explicit a priori bounds, and prove a nontriviality theorem: when viability exceeds dissipation, the BVP admits a positive solution and coherent presence can be self-maintained.
 Beyond the PDE core, we distinguish weak from strong coherence (a gap we treat as the framework's central generative tension), formulate conditional geometric statements, and propose an operational \emph{Creative Determinant condition} \(CD(\alpha,\varepsilon,\delta)\) with five explicit falsifiability criteria.
-Core definitions---the semiotic manifold, viability closure, PDE operators, and boundary value problem structure---together with the spectral characterization theorem are machine-verified in Lean~4 against the Mathlib library; numerical validation confirms \(O(h^2)\) convergence across grid resolutions. All proofs, computations, and verification artifacts are open source.
+Core definitions---the semiotic manifold, viability closure, PDE operators, and boundary value problem structure---together with fifteen supporting theorems spanning spectral characterization, operator algebra, coefficient bounds, scaling uniqueness, and fixed-point existence are machine-verified in Lean~4 against the Mathlib library; numerical validation confirms \(O(h^2)\) convergence across grid resolutions. All proofs, computations, and verification artifacts are open source.
 \end{abstract}
 
 \paragraph{Keywords.}
@@ -88,7 +88,7 @@ This gap is not a limitation---it is the \emph{core philosophical commitment}. R
 \end{enumerate}
 
 \subsection*{Formal verification}
-The mathematical foundations of this framework are machine-verified using the Lean~4 theorem prover~\cite{deMoura2021} with the Mathlib library~\cite{Mathlib2020}. The formalization~\cite{Spence2026Lean} covers the semiotic manifold structure, coefficient bounds, the Laplace--Beltrami and gradient-norm operators, the full boundary value problem~\eqref{eq:mainBVP}, and the definition of weak coherent configurations. Eleven theorems are proved without \texttt{sorry} axioms, organized in four dependency tiers: (i)~pure algebra requiring no domain axioms (spectral characterization, scaling contradiction); (ii)~derived operator lemmas from abstract Laplacian linearity and gradient-norm homogeneity; (iii)~coefficient bound lemmas from the $[0,1]$ field constraints; and (iv)~PDE-level results including a scaling uniqueness theorem showing that proportional solutions $k\Phi$ with $k>1$ are impossible. The existence theorems (Theorems~\ref{thm:existenceV1prime} and~\ref{thm:nontrivialV1prime}) are proved in Lean conditional on a \texttt{PDEInfra} typeclass that axiomatizes five classical results from elliptic PDE theory not yet available in Mathlib for abstract Riemannian manifolds: Schaefer's fixed-point theorem, Schauder estimates, the maximum principle, fixed-point nonnegativity, and sub-/super-solution monotone iteration. The compactness-of-$T$ axiom is currently a placeholder (\texttt{True}) since Mathlib lacks H\"older spaces on manifolds; the structural dependency is preserved via a \texttt{True $\to$} hypothesis in the Schaefer axiom. The axiom boundary is explicit: each assumption corresponds to a named classical result, and the \texttt{\#print axioms} command confirms that no \texttt{sorryAx} appears in any verified theorem. A complete paper-to-Lean alignment table is given in Appendix~\ref{app:verification}. All Lean source files, CI pipelines (which fail on any \texttt{sorry} via \texttt{-{}-wfail}), and computational artifacts are available at~\cite{Spence2026Lean}. Numerical validation with $O(h^2)$ grid convergence supplements the formal proofs.
+The mathematical foundations of this framework are machine-verified using the Lean~4 theorem prover~\cite{deMoura2021} with the Mathlib library~\cite{Mathlib2020}. The formalization~\cite{Spence2026Lean} covers the semiotic manifold structure, coefficient bounds, the Laplace--Beltrami and gradient-norm operators, the full boundary value problem~\eqref{eq:mainBVP}, and the definition of weak coherent configurations. Fifteen theorems are proved without \texttt{sorry} axioms, organized in six dependency tiers: (i)~pure algebra requiring no domain axioms (spectral characterization, scaling contradiction); (ii)~$L^\infty$ bound algebraic core, decomposing the maximum-principle reduction of Lemma~\ref{lem:LinftyBound} into a proved algebraic step and an axiomatized analytic step; (iii)~pure order theory (Knaster--Tarski monotone fixed-point existence, used in the sub-/super-solution iteration); (iv)~derived operator lemmas from abstract Laplacian linearity and gradient-norm homogeneity; (v)~coefficient bound lemmas from the $[0,1]$ field constraints; and (vi)~PDE-level results including a scaling uniqueness theorem showing that proportional solutions $k\Phi$ with $k>1$ are impossible. The existence theorems (Theorems~\ref{thm:existenceV1prime} and~\ref{thm:nontrivialV1prime}) are proved in Lean conditional on a \texttt{PDEInfra} typeclass that axiomatizes five classical results from elliptic PDE theory not yet available in Mathlib for abstract Riemannian manifolds: Schaefer's fixed-point theorem, Schauder estimates, the maximum principle, fixed-point nonnegativity, and sub-/super-solution monotone iteration. The compactness-of-$T$ axiom is currently a placeholder (\texttt{True}) since Mathlib lacks H\"older spaces on manifolds; the structural dependency is preserved via a \texttt{True $\to$} hypothesis in the Schaefer axiom. The axiom boundary is explicit: each assumption corresponds to a named classical result, and the \texttt{\#print axioms} command confirms that no \texttt{sorryAx} appears in any verified theorem. A complete paper-to-Lean alignment table is given in Appendix~\ref{app:verification}. All Lean source files, CI pipelines (which fail on any \texttt{sorry} via \texttt{-{}-wfail}), and computational artifacts are available at~\cite{Spence2026Lean}. Numerical validation with $O(h^2)$ grid convergence supplements the formal proofs.
 
 \subsection*{Main mathematical object and scope}
 The primary analytic object is the Dirichlet BVP with logistic saturation
@@ -794,9 +794,11 @@ Def.\ 3.3 (Canonical closure) & \texttt{.canonicalViability} & \texttt{Basic} & 
 Def.\ 3.1 (Weak coherent config.) & \texttt{IsWeakCoherentConfiguration} & \texttt{Basic} & Definition \\
 Def.\ 3.13 (Principal eigenvalue) & \texttt{PrincipalEigendata} & \texttt{Axioms} & Definition \\
 \midrule
-Lemma 3.7 (Compactness of $T$) & \texttt{PDEInfra.T\_continuous\_compact} & \texttt{Axioms} & Axiom \\
+Lemma 3.7 (Compactness of $T$) & \texttt{PDEInfra.T\_compact} & \texttt{Axioms} & Axiom \\
 Assumption 3.8 (Coercivity) & Hypothesis \texttt{hB} in Thm.\ 3.12 & \texttt{Theorems} & Proved \\
 Lemma 3.10 ($L^\infty$ bound) & \texttt{PDEInfra.linfty\_bound} & \texttt{Axioms} & Axiom \\
+Lem.\ 3.10 (algebraic core) & \texttt{rpow\_le\_of\_mul\_rpow\_le} & \texttt{LinftyAlgebraic} & Proved \\
+Lem.\ 3.10 (algebraic bound) & \texttt{linfty\_bound\_algebraic} & \texttt{LinftyAlgebraic} & Proved \\
 Lemma 3.11 ($C^{1,\alpha}$ bound) & (subsumed by \texttt{linfty\_bound}) & --- & Not formalized \\
 Thm.\ 3.12 (Existence) & \texttt{.exists\_isWeakCoherentConfiguration} & \texttt{Theorems} & Proved (PDEInfra) \\
 Thm.\ 3.16 (Nontriviality) & \texttt{.exists\_pos\_isWeakCoherentConfiguration} & \texttt{Theorems} & Proved (PDEInfra) \\
@@ -813,6 +815,8 @@ Thm.\ 3.16 (Nontriviality) & \texttt{.exists\_pos\_isWeakCoherentConfiguration} 
 --- ($a(x) \geq 0$) & \texttt{SemioticContext.a\_nonneg} & \texttt{CoefficientLemmas} & Proved \\
 --- ($a(x) \leq 1$) & \texttt{SemioticContext.a\_le\_one} & \texttt{CoefficientLemmas} & Proved \\
 --- ($p - 1 > 0$) & \texttt{SemioticContext.p\_sub\_one\_pos} & \texttt{CoefficientLemmas} & Proved \\
+--- (Knaster--Tarski) & \texttt{OrderHom.nextFixed\_le\_of\_le} & \texttt{MonotoneFixedPoint} & Proved \\
+--- (Monotone fixed point) & \texttt{monotone\_fixed\_point\_between} & \texttt{MonotoneFixedPoint} & Proved \\
 \midrule
 Defs.\ 3.19--3.27 (Temporal) & --- & --- & Not formalized \\
 Defs.\ 4.1--4.8, Props.\ 4.5, 4.9 & --- & --- & Not formalized \\
@@ -834,7 +838,7 @@ The \texttt{PDEInfra} typeclass packages five assumptions from classical ellipti
 \toprule
 \textbf{Axiom} & \textbf{Classical Source} & \textbf{Mathlib Status} \\
 \midrule
-\texttt{T\_continuous\_compact} & Schauder estimates + Arzel\`a--Ascoli & No H\"older spaces on manifolds \\
+\texttt{T\_compact} & Schauder estimates + Arzel\`a--Ascoli & No H\"older spaces on manifolds \\
 \texttt{linfty\_bound} & Maximum principle (Gilbarg--Trudinger) & No max.\ principle for manifolds \\
 \texttt{schaefer} & Schaefer 1955~\cite{Schaefer1955} & Not in Mathlib \\
 \texttt{fixed\_point\_nonneg} & Strong maximum principle & No max.\ principle for manifolds \\
@@ -843,7 +847,7 @@ The \texttt{PDEInfra} typeclass packages five assumptions from classical ellipti
 \end{tabular}
 \end{table}
 
-The \texttt{T\_continuous\_compact} field is currently \texttt{True} (a placeholder). The Schaefer axiom takes this as a hypothesis via \texttt{True $\to$}, preserving the structural dependency chain even though the content is trivial until Mathlib gains the requisite infrastructure. The algebraic core of the $L^\infty$ bound (Lemma~\ref{lem:LinftyBound})---that $bv \geq cv^p$ implies $v \leq (B/c_0)^{1/(p-1)}$---is independently proved in an Aristotle theorem-prover artifact; the maximum-principle step (that $\nabla u = 0$ and $\Delta u \leq 0$ at an interior maximum) remains an axiom.
+The \texttt{T\_compact} field is currently \texttt{True} (a placeholder). The Schaefer axiom takes this as a hypothesis via \texttt{True $\to$}, preserving the structural dependency chain even though the content is trivial until Mathlib gains the requisite infrastructure. The algebraic core of the $L^\infty$ bound (Lemma~\ref{lem:LinftyBound})---that $bv \geq cv^p$ implies $v \leq (B/c_0)^{1/(p-1)}$---is proved in the main formalization (\texttt{LinftyAlgebraic.lean}); the maximum-principle step (that $\nabla u = 0$ and $\Delta u \leq 0$ at an interior maximum) remains an axiom.
 
 As Mathlib's PDE infrastructure grows, these axioms can be replaced one by one with real proofs. The logical structure of the existence and nontriviality theorems is already verified; only the analytic plumbing remains.
 
