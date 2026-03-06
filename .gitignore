@@ -50,3 +50,11 @@ coverage.xml
 *.synctex.gz
 *.fdb_latexmk
 *.fls
+*.blg
+*.bbl
+
+# Internal workflow docs
+docs/internal/
+
+# Stray screenshots
+pdf-*.png
