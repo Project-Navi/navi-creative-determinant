@@ -46,6 +46,12 @@ def viability_canonical(
     When b(x) > 0: local viability supports presence
     When b(x) < 0: local environment hostile to presence
     """
+    if not (0 <= kappa <= 1):
+        raise ValueError(f"Care kappa must be in [0, 1], got kappa={kappa}")
+    if not (0 <= gamma <= 1):
+        raise ValueError(f"Coherence gamma must be in [0, 1], got gamma={gamma}")
+    if lam < 0:
+        raise ValueError(f"Contradiction cost lam must be >= 0, got lam={lam}")
     return kappa * gamma - lam * mu
 
 
@@ -81,6 +87,10 @@ def creative_drive(
     (μ > 0) — creativity emerges from engaging with
     contradictions, not avoiding them.
     """
+    if not (0 <= kappa <= 1):
+        raise ValueError(f"Care kappa must be in [0, 1], got kappa={kappa}")
+    if not (0 <= gamma <= 1):
+        raise ValueError(f"Coherence gamma must be in [0, 1], got gamma={gamma}")
     return kappa * gamma * mu
 
 
