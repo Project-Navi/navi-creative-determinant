@@ -176,7 +176,7 @@ def solve_1d_picard(
             warnings.warn(
                 f"Solution max(Phi)={info['maxPhi']:.6f} exceeds theoretical "
                 f"L-infinity bound K={K:.6f} by "
-                f"{(info['maxPhi']/K - 1)*100:.1f}%. "
+                f"{(info['maxPhi'] / K - 1) * 100:.1f}%. "
                 f"Check grid resolution or parameters.",
                 stacklevel=2,
             )
@@ -339,7 +339,7 @@ def solve_2d_picard(
             warnings.warn(
                 f"Solution max(Phi)={info['maxPhi']:.6f} exceeds theoretical "
                 f"L-infinity bound K={K:.6f} by "
-                f"{(info['maxPhi']/K - 1)*100:.1f}%. "
+                f"{(info['maxPhi'] / K - 1) * 100:.1f}%. "
                 f"Check grid resolution or parameters.",
                 stacklevel=2,
             )
