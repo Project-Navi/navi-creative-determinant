@@ -181,7 +181,7 @@ def solve_1d_picard(
                 stacklevel=2,
             )
     except ValueError:
-        pass
+        info["linfty_bound"] = None  # bound not computable for these parameters
 
     return x, Phi, info
 
@@ -344,6 +344,6 @@ def solve_2d_picard(
                 stacklevel=2,
             )
     except ValueError:
-        pass
+        info["linfty_bound"] = None  # bound not computable for these parameters
 
     return X, Y, Phi, info
