@@ -61,7 +61,7 @@ jobs:
           echo "  MATHEMATICAL VALIDATION: Creative Determinant Framework"
           echo "  Python ${{ matrix.python-version }}"
           echo "═══════════════════════════════════════════════════════════════"
-          pytest tests/test_core.py -v --tb=long \
+          pytest tests/ -v --tb=long \
             --junit-xml=results/test-results-${{ matrix.python-version }}.xml
       
       - name: Upload test results
