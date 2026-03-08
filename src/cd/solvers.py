@@ -94,6 +94,20 @@ def solve_1d_picard(
     >>> info['maxPhi'] > 0.01  # Nontrivial solution
     True
     """
+    if L <= 0:
+        raise ValueError(f"Domain length L must be positive, got L={L}")
+    if N <= 0:
+        raise ValueError(f"Grid points N must be positive, got N={N}")
+    if p <= 1:
+        raise ValueError(f"Saturation exponent p must be > 1, got p={p}")
+    if np.isscalar(c):
+        if c <= 0:
+            raise ValueError(f"Saturation c must be positive, got c={c}")
+    else:
+        c_arr = np.asarray(c)
+        if c_arr.min() <= 0:
+            raise ValueError(f"Saturation c must be positive everywhere, got min(c)={c_arr.min()}")
+
     A, h = laplacian_1d_dirichlet(N, L)
     x = np.linspace(0, L, N + 2)
 
@@ -148,6 +162,26 @@ def solve_1d_picard(
         "maxPhi": float(Phi.max()),
         "converged": converged,
     }
+
+    # Post-solve L-infinity bound check (Lemma 3.10)
+    # Verified: linfty_bound_algebraic (CdFormal/LinftyAlgebraic.lean:59)
+    from .analysis import linfty_bound as _linfty_bound
+
+    try:
+        K = _linfty_bound(beta_b, c, p)
+        info["linfty_bound"] = K
+        if info["maxPhi"] > 0 and K > 0 and info["maxPhi"] > 1.01 * K:
+            import warnings
+
+            warnings.warn(
+                f"Solution max(Phi)={info['maxPhi']:.6f} exceeds theoretical "
+                f"L-infinity bound K={K:.6f} by "
+                f"{(info['maxPhi'] / K - 1) * 100:.1f}%. "
+                f"Check grid resolution or parameters.",
+                stacklevel=2,
+            )
+    except ValueError:
+        info["linfty_bound"] = None  # bound not computable for these parameters
 
     return x, Phi, info
 
@@ -208,6 +242,20 @@ def solve_2d_picard(
     info : dict
         Solver diagnostics.
     """
+    if Lx <= 0 or Ly <= 0:
+        raise ValueError(f"Domain lengths must be positive, got Lx={Lx}, Ly={Ly}")
+    if Nx <= 0 or Ny <= 0:
+        raise ValueError(f"Grid points must be positive, got Nx={Nx}, Ny={Ny}")
+    if p <= 1:
+        raise ValueError(f"Saturation exponent p must be > 1, got p={p}")
+    if np.isscalar(c):
+        if c <= 0:
+            raise ValueError(f"Saturation c must be positive, got c={c}")
+    else:
+        c_arr = np.asarray(c)
+        if c_arr.min() <= 0:
+            raise ValueError(f"Saturation c must be positive everywhere, got min(c)={c_arr.min()}")
+
     A, hx, hy = laplacian_2d_dirichlet(Nx, Ny, Lx, Ly)
 
     x = np.linspace(0, Lx, Nx + 2)
@@ -276,5 +324,26 @@ def solve_2d_picard(
         "maxPhi": float(Phi.max()),
         "converged": converged,
     }
+
+    # Post-solve L-infinity bound check (Lemma 3.10)
+    # Verified: linfty_bound_algebraic (CdFormal/LinftyAlgebraic.lean:59)
+    from .analysis import linfty_bound as _linfty_bound
+
+    try:
+        effective_bb = beta_b * b_flat.max() if b_field is not None else beta_b
+        K = _linfty_bound(effective_bb, c, p)
+        info["linfty_bound"] = K
+        if info["maxPhi"] > 0 and K > 0 and info["maxPhi"] > 1.01 * K:
+            import warnings
+
+            warnings.warn(
+                f"Solution max(Phi)={info['maxPhi']:.6f} exceeds theoretical "
+                f"L-infinity bound K={K:.6f} by "
+                f"{(info['maxPhi'] / K - 1) * 100:.1f}%. "
+                f"Check grid resolution or parameters.",
+                stacklevel=2,
+            )
+    except ValueError:
+        info["linfty_bound"] = None  # bound not computable for these parameters
 
     return X, Y, Phi, info

@@ -227,3 +227,37 @@ def presence_statistics(Phi: np.ndarray, x: np.ndarray) -> dict:
         stats["support_fraction"] = 0.0
 
     return stats
+
+
+def linfty_bound(beta_b: float | np.ndarray, c: float | np.ndarray, p: float) -> float:
+    """
+    Theoretical L-infinity bound for solutions of the CD equation.
+
+    From Lemma 3.10: any nonneg solution satisfies max(Phi) <= (B/c0)^(1/(p-1))
+    where B = max(beta_b) and c0 = min(c).
+
+    Verified: linfty_bound_algebraic (CdFormal/LinftyAlgebraic.lean:59)
+
+    Parameters
+    ----------
+    beta_b : float or ndarray
+        Viability parameter (scalar or field).
+    c : float or ndarray
+        Saturation coefficient (scalar or field).
+    p : float
+        Saturation exponent (must be > 1).
+
+    Returns
+    -------
+    K : float
+        Theoretical upper bound on max(Phi).
+    """
+    B = float(np.max(beta_b))
+    c0 = float(np.min(c))
+    if c0 <= 0:
+        raise ValueError(f"Saturation c must be positive, got min(c)={c0}")
+    if p <= 1:
+        raise ValueError(f"Exponent p must be > 1, got p={p}")
+    if B <= 0:
+        return 0.0
+    return float((B / c0) ** (1.0 / (p - 1.0)))
