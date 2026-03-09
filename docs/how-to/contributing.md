@@ -4,7 +4,7 @@ Thank you for your interest in contributing to the Creative Determinant (CD) fra
 
 ---
 
-## Types of Contributions We Actively Want
+## Types of contributions we actively want
 
 ### 1. Theoretical Extensions
 - New theorems, lemmas, or proofs extending the PDE core.
@@ -29,7 +29,7 @@ Thank you for your interest in contributing to the Creative Determinant (CD) fra
 - Falsification experiments targeting Definition 5.3 criteria.
 - Manifold extraction from model activations or behavioral data.
 
-**Standard**: Describe data sources, metrics, and preprocessing clearly. Note limitations. Null results and failures are valuable—document them honestly.
+**Standard**: Describe data sources, metrics, and preprocessing clearly. Note limitations. Null results and failures are valuable --- document them honestly.
 
 ---
 
@@ -53,7 +53,7 @@ Thank you for your interest in contributing to the Creative Determinant (CD) fra
 
 ---
 
-## How to Contribute
+## How to contribute
 
 ### Small contributions (typos, small clarifications, minor code fixes):
 - Open a pull request directly. Include a one-line description in the PR.
@@ -70,7 +70,7 @@ Thank you for your interest in contributing to the Creative Determinant (CD) fra
 
 ---
 
-## Contribution Standards
+## Contribution standards
 
 All contributions should meet these minimal criteria:
 
@@ -84,7 +84,7 @@ All contributions should meet these minimal criteria:
 
 ---
 
-## What Happens After You Contribute?
+## What happens after you contribute?
 
 - Small PRs will be merged quickly if they meet standards.
 - Larger contributions will be discussed in the PR or associated issue.
@@ -96,16 +96,16 @@ All contributions should meet these minimal criteria:
 
 By contributing, you agree that your contributions will be licensed under the same license as this repository (Apache 2.0).
 
-If you are contributing substantial original content (e.g., a new theorem, a major empirical study), you may also publish it separately under your own name—no permission needed. We encourage parallel publication.
+If you are contributing substantial original content (e.g., a new theorem, a major empirical study), you may also publish it separately under your own name --- no permission needed. We encourage parallel publication.
 
 ---
 
-## Related Documents
+## Related documents
 
-- **[Open Problems](https://project-navi.github.io/navi-creative-determinant/explanation/open-problems/)**: Explicit theoretical gaps where contributions are needed
-- **[Research Roadmap](https://project-navi.github.io/navi-creative-determinant/reference/roadmap/)**: Research directions and proposed experiments
-- **[The Paper](paper/creative_determinant.pdf)**: Full theoretical treatment
-- **[Jupyter Notebook](notebooks/cd_pde_demo.ipynb)**: Numerical demonstrations to extend
+- **[Open Problems](../explanation/open-problems.md)** --- Explicit theoretical gaps where contributions are needed
+- **[Research Roadmap](../reference/roadmap.md)** --- Research directions and proposed experiments
+- **[The Paper](https://github.com/Project-Navi/navi-creative-determinant/blob/main/paper/creative_determinant.pdf)** --- Full theoretical treatment
+- **[Jupyter Notebook](https://github.com/Project-Navi/navi-creative-determinant/blob/main/notebooks/cd_pde_demo.ipynb)** --- Numerical demonstrations to extend
 
 ---
 
@@ -118,4 +118,4 @@ nelson@projectnavi.ai
 
 ---
 
-**The CD framework is a research seed meant to grow through collective engagement. Your contributions—whether extensions, tests, or critiques—are what will make it flourish.**
+**The CD framework is a research seed meant to grow through collective engagement. Your contributions --- whether extensions, tests, or critiques --- are what will make it flourish.**

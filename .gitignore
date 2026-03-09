@@ -58,3 +58,6 @@ docs/internal/
 
 # Stray screenshots
 pdf-*.png
+
+# Zensical build output
+site/

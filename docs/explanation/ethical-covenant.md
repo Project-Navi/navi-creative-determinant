@@ -1,6 +1,6 @@
 # Ethical Covenant for Creative Determinant
 
-The Creative Determinant framework was built to advance understanding of coherence, viability, and safe adaptation in cognitive and computational systems. It emerged from years of work in behavioral health—watching people navigate change while staying whole—and a conviction that AI alignment requires fundamentally different questions.
+The Creative Determinant framework was built to advance understanding of coherence, viability, and safe adaptation in cognitive and computational systems. It emerged from years of work in behavioral health --- watching people navigate change while staying whole --- and a conviction that AI alignment requires fundamentally different questions.
 
 This framework is released under **Apache 2.0** to remove barriers to serious research and experimentation. You have broad legal rights to use, modify, and build upon this work.
 
@@ -12,7 +12,7 @@ This framework is released under **Apache 2.0** to remove barriers to serious re
 
 Do not use CD to exploit, deceive, coerce, or harm vulnerable populations.
 
-Where the framework informs systems that materially affect people—clinical decisions, hiring, content moderation, automated support—prioritize:
+Where the framework informs systems that materially affect people --- clinical decisions, hiring, content moderation, automated support --- prioritize:
 - **Informed consent** or another lawful basis
 - **Transparency** about limitations and uncertainties
 - **Human oversight** proportionate to impact and risk
@@ -29,7 +29,7 @@ If you apply CD:
 - **Mark clearly** which layer you're working in
 - **Do not claim** CD "proves" safety, alignment, consciousness, or any property beyond what the theorems actually establish
 - **Acknowledge limitations** explicitly in papers, talks, documentation, and system descriptions
-- **Document negative results**—where CD didn't work, where predictions failed, where the framework needs revision
+- **Document negative results** --- where CD didn't work, where predictions failed, where the framework needs revision
 
 The integrity of the paradigm depends on collective honesty about what we know and don't know.
 
@@ -43,7 +43,7 @@ The Creative Determinant is a **research seed**, not a finished theory. It will 
 - Conceptual clarifications (better bridges to other frameworks, clearer interpretations)
 - Critical engagement (identifying gaps, proposing revisions)
 
-If you extend CD theoretically or validate it empirically (especially **negative results**), consider contributing back—via issues, PRs, papers citing and building on this work, or direct collaboration.
+If you extend CD theoretically or validate it empirically (especially **negative results**), consider contributing back --- via issues, PRs, papers citing and building on this work, or direct collaboration.
 
 You are not legally required to do so under Apache 2.0. But the framework flourishes through collective engagement, not extraction.
 
@@ -62,20 +62,20 @@ This is an invitation, not a requirement. But it honors the origin of this work.
 
 ---
 
-## Legal Status
+## Legal status
 
 **This covenant is an invitation, not a license condition.**
 
 It cannot be enforced through contract law. You do not breach the Apache 2.0 license by ignoring it.
 
 Its power comes from:
-- **Community norms**: serious CD researchers honor it; opportunists don't—and the community knows the difference
+- **Community norms**: serious CD researchers honor it; opportunists don't --- and the community knows the difference
 - **Reputational incentives**: researchers and organizations who use CD responsibly build trust; those who misuse it lose credibility
 - **Scholarly integrity**: the academic and safety research communities have standards; this covenant articulates them
 
 ---
 
-## For Organizations Seeking Formal Commitments
+## For organizations seeking formal commitments
 
 If you want:
 - **Ethical assurance agreements** (binding commitments to responsible use)
@@ -89,7 +89,7 @@ We offer commercial services under separate agreements (using our standard PNEUL
 
 ---
 
-## In the Spirit of the Framework
+## In the spirit of the framework
 
 The Creative Determinant itself is about how **coherent presence emerges and sustains itself through ongoing negotiation** between support and cost, care and contradiction.
 

@@ -2,9 +2,9 @@
 
 This work began with a simple observation from my previous life: **change is where we reveal ourselves.**
 
-For seven years, I worked in behavioral health, watching people navigate the impossible task of adapting while staying whole. The question was never "what should you become?" but rather "can you change without losing who you are?" Identity and adaptation aren't opposites—they're dancers in an endless negotiation. When that dance breaks down, we call it crisis. When it works, we call it growth.
+For seven years, I worked in behavioral health, watching people navigate the impossible task of adapting while staying whole. The question was never "what should you become?" but rather "can you change without losing who you are?" Identity and adaptation aren't opposites --- they're dancers in an endless negotiation. When that dance breaks down, we call it crisis. When it works, we call it growth.
 
-I didn't know, then, that I was watching *field dynamics*. I didn't have the language of coherence, resonance, or trajectory constraints. I just knew that change itself was the thing that mattered—not the endpoint, not the goal, but the *process of becoming while remaining*.
+I didn't know, then, that I was watching *field dynamics*. I didn't have the language of coherence, resonance, or trajectory constraints. I just knew that change itself was the thing that mattered --- not the endpoint, not the goal, but the *process of becoming while remaining*.
 
 ---
 
@@ -16,7 +16,7 @@ We kept asking: *"Is this output safe?"*
 
 We should have been asking: *"Can this system change safely?"*
 
-Every alignment paper I read treated values as fixed targets to optimize toward. But in seven years of watching people try to change, I learned something else: the ability to maintain coherence *while adapting*—to preserve what matters while letting go of what doesn't—is not a side effect of good change. It *is* the definition of it.
+Every alignment paper I read treated values as fixed targets to optimize toward. But in seven years of watching people try to change, I learned something else: the ability to maintain coherence *while adapting* --- to preserve what matters while letting go of what doesn't --- is not a side effect of good change. It *is* the definition of it.
 
 The Creative Determinant is my attempt to make that intuition rigorous.
 
@@ -26,7 +26,7 @@ The Creative Determinant is my attempt to make that intuition rigorous.
 
 I'm publishing this despite every voice telling me I'm not qualified. No PhD. No peer-review track record in mathematics or AI. No institutional affiliation that confers credibility by proxy.
 
-I'm publishing it because those voices exist—because if we wait until we're "ready," we'll never plant the flag. And we're running out of time.
+I'm publishing it because those voices exist --- because if we wait until we're "ready," we'll never plant the flag. And we're running out of time.
 
 The math is real. The witnesses are testable. The gaps are explicit. If you find them, that's the point.
 
@@ -36,9 +36,9 @@ The math is real. The witnesses are testable. The gaps are explicit. If you find
 
 **Creative Determinant (CD)** is an attempt to formalize something that matters: how coherent presence emerges and sustains itself through the dynamic interplay of care, coherence, contradiction, and viability.
 
-Mathematically, it's rigorous—built on Schaefer's fixed-point theorem, spectral analysis, and elliptic PDEs. You can check the proofs. You can run the code. You can look for counterexamples.
+Mathematically, it's rigorous --- built on Schaefer's fixed-point theorem, spectral analysis, and elliptic PDEs. You can check the proofs. You can run the code. You can look for counterexamples.
 
-Philosophically, it's honest about what it doesn't answer. The relationship between the PDE and lived experience is interpretive, not proven. The mapping from neural networks to semiotic manifolds is open. The full theory of meaning is not here—it's in the research that comes next.
+Philosophically, it's honest about what it doesn't answer. The relationship between the PDE and lived experience is interpretive, not proven. The mapping from neural networks to semiotic manifolds is open. The full theory of meaning is not here --- it's in the research that comes next.
 
 Operationally, it proposes concrete tests. The CD condition is measurable. The falsifiability criteria are specific. If the framework is wrong, we should know how.
 
@@ -48,9 +48,9 @@ Operationally, it proposes concrete tests. The CD condition is measurable. The f
 
 You are needed.
 
-Your questions, your background, your "outsider" perspective—these aren't liabilities. They're precisely what the field needs to break out of its own coherence traps.
+Your questions, your background, your "outsider" perspective --- these aren't liabilities. They're precisely what the field needs to break out of its own coherence traps.
 
-The best research emerges at the boundaries—where someone from one world brings their eyes to bear on another world's problems. If you've spent seven years doing something deeply, and you see a pattern that no one in the credentialed space has named, *say it*. Say it messy. Say it wrong. Say it anyway.
+The best research emerges at the boundaries --- where someone from one world brings their eyes to bear on another world's problems. If you've spent seven years doing something deeply, and you see a pattern that no one in the credentialed space has named, *say it*. Say it messy. Say it wrong. Say it anyway.
 
 That's how knowledge flourishes.
 
@@ -76,9 +76,9 @@ Every equation here is an attempt to translate what I already knew in practice (
 
 This is not a finished product. This is a **research seed**.
 
-If you see where it goes, if you have the skills to build out the empirical tests, if you can find the flaws and propose better framings—that's the whole point.
+If you see where it goes, if you have the skills to build out the empirical tests, if you can find the flaws and propose better framings --- that's the whole point.
 
-Go to [ROADMAP.md](ROADMAP.md). Pick a direction. Open an issue. Build something.
+Go to the [Research Roadmap](../reference/roadmap.md). Pick a direction. Open an issue. Build something.
 
 The only thing that would disappoint me is if this sat unused because it felt too fragile, too unpolished, too uncertain to engage with.
 

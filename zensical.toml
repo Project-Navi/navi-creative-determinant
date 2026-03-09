@@ -23,7 +23,18 @@ nav = [
   {"Getting Started" = [
     {"Quickstart" = "getting-started/quickstart.md"},
   ]},
+  {"Explanation" = [
+    {"Conceptual Primer" = "explanation/conceptual-primer.md"},
+    {"Author's Note" = "explanation/authors-note.md"},
+    {"Open Problems" = "explanation/open-problems.md"},
+    {"Ethical Covenant" = "explanation/ethical-covenant.md"},
+  ]},
+  {"How-To" = [
+    {"Contributing" = "how-to/contributing.md"},
+  ]},
   {"Reference" = [
+    {"FAQ" = "reference/faq.md"},
+    {"Research Roadmap" = "reference/roadmap.md"},
     {"Changelog" = "reference/changelog.md"},
   ]},
 ]
