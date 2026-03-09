@@ -29,6 +29,10 @@ jobs:
       - name: Install docs dependencies
         # For library repos, remove --no-install-project so the package is importable
         run: uv sync --frozen --group docs
+      - name: Fetch brand CSS
+        run: |
+          curl -sL https://raw.githubusercontent.com/Project-Navi/brand/main/docs/stylesheets/navi.css \
+            -o docs/stylesheets/navi.css
       - name: Build site
         run: uv run zensical build
       - name: Strip internal docs from build
