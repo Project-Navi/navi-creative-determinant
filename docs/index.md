@@ -6,7 +6,7 @@ hide:
 
 <div class="hero-glow" markdown>
 
-# Creative Determinant
+# navi-creative-determinant
 
 **Autopoietic closure as a nonlinear elliptic BVP on a compact Riemannian manifold.**
 
