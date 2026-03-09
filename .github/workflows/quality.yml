@@ -96,7 +96,7 @@ jobs:
           echo "═══════════════════════════════════════════════════════════════"
           echo "  TEST COVERAGE"
           echo "═══════════════════════════════════════════════════════════════"
-          coverage run -m pytest tests/test_core.py -v
+          coverage run -m pytest tests/ -v
           coverage report --show-missing
           coverage xml
       
