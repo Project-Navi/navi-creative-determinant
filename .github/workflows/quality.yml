@@ -24,19 +24,19 @@ jobs:
   lint:
     name: Lint (Ruff)
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      
+
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
-      
+
       - name: Install ruff
         run: pip install ruff
-      
+
       - name: Run ruff
         run: |
           echo "═══════════════════════════════════════════════════════════════"
@@ -48,22 +48,22 @@ jobs:
   typecheck:
     name: Type Check (MyPy)
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      
+
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
           cache: 'pip'
-      
+
       - name: Install dependencies
         run: |
           pip install -e ".[dev]"
           pip install mypy types-setuptools
-      
+
       - name: Run mypy
         run: |
           echo "═══════════════════════════════════════════════════════════════"
@@ -75,22 +75,22 @@ jobs:
   coverage:
     name: Test Coverage
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      
+
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
           cache: 'pip'
-      
+
       - name: Install dependencies
         run: |
           pip install -e ".[dev]"
           pip install coverage
-      
+
       - name: Run tests with coverage
         run: |
           echo "═══════════════════════════════════════════════════════════════"
@@ -99,7 +99,7 @@ jobs:
           coverage run -m pytest tests/ -v
           coverage report --show-missing
           coverage xml
-      
+
       - name: Upload coverage report
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
@@ -110,19 +110,19 @@ jobs:
   security:
     name: Security Scan
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      
+
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
-      
+
       - name: Install bandit
         run: pip install bandit
-      
+
       - name: Run security scan
         run: |
           echo "═══════════════════════════════════════════════════════════════"
@@ -134,32 +134,29 @@ jobs:
   docs-build:
     name: Documentation Build Check
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      
+
       - name: Validate markdown files
         run: |
           echo "═══════════════════════════════════════════════════════════════"
           echo "  DOCUMENTATION: Validating markdown files"
           echo "═══════════════════════════════════════════════════════════════"
-          
-          # Check all expected docs exist
+
+          # Check all expected docs exist (Diataxis structure)
           docs=(
             "README.md"
             "CONTRIBUTING.md"
             "CODE_OF_CONDUCT.md"
             "LICENSE.md"
-            "docs/README.md"
-            "docs/CONCEPTUAL_PRIMER.md"
-            "docs/AUTHORS_NOTE.md"
-            "docs/FAQ.md"
-            "docs/OPEN_PROBLEMS.md"
-            "docs/ROADMAP.md"
-            "docs/ETHICAL_COVENANT.md"
+            "docs/index.md"
+            "docs/getting-started/quickstart.md"
+            "docs/explanation/conceptual-primer.md"
+            "docs/reference/changelog.md"
           )
-          
+
           missing=0
           for doc in "${docs[@]}"; do
             if [[ -f "$doc" ]]; then
@@ -169,12 +166,12 @@ jobs:
               missing=$((missing + 1))
             fi
           done
-          
+
           if [[ $missing -gt 0 ]]; then
             echo ""
             echo "ERROR: $missing documentation files missing!"
             exit 1
           fi
-          
+
           echo ""
           echo "✓ All documentation files present"
