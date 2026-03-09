@@ -4,8 +4,6 @@ hide:
   - toc
 ---
 
-<div class="hero-glow" markdown>
-
 # navi-creative-determinant
 
 **Autopoietic closure as a nonlinear elliptic BVP on a compact Riemannian manifold.**
@@ -14,8 +12,6 @@ A field theory of coherence and meaning, with Lean 4-verified existence conditio
 
 [Get Started](getting-started/quickstart.md){ .md-button .md-button--primary }
 [Conceptual Primer](explanation/conceptual-primer.md){ .md-button }
-
-</div>
 
 ---
 
