@@ -216,13 +216,14 @@ body {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
-  height: 200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150%;
+  height: 400px;
   background: radial-gradient(
     ellipse at center top,
     rgba(126, 184, 168, 0.08) 0%,
-    transparent 50%
+    transparent 70%
   );
   pointer-events: none;
   z-index: -1;
