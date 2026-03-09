@@ -51,8 +51,7 @@ dev = [
     "nbconvert>=7.0.0",
 ]
 docs = [
-    "sphinx>=6.0.0",
-    "sphinx-rtd-theme>=1.2.0",
+    "zensical>=0.0.24",
 ]
 
 [project.urls]
@@ -81,4 +80,7 @@ ignore = ["E501"]  # Line length handled separately
 [dependency-groups]
 dev = [
     "ruff>=0.15.4",
+]
+docs = [
+    "zensical>=0.0.24",
 ]
