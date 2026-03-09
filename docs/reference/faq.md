@@ -28,13 +28,13 @@ Short answers to common questions about the Creative Determinant (CD) framework.
 
 ---
 
-## What is the "semiotic manifold" \(M\) in a real neural network?
+## What is the "semiotic manifold" M in a real neural network?
 
 **Open question.** \(M\) is an abstract space of meanings or interpretations. Extracting it from a trained network requires manifold learning, dimensionality reduction, or other techniques. This is an active research direction. See [Open Problems](../explanation/open-problems.md) #7 and [Research Roadmap](roadmap.md) #1.
 
 ---
 
-## How do I extract the fields \(\kappa\), \(\gamma\), \(\mu\) from data?
+## How do I extract the fields κ, γ, μ from data?
 
 **No general method yet.** The canonical closure \(b = \kappa\gamma - \lambda\mu\) provides a structure, but inferring \(\kappa\) (care), \(\gamma\) (coherence), and \(\mu\) (contradiction) from observables is system-dependent and currently requires hand-crafted proxies. Developing principled extraction methods is a key open problem.
 

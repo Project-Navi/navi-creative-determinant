@@ -38,7 +38,7 @@ Now that we have our landscape, we need to understand the forces that shape our 
 
 The CD framework identifies three essential ingredients that govern how any system navigates its landscape of meaning. They are not just abstract variables; they are forces we can all recognize.
 
-### 2.1. Care (\(\kappa\)): The Fuel for the Journey
+### 2.1. Care (κ): The Fuel for the Journey
 
 **Care** (\(\kappa\)) is the energetic investment, attention, or importance a system gives to something. I describe it as the "holding capacity" or the "energetic investment that sustains the system."
 
@@ -46,7 +46,7 @@ Think of Care as a spotlight in a dark room. It illuminates what matters, leavin
 
 Without this crucial investment of Care, a system is inert. It cannot engage with challenges, sustain its identity through difficulty, or fund the costly process of genuine change.
 
-### 2.2. Coherence (\(\gamma\)): The Compass and the Glue
+### 2.2. Coherence (γ): The Compass and the Glue
 
 **Coherence** (\(\gamma\)) is the structural integrity of a system's identity and beliefs. It's the force that holds everything together --- the "container that prevents fragmentation."
 
@@ -54,7 +54,7 @@ Think of Coherence as the grammar of a language. Grammar provides the rules that
 
 Without Coherence, the tension of change doesn't lead to growth; it leads to breakdown. The system shatters into disconnected pieces rather than adapting into a new, integrated whole.
 
-### 2.3. Contradiction (\(\mu\)): The Crossroads and the Puzzle
+### 2.3. Contradiction (μ): The Crossroads and the Puzzle
 
 **Contradiction** (\(\mu\)) is the generative tension or the "difference that makes a difference." I see it as the force that "drives exploration along gradients" of meaning.
 
