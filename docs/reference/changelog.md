@@ -1,3 +1,3 @@
 # Changelog
 
-See [CHANGELOG.md](https://github.com/Project-Navi/navi-creative-determinant/blob/main/CHANGELOG.md) on GitHub.
+See [Releases](https://github.com/Project-Navi/navi-creative-determinant/releases) on GitHub.

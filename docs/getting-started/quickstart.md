@@ -48,7 +48,7 @@ The Jupyter notebook `cd_pde_demo.ipynb` demonstrates the PDE framework numerica
 ```
 paper/                     # The core paper (creative_determinant.pdf)
 notebooks/                 # Jupyter notebook with numerical demonstrations
-src/creative_determinant/  # Python library (solvers, eigenvalue tools, closures)
+src/cd/                    # Python library (solvers, eigenvalue tools, closures)
 tests/                     # 24 tests against analytic solutions
 cd_formalization/          # Lean 4 formalization (15 theorems, zero sorry)
 experiments/               # Scaffolding for empirical tests

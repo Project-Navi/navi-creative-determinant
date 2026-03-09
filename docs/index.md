@@ -41,7 +41,7 @@ A field theory of coherence and meaning, with Lean 4-verified existence conditio
 
 **AI / interpretability** --- Start with Section 5 (the CD condition and falsifiability criteria) and skim the notebook plots showing bifurcations at viability thresholds. Then read Section 3 for the spectral foundation.
 
-**Lean / formal verification** --- Start with the [cd-formalization](https://github.com/Project-Navi/cd-formalization) repo for the axiom boundary and what's proved.
+**Lean / formal verification** --- Start with the [cd-formalization](https://github.com/Project-Navi/navi-creative-determinant/tree/main/cd_formalization) subdirectory for the axiom boundary and what's proved.
 
 **Cognitive science / philosophy** --- Start with Sections 1 and 4 (introduction and interpretive layer), which connect the framework to enactivism, semiotics, and phenomenology. Then see Theorem 3.16 (nontriviality) to see how "viability exceeds dissipation" is made mathematically precise.
 
