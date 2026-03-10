@@ -1,0 +1,75 @@
+# ──────────────────────────────────────────────
+# Edit these lines for your project
+# ──────────────────────────────────────────────
+[project]
+name = "navi-creative-determinant"
+site_name = "navi-creative-determinant"
+description = "The Creative Determinant — autopoietic closure as a nonlinear elliptic BVP"
+site_url = "https://project-navi.github.io/navi-creative-determinant"
+repo_url = "https://github.com/Project-Navi/navi-creative-determinant"
+repo_name = "Project-Navi/navi-creative-determinant"
+copyright = "Copyright 2024-2026 Nelson Spence"
+extra_css = ["stylesheets/navi.css"]
+extra_javascript = [
+    "javascripts/mathjax.js",
+    "https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js",
+]
+
+# ──────────────────────────────────────────────
+# Edit nav to match your docs structure
+# ──────────────────────────────────────────────
+nav = [
+  {"Home" = "index.md"},
+  {"Getting Started" = [
+    {"Quickstart" = "getting-started/quickstart.md"},
+  ]},
+  {"Explanation" = [
+    {"Conceptual Primer" = "explanation/conceptual-primer.md"},
+    {"Author's Note" = "explanation/authors-note.md"},
+    {"Open Problems" = "explanation/open-problems.md"},
+    {"Ethical Covenant" = "explanation/ethical-covenant.md"},
+  ]},
+  {"How-To" = [
+    {"Contributing" = "how-to/contributing.md"},
+  ]},
+  {"Reference" = [
+    {"FAQ" = "reference/faq.md"},
+    {"Research Roadmap" = "reference/roadmap.md"},
+    {"Changelog" = "reference/changelog.md"},
+  ]},
+]
+
+# ──────────────────────────────────────────────
+# Everything below is shared brand config
+# You should not need to change these
+# ──────────────────────────────────────────────
+[project.theme]
+logo = "assets/logo.png"
+favicon = "assets/favicon.png"
+
+[project.theme.palette]
+scheme = "slate"
+
+[project.theme.features]
+navigation_sections = true
+navigation_expand = true
+navigation_top = true
+content_code_copy = true
+toc_integrate = true
+
+[project.markdown_extensions.admonition]
+[project.markdown_extensions.tables]
+[project.markdown_extensions.attr_list]
+[project.markdown_extensions.md_in_html]
+[project.markdown_extensions.toc]
+permalink = true
+[project.markdown_extensions.pymdownx.details]
+[project.markdown_extensions.pymdownx.superfences]
+[project.markdown_extensions.pymdownx.highlight]
+anchor_linenums = true
+[project.markdown_extensions.pymdownx.inlinehilite]
+[project.markdown_extensions.pymdownx.tabbed]
+alternate_style = true
+[project.markdown_extensions.pymdownx.arithmatex]
+generic = true
+[project.plugins.search]
