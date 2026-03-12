@@ -2,11 +2,9 @@
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE.md)
 [![Mathematical Validation](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/ci.yml/badge.svg)](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/ci.yml)
-[![Code Quality](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/quality.yml/badge.svg)](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/quality.yml)
 [![Notebook Validation](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/notebooks.yml/badge.svg)](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/notebooks.yml)
 [![Figure Validation](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/figures.yml/badge.svg)](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/figures.yml)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](notebooks/cd_pde_demo.ipynb)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18225664.svg)](https://doi.org/10.5281/zenodo.18225664)
 
 **Creative Determinant (CD)** is a framework for understanding how coherent presence emerges and sustains itself in cognitive and computational systems. It bridges three traditionally separate domains:
 
