@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   scorecard:
-    uses: Project-Navi/.github/.github/workflows/scorecard.yml@6c4c2d8f200b1b9c3bd651ebc297425e45d5934e
+    uses: Project-Navi/.github/.github/workflows/scorecard.yml@83f5a6860e88af77ecebda9d90836c6e7caec159
     permissions:
       contents: read
       security-events: write
