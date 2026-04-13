@@ -51,7 +51,7 @@ dev = [
     "nbconvert>=7.0.0",
 ]
 docs = [
-    "zensical>=0.0.24",
+    "zensical>=0.0.32",
 ]
 
 [project.urls]
@@ -82,5 +82,5 @@ dev = [
     "ruff>=0.15.4",
 ]
 docs = [
-    "zensical>=0.0.24",
+    "zensical>=0.0.32",
 ]
