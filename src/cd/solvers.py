@@ -121,7 +121,20 @@ def solve_1d_picard(
     c_int = _to_interior_1d(c, N)
 
     def grad_abs(Phi_full):
-        """Central difference approximation of |Φ'|."""
+        """
+        Central difference approximation of |Φ'| on interior points.
+
+        Parameters
+        ----------
+        Phi_full : np.ndarray
+            Full solution array of length N + 2, including boundary values.
+
+        Returns
+        -------
+        np.ndarray
+            Array of length N giving |Φ'| at interior grid points.
+        """
+        # Use centered differences; result is defined only on interior points (length N).
         d = (Phi_full[2:] - Phi_full[:-2]) / (2 * h)
         return np.abs(d)
 
