@@ -6,7 +6,7 @@ scipy>=1.10.0
 matplotlib>=3.7.0
 
 # Optional: for running tests
-pytest>=7.0.0
+pytest>=9.0.3
 
 # Optional: for running notebooks
 jupyter>=1.0.0
