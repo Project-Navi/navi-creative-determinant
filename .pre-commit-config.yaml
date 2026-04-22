@@ -19,6 +19,6 @@ repos:
         args: [--check]
 
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.22.1
+    rev: b69b5157a01fe4234a74a9acd186044152a80c43  # v8.22.1
     hooks:
       - id: gitleaks
