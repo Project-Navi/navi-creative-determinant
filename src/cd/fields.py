@@ -128,6 +128,8 @@ def gaussian_bump_2d(
     >>> X, Y = np.meshgrid(np.linspace(0, 1, 50), np.linspace(0, 1, 50))
     >>> mu = gaussian_bump_2d(X, Y, 0.5, 0.5, 0.1)  # Contradiction at center
     """
+    if sigma <= 0:
+        raise ValueError(f"sigma must be positive, got sigma={sigma}")
     r2 = (X - x0) ** 2 + (Y - y0) ** 2
     return amplitude * np.exp(-r2 / (2 * sigma**2))
 
@@ -159,6 +161,8 @@ def gaussian_bump_1d(
     field : ndarray
         Gaussian bump (same shape as x).
     """
+    if sigma <= 0:
+        raise ValueError(f"sigma must be positive, got sigma={sigma}")
     return amplitude * np.exp(-((x - center) ** 2) / (2 * sigma**2))
 
 

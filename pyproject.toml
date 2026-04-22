@@ -44,12 +44,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
-    "pytest>=9.0.3",
-    "pytest-cov>=4.0.0",
-    "jupyter>=1.0.0",
-    "nbconvert>=7.17.1",
-]
+# Kept minimal for pip users who can't run uv. The authoritative dev
+# environment lives in [dependency-groups].dev below — CI uses that.
 docs = [
     "zensical>=0.0.24",
 ]
@@ -78,18 +74,17 @@ select = ["E", "F", "W", "I", "UP"]
 ignore = ["E501"]  # Line length handled separately
 
 [dependency-groups]
-# uv sync --locked installs this group by default. Keep the superset of
-# tools CI needs here so workflows can use `uv sync --locked` instead of
-# ad-hoc `pip install` commands (which Scorecard flags as unpinned).
+# uv sync --locked installs this group by default. CI workflows use it as
+# the single source of truth so no `pip install` is needed (Scorecard flags
+# unpinned pip commands). Only tools actually invoked by CI or contributors
+# belong here; drop anything that stops being used.
 dev = [
     # test / coverage
     "pytest>=9.0.3",
-    "pytest-cov>=4.0.0",
     "coverage>=7.0.0",
     # lint / format / type check
     "ruff>=0.15.4",
     "mypy>=1.11",
-    "types-setuptools>=75",
     # security scanners
     "bandit>=1.8",
     "pip-audit>=2.7",

@@ -14,12 +14,16 @@ on:
     paths:
       - 'figures/**'
       - 'src/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
       - '.github/workflows/figures.yml'
   pull_request:
     branches: [main]
     paths:
       - 'figures/**'
       - 'src/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
   workflow_dispatch:
 
 jobs:

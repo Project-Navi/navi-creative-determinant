@@ -126,6 +126,8 @@ def viability_threshold_1d(L: float, b: float) -> float:
     For β < β*: trivial solution only
     For β > β*: nontrivial presence emerges
     """
+    if b == 0:
+        raise ValueError("Viability potential b must be nonzero (threshold is undefined).")
     return (np.pi / L) ** 2 / b
 
 
@@ -145,6 +147,8 @@ def viability_threshold_2d(Lx: float, Ly: float, b: float) -> float:
     beta_star : float
         Critical value where λ₁ = 0.
     """
+    if b == 0:
+        raise ValueError("Viability potential b must be nonzero (threshold is undefined).")
     return np.pi**2 * (1 / Lx**2 + 1 / Ly**2) / b
 
 
