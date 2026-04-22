@@ -33,12 +33,16 @@ Catches figure and notebook drift locally before the `figures.yml` and `notebook
                fig7_2d_phase_transition; do
      for ext in png pdf; do
        if [[ ! -f "figures/${stem}.${ext}" ]]; then
-         echo "MISSING: figures/${stem}.${ext}"
+         echo "MISSING: figures/${stem}.${ext}" >&2
          missing=$((missing + 1))
        fi
      done
    done
-   [[ $missing -eq 0 ]] && echo "All 14 figure files present."
+   if [[ $missing -ne 0 ]]; then
+     echo "Regeneration incomplete: $missing figure file(s) missing. Check generate_figures.py output above for errors." >&2
+     exit 1
+   fi
+   echo "All 14 figure files present."
    ```
 
 4. **Execute the notebook headlessly** (matches `notebooks.yml`):

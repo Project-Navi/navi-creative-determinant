@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "path=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty'); case \"$path\" in figures/*.png|figures/*.pdf|./figures/*.png|./figures/*.pdf|*/figures/*.png|*/figures/*.pdf|paper/creative_determinant.pdf|./paper/creative_determinant.pdf|*/paper/creative_determinant.pdf) echo \"Blocked: $path is a generated artefact. Regenerate via 'uv run python figures/generate_figures.py' or 'make -C paper', do not edit in place.\" >&2; exit 2 ;; esac"
+            "command": "path=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty'); case \"$path\" in figures/*.png|figures/*.pdf|./figures/*.png|./figures/*.pdf|*/figures/*.png|*/figures/*.pdf) echo \"Blocked: $path is a generated figure. Regenerate via 'uv run python figures/generate_figures.py' instead of editing in place.\" >&2; exit 2 ;; paper/creative_determinant.pdf|./paper/creative_determinant.pdf|*/paper/creative_determinant.pdf) echo \"Blocked: $path is a LaTeX build output. Rebuild from paper/creative_determinant.tex via 'latexmk -pdf' (or pdflatex+bibtex passes). Note: 'make -C paper' only builds the cd_stack diagrams, not the PDF.\" >&2; exit 2 ;; esac"
           }
         ]
       }
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "path=$(jq -r '.tool_input.file_path // empty'); case \"$path\" in *.py) uv run ruff format \"$path\" >/dev/null 2>&1 || true; uv run ruff check --fix \"$path\" >/dev/null 2>&1 || true ;; esac"
+            "command": "path=$(jq -r '.tool_input.file_path // empty'); case \"$path\" in *.py) command -v uv >/dev/null 2>&1 || exit 0; uv run ruff format \"$path\" || echo \"[hook] ruff format failed for $path (exit $?)\" >&2; uv run ruff check --fix \"$path\" || echo \"[hook] ruff check --fix failed for $path (exit $?)\" >&2 ;; esac"
           }
         ]
       }

@@ -46,8 +46,9 @@ uv run jupyter nbconvert --to notebook --execute notebooks/cd_pde_demo.ipynb
 # Figures (regenerates all 7 PNG+PDF pairs into figures/)
 uv run python figures/generate_figures.py
 
-# Paper (LaTeX build)
-make -C paper
+# Paper — two-step build
+make -C paper                                     # graphviz diagrams (cd_stack.svg/pdf/png)
+latexmk -pdf -cd paper/creative_determinant.tex   # LaTeX PDF (pdflatex + bibtex passes)
 
 # Pre-commit (install once per clone; runs on every commit)
 uv run pre-commit install
