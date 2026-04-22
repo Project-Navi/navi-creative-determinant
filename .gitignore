@@ -70,3 +70,9 @@ site/
 .claude/tool-results/
 .claude/projects/
 .claude/history/
+
+# Claude-Flow runtime metrics (ephemeral per-machine state)
+.claude-flow/
+
+# Local experimental notebook variants (per CLAUDE.md: untracked workspace)
+notebooks/alternates/
