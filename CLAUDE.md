@@ -104,7 +104,7 @@ experiments/             # Scaffolding for empirical instantiations
 ## Conventions
 
 ### Python
-- Ruff config: `line-length = 100`, `target-version = "py310"`, selected rules `E, F, W, I, UP`; `E501` is intentionally ignored for linting.
+- Ruff config: `line-length = 100`, `target-version = "py310"`, `selected-rules = ["E", "F", "W", "I", "UP"]`; `E501` is intentionally ignored for linting.
 - No black; ruff-format is the only formatter.
 - Type hints on all public functions. NumPy-style docstrings.
 - SciPy sparse matrices for all linear operators (dense is a correctness bug at scale).

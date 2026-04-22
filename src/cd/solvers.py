@@ -51,12 +51,18 @@ def solve_1d_picard(
         Domain length.
     N : int
         Number of interior grid points.
-    a : float
-        Creative drive coefficient (gradient term).
-    beta_b : float
-        Product of viability gain and potential.
-    c : float
-        Saturation coefficient.
+    a : float or ndarray
+        Creative drive coefficient (gradient term). If an array is provided,
+        expected shape is (N,) for interior values or (N+2,) including
+        boundary points (boundary entries are ignored).
+    beta_b : float or ndarray
+        Product of viability gain and potential. If an array is provided,
+        expected shape is (N,) for interior values or (N+2,) including
+        boundary points (boundary entries are ignored).
+    c : float or ndarray
+        Saturation coefficient. If an array is provided, expected shape is
+        (N,) for interior values or (N+2,) including boundary points
+        (boundary entries are ignored).
     p : float, default=2.0
         Saturation exponent (must be > 1).
     max_iter : int, default=8000
@@ -228,8 +234,13 @@ def solve_2d_picard(
         Domain lengths.
     Nx, Ny : int
         Number of interior grid points in each direction.
-    a : float
-        Creative drive coefficient.
+    a : float | np.ndarray
+        Advection coefficient in ``a|∇Φ|``. If a scalar, a spatially uniform value
+        is used on all interior grid points. If an array, it must be aligned with
+        the interior unknowns as shape ``(Ny, Nx)`` (row-major as ``[y, x]``), so
+        that ``a[j, i]`` multiplies ``|∇Φ|`` at interior node ``(x_i, y_j)``.
+        If a full-grid array is provided, use shape ``(Ny + 2, Nx + 2)`` with
+        boundary values on the outer ring; only the interior block is used.
     beta_b : float
         Viability gain (multiplies b_field if provided).
     c : float
@@ -359,7 +370,7 @@ def solve_2d_picard(
     from .analysis import linfty_bound as _linfty_bound
 
     try:
-        effective_bb = beta_b * b_flat.max() if b_field is not None else beta_b
+        effective_bb = beta_b * b_flat.max()
         K = _linfty_bound(effective_bb, c, p)
         info["linfty_bound"] = K
         if info["maxPhi"] > 0 and K > 0 and info["maxPhi"] > 1.01 * K:
