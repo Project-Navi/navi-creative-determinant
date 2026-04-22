@@ -45,10 +45,10 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0.0",
+    "pytest>=9.0.3",
     "pytest-cov>=4.0.0",
     "jupyter>=1.0.0",
-    "nbconvert>=7.0.0",
+    "nbconvert>=7.17.1",
 ]
 docs = [
     "zensical>=0.0.24",
