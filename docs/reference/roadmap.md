@@ -1,6 +1,6 @@
 # Creative Determinant Research Roadmap
 
-This document outlines open research directions stemming from the Creative Determinant (CD) framework. **These are not private plans --- they are invitations.** If you pick up any of these, you are doing canonical CD work. Open an issue or PR to coordinate, or just run with it and share results.
+This document outlines open research directions stemming from the Creative Determinant (CD) framework. **These are not private plans — they are invitations.** If you pick up any of these, you are doing canonical CD work. Open an issue or PR to coordinate, or just run with it and share results.
 
 ---
 
