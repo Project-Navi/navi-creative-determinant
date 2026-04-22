@@ -283,7 +283,21 @@ def solve_2d_picard(
         b_flat = b_field.flatten()
 
     def grad_abs_2d(Phi_full):
-        """Approximate |∇Φ| on interior."""
+        """
+        Approximate |∇Φ| on interior grid points.
+
+        Parameters
+        ----------
+        Phi_full : ndarray of shape (Ny + 2, Nx + 2)
+            Full field including boundary values.
+
+        Returns
+        -------
+        ndarray of shape (Ny * Nx,)
+            Flattened (row-major) gradient magnitude evaluated only at
+            interior points, corresponding to Phi_full[1:-1, 1:-1]. The
+            boundary values are not included.
+        """
         Phi_x = (Phi_full[1:-1, 2:] - Phi_full[1:-1, :-2]) / (2 * hx)
         Phi_y = (Phi_full[2:, 1:-1] - Phi_full[:-2, 1:-1]) / (2 * hy)
         return np.sqrt(Phi_x**2 + Phi_y**2).flatten()
