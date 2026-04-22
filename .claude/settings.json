@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "path=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty'); case \"$path\" in */figures/fig?_*.png|*/figures/fig?_*.pdf|*/paper/creative_determinant.pdf) echo \"Blocked: $path is a generated artefact. Regenerate via 'uv run python figures/generate_figures.py' or 'make -C paper', do not edit in place.\" >&2; exit 2 ;; esac"
+            "command": "path=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty'); case \"$path\" in figures/*.png|figures/*.pdf|./figures/*.png|./figures/*.pdf|*/figures/*.png|*/figures/*.pdf|paper/creative_determinant.pdf|./paper/creative_determinant.pdf|*/paper/creative_determinant.pdf) echo \"Blocked: $path is a generated artefact. Regenerate via 'uv run python figures/generate_figures.py' or 'make -C paper', do not edit in place.\" >&2; exit 2 ;; esac"
           }
         ]
       }
