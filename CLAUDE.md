@@ -43,7 +43,7 @@ uv run mypy src/cd --ignore-missing-imports
 uv run jupyter lab notebooks/
 uv run jupyter nbconvert --to notebook --execute notebooks/cd_pde_demo.ipynb
 
-# Figures (regenerates all 7 PNG+PDF pairs into figures/)
+# Figures (regenerates all 7 figures as PNG+PDF — 14 files total — into figures/)
 uv run python figures/generate_figures.py
 
 # Paper — two-step build

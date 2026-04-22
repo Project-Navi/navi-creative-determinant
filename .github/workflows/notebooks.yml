@@ -14,12 +14,16 @@ on:
     paths:
       - 'notebooks/**'
       - 'src/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
       - '.github/workflows/notebooks.yml'
   pull_request:
     branches: [main]
     paths:
       - 'notebooks/**'
       - 'src/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
   workflow_dispatch:
 
 jobs:

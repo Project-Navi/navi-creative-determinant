@@ -295,6 +295,10 @@ def solve_2d_picard(
     if b_field is None:
         b_flat = np.ones(Nx * Ny)
     else:
+        if b_field.shape != (Ny, Nx):
+            raise ValueError(
+                f"b_field must have shape (Ny, Nx) = ({Ny}, {Nx}), got {b_field.shape}"
+            )
         b_flat = b_field.flatten()
 
     def grad_abs_2d(Phi_full):
