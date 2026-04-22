@@ -86,7 +86,7 @@ This document outlines open research directions stemming from the Creative Deter
 
 **What this involves**:
 - Train or fine-tune a small transformer or RNN.
-- Define a coherence observable (e.g., intrinsic dimension of activations, attention entropy).
+- Define a coherence observable (e.g., intrinsic dimensionality of neural representations, attention entropy).
 - Approximate Jacobian determinants using low-rank methods or trace estimators.
 - Compute correlations across a dataset or along generated trajectories.
 
@@ -145,8 +145,8 @@ This document outlines open research directions stemming from the Creative Deter
 **Motivation**: Can CD formalize cognitive/psychiatric pathologies as breakdown regimes of coherence?
 
 **What this involves**:
-- Model depression as \(\kappa \to 0\) (zero care everywhere).
-- Model schizophrenia as high \(\mu\) without resolution (contradictions persist).
+- Model depression as \(\kappa \to 0\) (where \(\kappa\) is the care parameter; zero care everywhere).
+- Model schizophrenia as high \(\mu\) (contradiction measure) without resolution (contradictions persist).
 - Model OCD as failure of saturation (presence fields don't stabilize).
 
 **Technical prerequisites**: Conceptual modeling, clinical intuition, dynamical systems.
