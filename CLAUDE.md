@@ -91,7 +91,7 @@ experiments/             # Scaffolding for empirical instantiations
 ## Gotchas
 
 - **`cd_formalization/` is a git submodule.** A bare `git clone` leaves it empty — `ls` shows nothing and it looks like missing code. Run `git submodule update --init --recursive` (or clone with `--recursive`) before touching Lean files.
-- **`tests/README.md` is stale** — it says 12 tests; there are actually **24** (verify: `grep -c "def test_" tests/test_*.py`). Trust the code over that README.
+- **`tests/README.md` may drift from reality.** If the documented test count disagrees with the code (verify with `grep -c "def test_" tests/test_*.py`), treat the code as source of truth **and update `tests/README.md` in the same PR** so the docs stay aligned.
 - **Tests are mathematical proofs, not regressions.** If a test fails after editing `src/cd/`, the math is wrong, not the test. Do not "fix" tests to pass — fix the solver/operator.
 - **Docs use `zensical`, not MkDocs.** Config is `zensical.toml`. Don't suggest `mkdocs build`.
 - **Ruff runs `--no-fix --check` in pre-commit.** It won't auto-repair; formatting violations reject the commit. Run `uv run ruff format src/ tests/` locally before committing.
@@ -104,7 +104,7 @@ experiments/             # Scaffolding for empirical instantiations
 ## Conventions
 
 ### Python
-- Ruff config: `line-length = 100`, `target-version = "py310"`, selected rules `E, F, W, I, UP`, `ignore = ["E501"]`.
+- Ruff config: `line-length = 100`, `target-version = "py310"`, selected rules `E, F, W, I, UP`; `E501` is intentionally ignored for linting.
 - No black; ruff-format is the only formatter.
 - Type hints on all public functions. NumPy-style docstrings.
 - SciPy sparse matrices for all linear operators (dense is a correctness bug at scale).
@@ -167,4 +167,4 @@ Seven workflows; the unified `ci.yml` holds all but one of the required checks.
 
 - Not a production library — API stability is not guaranteed before 1.0.
 - Not a finished theory — see `docs/explanation/open-problems.md` and the Research Roadmap.
-- Not license-bound to attribute contributors — Apache 2.0 allows permissive reuse, but the `CONTRIBUTORS.md` convention still applies socially.
+- Apache 2.0 allows permissive reuse, but you must preserve required copyright/license/NOTICE attributions per the license terms; beyond that, the `CONTRIBUTORS.md` convention still applies socially.
