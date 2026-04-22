@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "path=$(jq -r '.tool_input.file_path // empty'); case \"$path\" in *.py) command -v uv >/dev/null 2>&1 || exit 0; uv run ruff format \"$path\" || echo \"[hook] ruff format failed for $path (exit $?)\" >&2; uv run ruff check --fix \"$path\" || echo \"[hook] ruff check --fix failed for $path (exit $?)\" >&2 ;; esac"
+            "command": "path=$(jq -r '.tool_input.file_path // empty'); case \"$path\" in *.py) command -v uv >/dev/null 2>&1 || exit 0; if ! uv run ruff format \"$path\"; then rc=$?; echo \"[hook] ruff format failed for $path (exit $rc)\" >&2; exit 2; fi; if ! uv run ruff check --fix \"$path\"; then rc=$?; echo \"[hook] ruff check --fix failed for $path (exit $rc); fix and re-edit\" >&2; exit 2; fi ;; esac"
           }
         ]
       }
