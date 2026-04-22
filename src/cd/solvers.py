@@ -266,15 +266,15 @@ def solve_2d_picard(
     Phi = initial_amplitude * np.sin(np.pi * X / Lx) * np.sin(np.pi * Y / Ly)
     Phi_int = Phi[1:-1, 1:-1].flatten()
 
+    def _to_flat_or_scalar(coeff):
+        """Return flattened array for non-scalars, or the scalar itself."""
+        if np.isscalar(coeff):
+            return coeff
+        return np.asarray(coeff).flatten()
+
     # Convert array coefficients to flat interior arrays
-    if hasattr(a, "__len__"):
-        a_flat = np.asarray(a).flatten()
-    else:
-        a_flat = a  # scalar broadcasts
-    if hasattr(c, "__len__"):
-        c_flat = np.asarray(c).flatten()
-    else:
-        c_flat = c  # scalar broadcasts
+    a_flat = _to_flat_or_scalar(a)
+    c_flat = _to_flat_or_scalar(c)
 
     # Viability field
     if b_field is None:
