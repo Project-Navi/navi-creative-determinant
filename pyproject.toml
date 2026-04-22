@@ -78,8 +78,27 @@ select = ["E", "F", "W", "I", "UP"]
 ignore = ["E501"]  # Line length handled separately
 
 [dependency-groups]
+# uv sync --locked installs this group by default. Keep the superset of
+# tools CI needs here so workflows can use `uv sync --locked` instead of
+# ad-hoc `pip install` commands (which Scorecard flags as unpinned).
 dev = [
+    # test / coverage
+    "pytest>=9.0.3",
+    "pytest-cov>=4.0.0",
+    "coverage>=7.0.0",
+    # lint / format / type check
     "ruff>=0.15.4",
+    "mypy>=1.11",
+    "types-setuptools>=75",
+    # security scanners
+    "bandit>=1.8",
+    "pip-audit>=2.7",
+    # notebooks
+    "jupyter>=1.0.0",
+    "nbconvert>=7.17.1",
+    "ipykernel>=6.29",
+    "nbqa>=1.9",
+    # commit hygiene
     "pre-commit>=3.8.0",
 ]
 docs = [

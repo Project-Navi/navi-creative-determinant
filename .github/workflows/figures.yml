@@ -26,33 +26,35 @@ jobs:
   regenerate-figures:
     name: Regenerate Figures
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      
+
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: '3.12'
-          cache: 'pip'
-      
-      - name: Install dependencies
-        run: |
-          pip install -e ".[dev]"
-      
+
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+
+      - name: Install dependencies (from uv.lock)
+        run: uv sync --locked
+
       - name: Regenerate figures
         run: |
           echo "═══════════════════════════════════════════════════════════════"
           echo "  FIGURE REGENERATION"
           echo "═══════════════════════════════════════════════════════════════"
           cd figures
-          python generate_figures.py
-      
+          uv run python generate_figures.py
+
       - name: Verify figure outputs
         run: |
           echo "Verifying generated figures..."
-          
+
           expected_figures=(
             "fig1_eigenvalue_threshold.png"
             "fig1_eigenvalue_threshold.pdf"
@@ -69,7 +71,7 @@ jobs:
             "fig7_2d_phase_transition.png"
             "fig7_2d_phase_transition.pdf"
           )
-          
+
           missing=0
           for fig in "${expected_figures[@]}"; do
             if [[ -f "figures/$fig" ]]; then
@@ -80,16 +82,16 @@ jobs:
               missing=$((missing + 1))
             fi
           done
-          
+
           if [[ $missing -gt 0 ]]; then
             echo ""
             echo "ERROR: $missing figures missing!"
             exit 1
           fi
-          
+
           echo ""
           echo "✓ All figures generated successfully"
-      
+
       - name: Upload regenerated figures
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:

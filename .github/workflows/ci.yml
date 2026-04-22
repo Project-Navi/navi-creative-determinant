@@ -36,13 +36,13 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+        with:
+          enable-cache: true
+      - name: Install dependencies (from uv.lock)
+        run: uv sync --locked
       - name: Run tests
-        run: pytest tests/ -v --tb=long --junit-xml=results/test-results-${{ matrix.python-version }}.xml
+        run: uv run pytest tests/ -v --tb=long --junit-xml=results/test-results-${{ matrix.python-version }}.xml
       - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
         if: always()
         with:
@@ -74,12 +74,15 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: '3.12'
-      - name: Install ruff
-        run: pip install "ruff==0.15.4"
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+        with:
+          enable-cache: true
+      - name: Install dependencies (from uv.lock)
+        run: uv sync --locked
       - name: Ruff check + format
         run: |
-          ruff check src/ tests/ --output-format=github
-          ruff format src/ tests/ --check
+          uv run ruff check src/ tests/ --output-format=github
+          uv run ruff format src/ tests/ --check
 
   # CONTRACT: org ruleset requires this exact check name 'typecheck'
   typecheck:
@@ -91,13 +94,13 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: '3.12'
-          cache: 'pip'
-      - name: Install dependencies
-        run: |
-          pip install -e ".[dev]"
-          pip install mypy types-setuptools
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+        with:
+          enable-cache: true
+      - name: Install dependencies (from uv.lock)
+        run: uv sync --locked
       - name: Run mypy
-        run: mypy src/cd --ignore-missing-imports --no-error-summary || true
+        run: uv run mypy src/cd --ignore-missing-imports --no-error-summary || true
 
   # CONTRACT: org ruleset requires this exact check name 'security'
   security:
@@ -109,12 +112,15 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: '3.12'
-      - name: Install tools
-        run: pip install "bandit==1.9.4" pip-audit
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+        with:
+          enable-cache: true
+      - name: Install dependencies (from uv.lock)
+        run: uv sync --locked
       - name: Bandit
-        run: bandit -r src/ -ll || true
+        run: uv run bandit -r src/ -ll || true
       - name: pip-audit
-        run: pip install -e ".[dev]" && pip-audit || true
+        run: uv run pip-audit || true
 
   # CONTRACT: org ruleset requires this exact check name 'quality-gate'
   quality-gate:
@@ -153,14 +159,14 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: '3.12'
-          cache: 'pip'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+        with:
+          enable-cache: true
+      - name: Install dependencies (from uv.lock)
+        run: uv sync --locked
       - name: Run numerical stability tests
         run: |
-          python -c "
+          uv run python -c "
           import sys
           sys.path.insert(0, 'src')
           from cd import solve_1d_picard, principal_eigenvalue_1d
@@ -212,14 +218,14 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: '3.12'
-          cache: 'pip'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+        with:
+          enable-cache: true
+      - name: Install dependencies (from uv.lock)
+        run: uv sync --locked
       - name: Verify eigenvalue precision
         run: |
-          python -c "
+          uv run python -c "
           import sys
           sys.path.insert(0, 'src')
           from cd import principal_eigenvalue_1d
@@ -262,14 +268,14 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: '3.12'
-          cache: 'pip'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+        with:
+          enable-cache: true
+      - name: Install dependencies (from uv.lock)
+        run: uv sync --locked
       - name: Verify bifurcation threshold
         run: |
-          python -c "
+          uv run python -c "
           import sys
           sys.path.insert(0, 'src')
           from cd import solve_1d_picard, principal_eigenvalue_1d
@@ -316,16 +322,16 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: '3.12'
-          cache: 'pip'
-      - name: Install dependencies
-        run: |
-          pip install -e ".[dev]"
-          pip install "coverage>=7.0.0"
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+        with:
+          enable-cache: true
+      - name: Install dependencies (from uv.lock)
+        run: uv sync --locked
       - name: Run tests with coverage
         run: |
-          coverage run -m pytest tests/ -v
-          coverage report --show-missing
-          coverage xml
+          uv run coverage run -m pytest tests/ -v
+          uv run coverage report --show-missing
+          uv run coverage xml
       - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
         with:
           name: coverage-report
