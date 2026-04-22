@@ -26,66 +26,67 @@ jobs:
   execute-notebooks:
     name: Execute Notebooks
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      
+
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: '3.12'
-          cache: 'pip'
-      
-      - name: Install dependencies
+
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+
+      - name: Install dependencies (from uv.lock)
         run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
-          pip install nbconvert ipykernel
-          python -m ipykernel install --user --name python3
-      
+          uv sync --locked
+          uv run python -m ipykernel install --user --name python3
+
       - name: Execute notebook
         run: |
           echo "═══════════════════════════════════════════════════════════════"
           echo "  NOTEBOOK EXECUTION: cd_pde_demo.ipynb"
           echo "═══════════════════════════════════════════════════════════════"
           cd notebooks
-          jupyter nbconvert --to notebook --execute \
+          uv run jupyter nbconvert --to notebook --execute \
             --ExecutePreprocessor.timeout=600 \
             --ExecutePreprocessor.kernel_name=python3 \
             --output executed_demo.ipynb \
             cd_pde_demo.ipynb
           echo "✓ Notebook executed successfully"
-      
+
       - name: Validate notebook outputs
         run: |
           echo "Validating notebook produces expected outputs..."
-          python -c "
+          uv run python -c "
           import json
-          
+
           with open('notebooks/executed_demo.ipynb') as f:
               nb = json.load(f)
-          
+
           # Count cells with outputs
-          output_cells = sum(1 for cell in nb['cells'] 
+          output_cells = sum(1 for cell in nb['cells']
                             if cell['cell_type'] == 'code' and cell.get('outputs'))
-          
+
           # Count figure outputs
           figure_outputs = sum(1 for cell in nb['cells']
                               if cell['cell_type'] == 'code'
                               for output in cell.get('outputs', [])
                               if output.get('output_type') == 'display_data')
-          
+
           print(f'Code cells with outputs: {output_cells}')
           print(f'Figure outputs: {figure_outputs}')
-          
+
           if output_cells < 7:
               print('WARNING: Fewer outputs than expected')
               exit(1)
-          
+
           print('✓ Notebook outputs validated')
           "
-      
+
       - name: Upload executed notebook
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
@@ -96,21 +97,25 @@ jobs:
   notebook-lint:
     name: Notebook Quality Checks
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      
+
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: '3.12'
-      
-      - name: Install linters
-        run: pip install nbqa ruff
-      
+
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+
+      - name: Install dependencies (from uv.lock)
+        run: uv sync --locked
+
       - name: Check notebook code quality
         run: |
           echo "Checking notebook code quality..."
-          nbqa ruff notebooks/cd_pde_demo.ipynb --ignore E501,E402 || true
+          uv run nbqa ruff notebooks/cd_pde_demo.ipynb --ignore E501,E402 || true
           echo "✓ Notebook lint complete (warnings shown above)"
