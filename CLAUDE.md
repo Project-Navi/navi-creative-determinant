@@ -91,7 +91,7 @@ experiments/             # Scaffolding for empirical instantiations
 ## Gotchas
 
 - **`cd_formalization/` is a git submodule.** A bare `git clone` leaves it empty — `ls` shows nothing and it looks like missing code. Run `git submodule update --init --recursive` (or clone with `--recursive`) before touching Lean files.
-- **`tests/README.md` is stale** — it says 12 tests; there are actually **24** (verify: `grep -c "def test_" tests/test_*.py`). Trust the code over that README.
+- **`tests/README.md` may drift from reality.** If the documented test count disagrees with the code (verify with `grep -c "def test_" tests/test_*.py`), treat the code as source of truth **and update `tests/README.md` in the same PR** so the docs stay aligned.
 - **Tests are mathematical proofs, not regressions.** If a test fails after editing `src/cd/`, the math is wrong, not the test. Do not "fix" tests to pass — fix the solver/operator.
 - **Docs use `zensical`, not MkDocs.** Config is `zensical.toml`. Don't suggest `mkdocs build`.
 - **Ruff runs `--no-fix --check` in pre-commit.** It won't auto-repair; formatting violations reject the commit. Run `uv run ruff format src/ tests/` locally before committing.
