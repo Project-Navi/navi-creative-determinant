@@ -61,3 +61,12 @@ pdf-*.png
 
 # Zensical build output
 site/
+
+# Claude Code — commit shared project config only; keep local state untracked
+.claude/settings.local.json
+.claude/*.lock
+.claude/cache/
+.claude/logs/
+.claude/tool-results/
+.claude/projects/
+.claude/history/
