@@ -80,6 +80,7 @@ ignore = ["E501"]  # Line length handled separately
 [dependency-groups]
 dev = [
     "ruff>=0.15.4",
+    "pre-commit>=3.8.0",
 ]
 docs = [
     "zensical>=0.0.24",
