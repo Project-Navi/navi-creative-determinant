@@ -113,9 +113,9 @@ body {
 }
 
 /* --- Navigation accent --- */
-.md-nav__link--active,
-.md-nav__link:hover {
-  color: #7eb8a8 !important;
+.md-nav .md-nav__link--active,
+.md-nav .md-nav__link:hover {
+  color: #7eb8a8;
 }
 
 /* --- Admonition blessing tiers --- */
