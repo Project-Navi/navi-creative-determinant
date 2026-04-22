@@ -167,4 +167,4 @@ Seven workflows; the unified `ci.yml` holds all but one of the required checks.
 
 - Not a production library — API stability is not guaranteed before 1.0.
 - Not a finished theory — see `docs/explanation/open-problems.md` and the Research Roadmap.
-- Not license-bound to attribute contributors — Apache 2.0 allows permissive reuse, but the `CONTRIBUTORS.md` convention still applies socially.
+- Apache 2.0 allows permissive reuse, but you must preserve required copyright/license/NOTICE attributions per the license terms; beyond that, the `CONTRIBUTORS.md` convention still applies socially.
