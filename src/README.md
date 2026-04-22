@@ -4,13 +4,13 @@ Reusable Python library for the Creative Determinant framework.
 
 ## Installation
 
-```bash
-# From repository root
-pip install -e .
+This project uses **uv**. From the repository root:
 
-# Or just install dependencies
-pip install -r requirements.txt
+```bash
+uv sync --locked   # creates venv, installs the `cd` package (editable) + dev deps
 ```
+
+CI pins everything through `uv.lock`; contributors should do the same. `requirements.txt` is kept only for users who cannot run `uv` — it is not the source of truth.
 
 ## Structure
 

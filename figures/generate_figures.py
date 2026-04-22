@@ -6,28 +6,29 @@ Outputs saved to navi-creative-determinant/figures/
 Run from repo root: python figures/generate_figures.py
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
 from pathlib import Path
 
-from scipy.sparse import diags, kron, eye
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.sparse import diags, eye, kron
 from scipy.sparse.linalg import eigsh, spsolve
-from scipy.integrate import solve_bvp
 
 # Publication style
-plt.rcParams.update({
-    "figure.figsize": (8, 5),
-    "figure.dpi": 150,
-    "savefig.dpi": 300,
-    "axes.grid": True,
-    "axes.labelsize": 12,
-    "axes.titlesize": 14,
-    "legend.fontsize": 10,
-    "xtick.labelsize": 10,
-    "ytick.labelsize": 10,
-    "font.family": "serif",
-    "text.usetex": False,  # Set True if LaTeX available
-})
+plt.rcParams.update(
+    {
+        "figure.figsize": (8, 5),
+        "figure.dpi": 150,
+        "savefig.dpi": 300,
+        "axes.grid": True,
+        "axes.labelsize": 12,
+        "axes.titlesize": 14,
+        "legend.fontsize": 10,
+        "xtick.labelsize": 10,
+        "ytick.labelsize": 10,
+        "font.family": "serif",
+        "text.usetex": False,  # Set True if LaTeX available
+    }
+)
 
 OUTPUT_DIR = Path(__file__).parent
 
@@ -35,6 +36,7 @@ OUTPUT_DIR = Path(__file__).parent
 # =============================================================================
 # Utilities
 # =============================================================================
+
 
 def laplacian_1d_dirichlet(N, L):
     """Sparse matrix for -d²/dx² on (0,L) with Dirichlet BC, N interior points."""
@@ -99,7 +101,9 @@ def solve_V1prime_1d_picard(L, N, a, beta_b, c, p=2.0, max_iter=8000, tol=1e-10,
     return x, Phi, {"iters": it + 1, "inf_err": float(err), "maxPhi": float(Phi.max())}
 
 
-def solve_V1prime_1d_picard_spatial(L, N, a_x, beta_b_x, c_x, p=2.0, max_iter=10000, tol=1e-10, damping=0.5):
+def solve_V1prime_1d_picard_spatial(
+    L, N, a_x, beta_b_x, c_x, p=2.0, max_iter=10000, tol=1e-10, damping=0.5
+):
     """Solve with spatially-varying coefficients."""
     A, h = laplacian_1d_dirichlet(N, L)
     x = np.linspace(0, L, N + 2)
@@ -136,8 +140,14 @@ def laplacian_2d_dirichlet(Nx, Ny, Lx, Ly):
     """Sparse matrix for -Δ on (0,Lx)x(0,Ly) with Dirichlet BC."""
     hx = Lx / (Nx + 1)
     hy = Ly / (Ny + 1)
-    Ax = diags([-np.ones(Nx - 1), 2 * np.ones(Nx), -np.ones(Nx - 1)], [-1, 0, 1], format="csr") / hx**2
-    Ay = diags([-np.ones(Ny - 1), 2 * np.ones(Ny), -np.ones(Ny - 1)], [-1, 0, 1], format="csr") / hy**2
+    Ax = (
+        diags([-np.ones(Nx - 1), 2 * np.ones(Nx), -np.ones(Nx - 1)], [-1, 0, 1], format="csr")
+        / hx**2
+    )
+    Ay = (
+        diags([-np.ones(Ny - 1), 2 * np.ones(Ny), -np.ones(Ny - 1)], [-1, 0, 1], format="csr")
+        / hy**2
+    )
     Ix = eye(Nx, format="csr")
     Iy = eye(Ny, format="csr")
     A = kron(Iy, Ax) + kron(Ay, Ix)
@@ -150,7 +160,9 @@ def gradmag_2d(Phi, hx, hy):
     return np.sqrt(dPhidx**2 + dPhidy**2)
 
 
-def solve_V1prime_2d_picard(Lx, Ly, Nx, Ny, a_full, beta_b_full, c_full, p=2.0, damping=0.6, tol=1e-8, max_iter=4000):
+def solve_V1prime_2d_picard(
+    Lx, Ly, Nx, Ny, a_full, beta_b_full, c_full, p=2.0, damping=0.6, tol=1e-8, max_iter=4000
+):
     """Solve 2D V1' equation."""
     A, hx, hy = laplacian_2d_dirichlet(Nx, Ny, Lx, Ly)
     x = np.linspace(0, Lx, Nx + 2)
@@ -182,6 +194,7 @@ def solve_V1prime_2d_picard(Lx, Ly, Nx, Ny, a_full, beta_b_full, c_full, p=2.0, 
 # Figure 1: Eigenvalue threshold crossing (1D linear theory)
 # =============================================================================
 
+
 def fig1_eigenvalue_threshold():
     print("Generating Figure 1: Eigenvalue threshold crossing...")
     L = 1.0
@@ -189,19 +202,41 @@ def fig1_eigenvalue_threshold():
     b_const = 0.8
 
     beta_values = np.linspace(0.0, 30.0, 61)
-    lam_num = np.array([principal_eigenvalue_Lb_1d_const(N, L, beta * b_const) for beta in beta_values])
+    lam_num = np.array(
+        [principal_eigenvalue_Lb_1d_const(N, L, beta * b_const) for beta in beta_values]
+    )
     lam_ana = (np.pi / L) ** 2 - beta_values * b_const
     beta_star = (np.pi / L) ** 2 / b_const
 
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.plot(beta_values, lam_num, "o", markersize=4, label="Numerical (FD)", alpha=0.7)
-    ax.plot(beta_values, lam_ana, "-", linewidth=2, label=r"Analytic: $\lambda_1 = (\pi/L)^2 - \beta b$")
+    ax.plot(
+        beta_values, lam_ana, "-", linewidth=2, label=r"Analytic: $\lambda_1 = (\pi/L)^2 - \beta b$"
+    )
     ax.axhline(0.0, color="k", linewidth=1)
-    ax.axvline(beta_star, color="r", linestyle="--", linewidth=1.5, label=rf"$\beta^* = {beta_star:.2f}$")
-    
+    ax.axvline(
+        beta_star, color="r", linestyle="--", linewidth=1.5, label=rf"$\beta^* = {beta_star:.2f}$"
+    )
+
     # Shade regions
-    ax.fill_between(beta_values, lam_ana, 0, where=(lam_ana > 0), alpha=0.15, color="blue", label="Subcritical (no emergence)")
-    ax.fill_between(beta_values, lam_ana, 0, where=(lam_ana < 0), alpha=0.15, color="green", label="Supercritical (emergence)")
+    ax.fill_between(
+        beta_values,
+        lam_ana,
+        0,
+        where=(lam_ana > 0),
+        alpha=0.15,
+        color="blue",
+        label="Subcritical (no emergence)",
+    )
+    ax.fill_between(
+        beta_values,
+        lam_ana,
+        0,
+        where=(lam_ana < 0),
+        alpha=0.15,
+        color="green",
+        label="Supercritical (emergence)",
+    )
 
     ax.set_xlabel(r"$\beta$ (viability gain)", fontsize=12)
     ax.set_ylabel(r"$\lambda_1(-\Delta - \beta b)$", fontsize=12)
@@ -209,17 +244,18 @@ def fig1_eigenvalue_threshold():
     ax.legend(loc="upper right")
     ax.set_xlim(0, 30)
     ax.set_ylim(-15, 12)
-    
+
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / "fig1_eigenvalue_threshold.png", dpi=300, bbox_inches="tight")
     plt.savefig(OUTPUT_DIR / "fig1_eigenvalue_threshold.pdf", bbox_inches="tight")
     plt.close()
-    print(f"  Saved: fig1_eigenvalue_threshold.png/pdf")
+    print("  Saved: fig1_eigenvalue_threshold.png/pdf")
 
 
 # =============================================================================
 # Figure 2: Below vs above threshold comparison (1D nonlinear)
 # =============================================================================
+
 
 def fig2_threshold_comparison():
     print("Generating Figure 2: Below/above threshold comparison...")
@@ -237,25 +273,40 @@ def fig2_threshold_comparison():
     x2, Phi2, _ = solve_V1prime_1d_picard(L, 800, a=a, beta_b=beta_above * b, c=c, p=p)
 
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.plot(x1, Phi1, linewidth=2, color="steelblue", label=rf"Below threshold: $\beta = 0.8\beta^*$ (max = {Phi1.max():.2g})")
-    ax.plot(x2, Phi2, linewidth=2, color="forestgreen", label=rf"Above threshold: $\beta = 1.2\beta^*$ (max = {Phi2.max():.3f})")
-    
+    ax.plot(
+        x1,
+        Phi1,
+        linewidth=2,
+        color="steelblue",
+        label=rf"Below threshold: $\beta = 0.8\beta^*$ (max = {Phi1.max():.2g})",
+    )
+    ax.plot(
+        x2,
+        Phi2,
+        linewidth=2,
+        color="forestgreen",
+        label=rf"Above threshold: $\beta = 1.2\beta^*$ (max = {Phi2.max():.3f})",
+    )
+
     ax.set_xlabel(r"$x$", fontsize=12)
     ax.set_ylabel(r"$\Phi(x)$ (presence field)", fontsize=12)
-    ax.set_title("Presence Emergence: Nontrivial Equilibrium Above Viability Threshold", fontsize=14)
+    ax.set_title(
+        "Presence Emergence: Nontrivial Equilibrium Above Viability Threshold", fontsize=14
+    )
     ax.legend(loc="upper right")
     ax.set_xlim(0, 1)
-    
+
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / "fig2_threshold_comparison.png", dpi=300, bbox_inches="tight")
     plt.savefig(OUTPUT_DIR / "fig2_threshold_comparison.pdf", bbox_inches="tight")
     plt.close()
-    print(f"  Saved: fig2_threshold_comparison.png/pdf")
+    print("  Saved: fig2_threshold_comparison.png/pdf")
 
 
 # =============================================================================
 # Figure 3: Canonical closure sweep (presence collapse under contradiction)
 # =============================================================================
+
 
 def fig3_canonical_closure_sweep():
     print("Generating Figure 3: Canonical closure sweep...")
@@ -285,7 +336,9 @@ def fig3_canonical_closure_sweep():
     for lam in lam_values:
         b_x = b0 - lam * mu
         beta_b_x = beta * b_x
-        x_sol, Phi_sol, info = solve_V1prime_1d_picard_spatial(L, N, a_x=a_x, beta_b_x=beta_b_x, c_x=c_x, p=p, damping=0.5)
+        x_sol, Phi_sol, info = solve_V1prime_1d_picard_spatial(
+            L, N, a_x=a_x, beta_b_x=beta_b_x, c_x=c_x, p=p, damping=0.5
+        )
         maxPhi.append(Phi_sol.max())
         lam1_vals.append(principal_eigenvalue_Lb_1d_spatial(N, L, beta_b_x))
 
@@ -304,8 +357,24 @@ def fig3_canonical_closure_sweep():
     # Right: Eigenvalue indicator
     ax2.plot(lam_values, lam1_vals, "bo-", markersize=6, linewidth=2)
     ax2.axhline(0.0, color="k", linewidth=1)
-    ax2.fill_between(lam_values, lam1_vals, 0, where=(np.array(lam1_vals) < 0), alpha=0.2, color="green", label="Viable")
-    ax2.fill_between(lam_values, lam1_vals, 0, where=(np.array(lam1_vals) > 0), alpha=0.2, color="red", label="Non-viable")
+    ax2.fill_between(
+        lam_values,
+        lam1_vals,
+        0,
+        where=(np.array(lam1_vals) < 0),
+        alpha=0.2,
+        color="green",
+        label="Viable",
+    )
+    ax2.fill_between(
+        lam_values,
+        lam1_vals,
+        0,
+        where=(np.array(lam1_vals) > 0),
+        alpha=0.2,
+        color="red",
+        label="Non-viable",
+    )
     ax2.set_xlabel(r"$\lambda$ (contradiction cost)", fontsize=12)
     ax2.set_ylabel(r"$\lambda_1(-\Delta - \beta b(\cdot))$", fontsize=12)
     ax2.set_title("Eigenvalue Indicator Under Canonical Closure", fontsize=14)
@@ -315,12 +384,13 @@ def fig3_canonical_closure_sweep():
     plt.savefig(OUTPUT_DIR / "fig3_canonical_closure_sweep.png", dpi=300, bbox_inches="tight")
     plt.savefig(OUTPUT_DIR / "fig3_canonical_closure_sweep.pdf", bbox_inches="tight")
     plt.close()
-    print(f"  Saved: fig3_canonical_closure_sweep.png/pdf")
+    print("  Saved: fig3_canonical_closure_sweep.png/pdf")
 
 
 # =============================================================================
 # Figure 4: 2D presence field heatmap (hero figure)
 # =============================================================================
+
 
 def fig4_2d_presence_field():
     print("Generating Figure 4: 2D presence field (this may take a moment)...")
@@ -354,9 +424,13 @@ def fig4_2d_presence_field():
 
     c = c0 * np.ones_like(X)
 
-    print(f"  Parameters: b0={b0:.3f}, lam={lam}, beta={beta:.2f}, b_min={b.min():.3f}, b_max={b.max():.3f}")
+    print(
+        f"  Parameters: b0={b0:.3f}, lam={lam}, beta={beta:.2f}, b_min={b.min():.3f}, b_max={b.max():.3f}"
+    )
 
-    Xg, Yg, Phi, info, _ = solve_V1prime_2d_picard(Lx, Ly, Nx, Ny, a, beta_b, c, p=p, damping=0.6, tol=1e-8)
+    Xg, Yg, Phi, info, _ = solve_V1prime_2d_picard(
+        Lx, Ly, Nx, Ny, a, beta_b, c, p=p, damping=0.6, tol=1e-8
+    )
     print(f"  2D solve completed: {info}")
 
     fig, axs = plt.subplots(1, 2, figsize=(12, 5))
@@ -383,12 +457,13 @@ def fig4_2d_presence_field():
     plt.savefig(OUTPUT_DIR / "fig4_2d_presence_field.png", dpi=300, bbox_inches="tight")
     plt.savefig(OUTPUT_DIR / "fig4_2d_presence_field.pdf", bbox_inches="tight")
     plt.close()
-    print(f"  Saved: fig4_2d_presence_field.png/pdf")
+    print("  Saved: fig4_2d_presence_field.png/pdf")
 
 
 # =============================================================================
 # Figure 5: Grid refinement convergence (numerical rigor)
 # =============================================================================
+
 
 def fig5_grid_refinement():
     print("Generating Figure 5: Grid refinement convergence...")
@@ -410,15 +485,17 @@ def fig5_grid_refinement():
     for Nn in Ns:
         xN, PhiN, infoN = solve_V1prime_1d_picard(L, Nn, a=a, beta_b=beta_above * b, c=c, p=p)
         max_vals.append(PhiN.max())
-        
+
         # Compute residual
         h = L / (Nn + 1)
         Phi_xx = (PhiN[2:] - 2 * PhiN[1:-1] + PhiN[:-2]) / h**2
         Phi_x = (PhiN[2:] - PhiN[:-2]) / (2 * h)
-        res = -Phi_xx - (a * np.abs(Phi_x) + beta_above * b * PhiN[1:-1] - c * np.maximum(PhiN[1:-1], 0.0) ** p)
+        res = -Phi_xx - (
+            a * np.abs(Phi_x) + beta_above * b * PhiN[1:-1] - c * np.maximum(PhiN[1:-1], 0.0) ** p
+        )
         rinf = float(np.linalg.norm(res, np.inf))
         residuals.append(rinf)
-        
+
         ax1.plot(xN, PhiN, linewidth=1.5, label=rf"$N={Nn}$")
 
     ax1.set_xlabel(r"$x$", fontsize=12)
@@ -431,22 +508,29 @@ def fig5_grid_refinement():
     ax2.set_xlabel("Grid points $N$", fontsize=12)
     ax2.set_ylabel(r"Residual $\|\mathcal{R}\|_\infty$", fontsize=12)
     ax2.set_title("Residual Decay (Second-Order Convergence)", fontsize=14)
-    
+
     # Add reference line for O(h²)
     h_ref = np.array(Ns)
-    ax2.loglog(h_ref, 0.5 * (h_ref[0] / h_ref) ** (-2) * residuals[0], "r--", linewidth=1.5, label=r"$O(h^2)$ reference")
+    ax2.loglog(
+        h_ref,
+        0.5 * (h_ref[0] / h_ref) ** (-2) * residuals[0],
+        "r--",
+        linewidth=1.5,
+        label=r"$O(h^2)$ reference",
+    )
     ax2.legend()
 
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / "fig5_grid_refinement.png", dpi=300, bbox_inches="tight")
     plt.savefig(OUTPUT_DIR / "fig5_grid_refinement.pdf", bbox_inches="tight")
     plt.close()
-    print(f"  Saved: fig5_grid_refinement.png/pdf")
+    print("  Saved: fig5_grid_refinement.png/pdf")
 
 
 # =============================================================================
 # Figure 6: Contradiction field visualization (1D)
 # =============================================================================
+
 
 def fig6_field_decomposition():
     print("Generating Figure 6: Field decomposition visualization...")
@@ -466,13 +550,17 @@ def fig6_field_decomposition():
     a_x = b0 * mu
 
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.plot(x, np.ones_like(x) * b0, "k--", linewidth=1.5, label=r"$\kappa\gamma$ (care × coherence)")
+    ax.plot(
+        x, np.ones_like(x) * b0, "k--", linewidth=1.5, label=r"$\kappa\gamma$ (care × coherence)"
+    )
     ax.plot(x, mu, "r-", linewidth=2, label=r"$\mu(x)$ (contradiction field)")
     ax.plot(x, b_x, "g-", linewidth=2, label=r"$b(x) = \kappa\gamma - \lambda\mu(x)$ (viability)")
     ax.plot(x, a_x, "b-", linewidth=2, label=r"$a(x) = \kappa\gamma\mu(x)$ (creative drive)")
 
     ax.axhline(0, color="gray", linestyle=":", linewidth=0.8)
-    ax.fill_between(x, 0, b_x, where=(b_x < 0), alpha=0.2, color="red", label="Negative viability region")
+    ax.fill_between(
+        x, 0, b_x, where=(b_x < 0), alpha=0.2, color="red", label="Negative viability region"
+    )
 
     ax.set_xlabel(r"$x$", fontsize=12)
     ax.set_ylabel("Field intensity", fontsize=12)
@@ -485,12 +573,13 @@ def fig6_field_decomposition():
     plt.savefig(OUTPUT_DIR / "fig6_field_decomposition.png", dpi=300, bbox_inches="tight")
     plt.savefig(OUTPUT_DIR / "fig6_field_decomposition.pdf", bbox_inches="tight")
     plt.close()
-    print(f"  Saved: fig6_field_decomposition.png/pdf")
+    print("  Saved: fig6_field_decomposition.png/pdf")
 
 
 # =============================================================================
 # Figure 7: 2D Phase Transition (viable vs non-viable comparison)
 # =============================================================================
+
 
 def fig7_2d_phase_transition():
     print("Generating Figure 7: 2D phase transition comparison...")
@@ -528,8 +617,12 @@ def fig7_2d_phase_transition():
     a_high = b0 * mu
     beta_b_high = beta * b_high
 
-    _, _, Phi_low, info_low, _ = solve_V1prime_2d_picard(Lx, Ly, Nx, Ny, a_low, beta_b_low, c, p=p, damping=0.6, tol=1e-8)
-    _, _, Phi_high, info_high, _ = solve_V1prime_2d_picard(Lx, Ly, Nx, Ny, a_high, beta_b_high, c, p=p, damping=0.6, tol=1e-8)
+    _, _, Phi_low, info_low, _ = solve_V1prime_2d_picard(
+        Lx, Ly, Nx, Ny, a_low, beta_b_low, c, p=p, damping=0.6, tol=1e-8
+    )
+    _, _, Phi_high, info_high, _ = solve_V1prime_2d_picard(
+        Lx, Ly, Nx, Ny, a_high, beta_b_high, c, p=p, damping=0.6, tol=1e-8
+    )
 
     print(f"  Low λ={lam_low}: maxPhi={info_low['maxPhi']:.4f}")
     print(f"  High λ={lam_high}: maxPhi={info_high['maxPhi']:.4e}")
@@ -539,23 +632,29 @@ def fig7_2d_phase_transition():
     im0 = axs[0].imshow(Phi_low, origin="lower", extent=[0, Lx, 0, Ly], cmap="viridis")
     if Phi_low.max() > 1e-6:
         axs[0].contour(X, Y, Phi_low, levels=8, colors="white", linewidths=0.7, alpha=0.7)
-    axs[0].set_title(rf"Viable: $\lambda = {lam_low}$ (max $\Phi$ = {Phi_low.max():.3f})", fontsize=13)
+    axs[0].set_title(
+        rf"Viable: $\lambda = {lam_low}$ (max $\Phi$ = {Phi_low.max():.3f})", fontsize=13
+    )
     axs[0].set_xlabel("$x$", fontsize=12)
     axs[0].set_ylabel("$y$", fontsize=12)
     plt.colorbar(im0, ax=axs[0], fraction=0.046, pad=0.04)
 
     im1 = axs[1].imshow(Phi_high, origin="lower", extent=[0, Lx, 0, Ly], cmap="viridis")
-    axs[1].set_title(rf"Collapsed: $\lambda = {lam_high}$ (max $\Phi$ = {Phi_high.max():.2e})", fontsize=13)
+    axs[1].set_title(
+        rf"Collapsed: $\lambda = {lam_high}$ (max $\Phi$ = {Phi_high.max():.2e})", fontsize=13
+    )
     axs[1].set_xlabel("$x$", fontsize=12)
     axs[1].set_ylabel("$y$", fontsize=12)
     plt.colorbar(im1, ax=axs[1], fraction=0.046, pad=0.04)
 
-    plt.suptitle("2D Phase Transition: Presence Collapse Under Excess Contradiction", fontsize=14, y=1.02)
+    plt.suptitle(
+        "2D Phase Transition: Presence Collapse Under Excess Contradiction", fontsize=14, y=1.02
+    )
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / "fig7_2d_phase_transition.png", dpi=300, bbox_inches="tight")
     plt.savefig(OUTPUT_DIR / "fig7_2d_phase_transition.pdf", bbox_inches="tight")
     plt.close()
-    print(f"  Saved: fig7_2d_phase_transition.png/pdf")
+    print("  Saved: fig7_2d_phase_transition.png/pdf")
 
 
 # =============================================================================

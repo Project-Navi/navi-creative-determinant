@@ -16,8 +16,12 @@ permissions:
   contents: read
 
 jobs:
-  # CONTRACT: org ruleset requires this exact check name 'codeql'
-  # Do NOT add a 'name:' override or matrix strategy
+  # CONTRACT: the github/codeql-action/analyze step emits a check named
+  # 'Analyze (python)' (from category: /language:python). The org 'CI: Python
+  # Tier' ruleset requires that exact name — not the job key below. The job
+  # key 'codeql' also produces a separate 'codeql' check, but the required
+  # one is 'Analyze (python)'. Do NOT add a 'name:' override or matrix
+  # strategy; either would change the emitted check name and break the ruleset.
   codeql:
     runs-on: ubuntu-latest
     timeout-minutes: 30

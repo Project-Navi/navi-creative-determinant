@@ -24,13 +24,15 @@ uv run jupyter nbconvert --to notebook --execute notebooks/cd_pde_demo.ipynb
 
 ## What the Notebook Demonstrates
 
-| Part | Topic | Paper Reference | Lean4 Proof |
-|------|-------|-----------------|-------------|
-| 1 | Eigenvalue threshold | Theorem 3.16 | `spectral_characterization_1d` |
-| 2 | 1D nonlinear solve + rigor checks | Theorems 3.12, 3.16 | `existence_weak_coherent_configuration`, `existence_nontrivial_coherent_configuration` |
-| 3 | Canonical closure sweep | Definition 3.3 | `SemioticContext.canonicalViability` |
-| 4 | 2D presence field | Theorems 3.12, 3.16 | Same existence theorems |
-| 5 | 3D eigenvalue demo | Spectral theory | Extends to arbitrary dimension |
+| § | Topic | Paper / Lean reference |
+|---|-------|------------------------|
+| 1 | Spectral theory — linear eigenvalue threshold | Theorem 3.16 / `spectral_characterization_1d` |
+| 2 | Algebraic L-infinity bound | Lemma 3.10 / `linfty_bound_algebraic` |
+| 3 | Existence & bifurcation — 1D nonlinear solve | Theorems 3.12, 3.16 / `existence_weak_coherent_configuration`, `existence_nontrivial_coherent_configuration` |
+| 4 | Scaling uniqueness | — |
+| 5 | Canonical closure sweep (semiotic fields) | Definition 3.3 / `SemioticContext.canonicalViability` |
+| 6 | 2D spatial presence field on $[0,1]^2$ | Theorems 3.12, 3.16 / same existence theorems extended to 2D |
+| 7 | 3D eigenvalue-only demo (extension) | Spectral theory extended to arbitrary dimension |
 
 ## Relationship to Paper and Lean4 Proofs
 

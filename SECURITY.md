@@ -70,4 +70,4 @@ The core library makes no network requests. The only I/O is file-based (saving f
 
 This framework models aspects of cognition and meaning. While it's purely mathematical, we ask users to consider the ethical implications of any applications they build on top of it.
 
-See [ETHICAL_COVENANT.md](docs/ETHICAL_COVENANT.md) for our voluntary ethical commitments.
+See the [Ethical Covenant](docs/explanation/ethical-covenant.md) for our voluntary ethical commitments.

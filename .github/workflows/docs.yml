@@ -6,6 +6,16 @@ on:
     paths:
       - "docs/**"
       - "zensical.toml"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/docs.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "zensical.toml"
+      - "pyproject.toml"
+      - "uv.lock"
       - ".github/workflows/docs.yml"
   workflow_dispatch:
 
@@ -14,9 +24,12 @@ permissions:
   pages: write
   id-token: write
 
+# Separate concurrency groups per ref/event so PR builds never cancel
+# the in-flight push-to-main deploy. Within a single branch or PR head,
+# newer pushes still supersede older ones.
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: pages-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -27,8 +40,7 @@ jobs:
         with:
           enable-cache: true
       - name: Install docs dependencies
-        # For library repos, remove --no-install-project so the package is importable
-        run: uv sync --frozen --group docs
+        run: uv sync --locked --group docs
       - name: Build site
         run: uv run zensical build
       - name: Strip internal docs from build
@@ -38,6 +50,8 @@ jobs:
           path: site
 
   deploy:
+    # Only deploy on push to main; PRs just validate the build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     environment:
