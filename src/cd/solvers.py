@@ -121,7 +121,20 @@ def solve_1d_picard(
     c_int = _to_interior_1d(c, N)
 
     def grad_abs(Phi_full):
-        """Central difference approximation of |Φ'|."""
+        """
+        Central difference approximation of |Φ'| on interior points.
+
+        Parameters
+        ----------
+        Phi_full : np.ndarray
+            Full solution array of length N + 2, including boundary values.
+
+        Returns
+        -------
+        np.ndarray
+            Array of length N giving |Φ'| at interior grid points.
+        """
+        # Use centered differences; result is defined only on interior points (length N).
         d = (Phi_full[2:] - Phi_full[:-2]) / (2 * h)
         return np.abs(d)
 
@@ -266,15 +279,15 @@ def solve_2d_picard(
     Phi = initial_amplitude * np.sin(np.pi * X / Lx) * np.sin(np.pi * Y / Ly)
     Phi_int = Phi[1:-1, 1:-1].flatten()
 
+    def _to_flat_or_scalar(coeff):
+        """Return flattened array for non-scalars, or the scalar itself."""
+        if np.isscalar(coeff):
+            return coeff
+        return np.asarray(coeff).flatten()
+
     # Convert array coefficients to flat interior arrays
-    if hasattr(a, "__len__"):
-        a_flat = np.asarray(a).flatten()
-    else:
-        a_flat = a  # scalar broadcasts
-    if hasattr(c, "__len__"):
-        c_flat = np.asarray(c).flatten()
-    else:
-        c_flat = c  # scalar broadcasts
+    a_flat = _to_flat_or_scalar(a)
+    c_flat = _to_flat_or_scalar(c)
 
     # Viability field
     if b_field is None:
@@ -283,7 +296,21 @@ def solve_2d_picard(
         b_flat = b_field.flatten()
 
     def grad_abs_2d(Phi_full):
-        """Approximate |∇Φ| on interior."""
+        """
+        Approximate |∇Φ| on interior grid points.
+
+        Parameters
+        ----------
+        Phi_full : ndarray of shape (Ny + 2, Nx + 2)
+            Full field including boundary values.
+
+        Returns
+        -------
+        ndarray of shape (Ny * Nx,)
+            Flattened (row-major) gradient magnitude evaluated only at
+            interior points, corresponding to Phi_full[1:-1, 1:-1]. The
+            boundary values are not included.
+        """
         Phi_x = (Phi_full[1:-1, 2:] - Phi_full[1:-1, :-2]) / (2 * hx)
         Phi_y = (Phi_full[2:, 1:-1] - Phi_full[:-2, 1:-1]) / (2 * hy)
         return np.sqrt(Phi_x**2 + Phi_y**2).flatten()
