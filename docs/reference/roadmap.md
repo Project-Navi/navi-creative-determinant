@@ -116,7 +116,7 @@ This document outlines open research directions stemming from the Creative Deter
 **Motivation**: Definition 5.3 lists five falsifiability criteria. Actively trying to break the framework is a first-class contribution.
 
 **What this involves**:
-- Design experiments targeting F1--F5 (e.g., look for coherence without coupling, Hamiltonian systems with CD signatures, contradiction resolution without care).
+- Design experiments targeting F1–F5 (e.g., look for coherence without coupling, Hamiltonian systems with CD signatures, contradiction resolution without care).
 - Document results honestly: null results or violations are valuable.
 
 **Technical prerequisites**: Depends on the criterion chosen.
