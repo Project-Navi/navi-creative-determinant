@@ -29,12 +29,14 @@ uv run coverage report --show-missing
 | **test_eigenvalues.py** | 3 | Spatial eigenvalue solver (1D and 2D): constant-field parity with scalar solver, monotone response to potential |
 | **test_2d.py** | 2 | 2D solver with array coefficients; residual on converged 2D solution |
 
-Verify the count locally:
+Verify the total count locally:
 
 ```bash
-grep -c "def test_" tests/test_*.py
-# expected total: 24
+grep -R '^[[:space:]]*def test_' tests/ | wc -l
+# expected: 24
 ```
+
+The per-file counts are also visible via `grep -c "def test_" tests/test_*.py`.
 
 ## Test Philosophy
 

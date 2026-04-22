@@ -6,12 +6,16 @@ on:
     paths:
       - "docs/**"
       - "zensical.toml"
+      - "pyproject.toml"
+      - "uv.lock"
       - ".github/workflows/docs.yml"
   pull_request:
     branches: [main]
     paths:
       - "docs/**"
       - "zensical.toml"
+      - "pyproject.toml"
+      - "uv.lock"
       - ".github/workflows/docs.yml"
   workflow_dispatch:
 
@@ -20,9 +24,12 @@ permissions:
   pages: write
   id-token: write
 
+# Separate concurrency groups per ref/event so PR builds never cancel
+# the in-flight push-to-main deploy. Within a single branch or PR head,
+# newer pushes still supersede older ones.
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: pages-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:

@@ -81,6 +81,13 @@ def solve_1d_picard(
         - 'maxPhi': maximum value of Φ
         - 'converged': whether tolerance was reached
 
+    Raises
+    ------
+    ValueError
+        If ``L`` is non-positive, ``N`` is non-positive, ``p`` is not
+        greater than 1, or ``c`` (or any element of an array ``c``) is
+        non-positive.
+
     Notes
     -----
     The Picard iteration linearizes the nonlinear terms:
@@ -256,6 +263,13 @@ def solve_2d_picard(
         Solution including boundary values, shape (Ny+2, Nx+2).
     info : dict
         Solver diagnostics.
+
+    Raises
+    ------
+    ValueError
+        If ``Lx`` or ``Ly`` is non-positive, ``Nx`` or ``Ny`` is non-positive,
+        ``p`` is not greater than 1, ``c`` (or any element of an array ``c``)
+        is non-positive, or ``b_field`` has a shape other than ``(Ny, Nx)``.
     """
     if Lx <= 0 or Ly <= 0:
         raise ValueError(f"Domain lengths must be positive, got Lx={Lx}, Ly={Ly}")
@@ -295,11 +309,14 @@ def solve_2d_picard(
     if b_field is None:
         b_flat = np.ones(Nx * Ny)
     else:
-        if b_field.shape != (Ny, Nx):
+        # Accept array-like (list, tuple, ndarray) — raise ValueError, not
+        # AttributeError, on bad shape.
+        b_field_arr = np.asarray(b_field)
+        if b_field_arr.shape != (Ny, Nx):
             raise ValueError(
-                f"b_field must have shape (Ny, Nx) = ({Ny}, {Nx}), got {b_field.shape}"
+                f"b_field must have shape (Ny, Nx) = ({Ny}, {Nx}), got {b_field_arr.shape}"
             )
-        b_flat = b_field.flatten()
+        b_flat = b_field_arr.flatten()
 
     def grad_abs_2d(Phi_full):
         """

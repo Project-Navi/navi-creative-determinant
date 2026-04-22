@@ -123,6 +123,11 @@ def gaussian_bump_2d(
     field : ndarray
         Gaussian bump (same shape as X, Y).
 
+    Raises
+    ------
+    ValueError
+        If ``sigma`` is non-positive.
+
     Example
     -------
     >>> X, Y = np.meshgrid(np.linspace(0, 1, 50), np.linspace(0, 1, 50))
@@ -160,6 +165,11 @@ def gaussian_bump_1d(
     -------
     field : ndarray
         Gaussian bump (same shape as x).
+
+    Raises
+    ------
+    ValueError
+        If ``sigma`` is non-positive.
     """
     if sigma <= 0:
         raise ValueError(f"sigma must be positive, got sigma={sigma}")
