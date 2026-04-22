@@ -7,6 +7,8 @@ Implements Picard iteration for the nonlinear elliptic BVP:
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 from scipy.sparse.linalg import spsolve
 
@@ -100,8 +102,8 @@ def solve_1d_picard(
         raise ValueError(f"Grid points N must be positive, got N={N}")
     if p <= 1:
         raise ValueError(f"Saturation exponent p must be > 1, got p={p}")
-    if np.isscalar(c):
-        if c <= 0:
+    if isinstance(c, (int, float, np.floating)):
+        if float(c) <= 0:
             raise ValueError(f"Saturation c must be positive, got c={c}")
     else:
         c_arr = np.asarray(c)
@@ -145,7 +147,7 @@ def solve_1d_picard(
         Phi_next = np.maximum(Phi_next, 0.0)
 
         # Check convergence
-        err = np.linalg.norm(Phi_next - Phi_int, ord=np.inf)
+        err = float(np.linalg.norm(Phi_next - Phi_int, ord=np.inf))
         Phi_int = Phi_next
 
         if err < tol:
@@ -156,7 +158,7 @@ def solve_1d_picard(
     Phi = np.zeros(N + 2)
     Phi[1:-1] = Phi_int
 
-    info = {
+    info: dict[str, Any] = {
         "iters": it + 1,
         "inf_err": float(err),
         "maxPhi": float(Phi.max()),
@@ -248,8 +250,8 @@ def solve_2d_picard(
         raise ValueError(f"Grid points must be positive, got Nx={Nx}, Ny={Ny}")
     if p <= 1:
         raise ValueError(f"Saturation exponent p must be > 1, got p={p}")
-    if np.isscalar(c):
-        if c <= 0:
+    if isinstance(c, (int, float, np.floating)):
+        if float(c) <= 0:
             raise ValueError(f"Saturation c must be positive, got c={c}")
     else:
         c_arr = np.asarray(c)
@@ -266,15 +268,9 @@ def solve_2d_picard(
     Phi = initial_amplitude * np.sin(np.pi * X / Lx) * np.sin(np.pi * Y / Ly)
     Phi_int = Phi[1:-1, 1:-1].flatten()
 
-    # Convert array coefficients to flat interior arrays
-    if hasattr(a, "__len__"):
-        a_flat = np.asarray(a).flatten()
-    else:
-        a_flat = a  # scalar broadcasts
-    if hasattr(c, "__len__"):
-        c_flat = np.asarray(c).flatten()
-    else:
-        c_flat = c  # scalar broadcasts
+    # Convert array coefficients to flat interior arrays (scalars broadcast naturally)
+    a_flat: float | np.ndarray = np.asarray(a).flatten() if hasattr(a, "__len__") else a
+    c_flat: float | np.ndarray = np.asarray(c).flatten() if hasattr(c, "__len__") else c
 
     # Viability field
     if b_field is None:
@@ -307,7 +303,7 @@ def solve_2d_picard(
         Phi_next = (1 - damping) * Phi_int + damping * Phi_new
         Phi_next = np.maximum(Phi_next, 0.0)
 
-        err = np.linalg.norm(Phi_next - Phi_int, ord=np.inf)
+        err = float(np.linalg.norm(Phi_next - Phi_int, ord=np.inf))
         Phi_int = Phi_next
 
         if err < tol:
@@ -318,7 +314,7 @@ def solve_2d_picard(
     Phi = np.zeros((Ny + 2, Nx + 2))
     Phi[1:-1, 1:-1] = Phi_int.reshape(Ny, Nx)
 
-    info = {
+    info: dict[str, Any] = {
         "iters": it + 1,
         "inf_err": float(err),
         "maxPhi": float(Phi.max()),
