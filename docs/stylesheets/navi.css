@@ -3,7 +3,7 @@
    Palette: #141414 bg, #e8e4de text, #7eb8a8 accent
    Blessing tiers: #7eb8a8 positive, #d4a574 neutral, #c47a7a negative */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Fraunces:wght@300&family=JetBrains+Mono:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Fraunces:wght@300&family=JetBrains+Mono:wght@400&display=swap');
 
 /* --- Color overrides --- */
 :root {
