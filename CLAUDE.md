@@ -99,7 +99,7 @@ experiments/             # Scaffolding for empirical instantiations
 - **Large files cap: 1024 KB** (`check-added-large-files`). Existing figures (>200 KB) are tracked because generation is scripted. New binaries ≥1 MB will be rejected.
 - **Notebook CI asserts ≥7 code-cell outputs.** If you restructure `cd_pde_demo.ipynb`, make sure executed cells still emit ≥7 outputs or `notebooks.yml` will fail.
 - **CI triggers are path-filtered.** `notebooks.yml` only runs on `notebooks/**` or `src/**`; `figures.yml` only on `figures/**` or `src/**`. `ci.yml` runs on every push/PR.
-- **CodeQL is advanced setup, not default.** Check name is `Analyze (python)` (see `codeql.yml`). If someone toggles GitHub's default CodeQL setup on, it will silently disable `codeql.yml` and break the required-checks contract — restore advanced via the Actions UI or API.
+- **CodeQL is advanced setup, not default.** Required check name is `codeql` (the job key in `codeql.yml`), not `Analyze (python)` (the SARIF-upload-side check). The job-level check was chosen because Dependabot's `GITHUB_TOKEN` is forced read-only on `pull_request` events, so the SARIF upload no-ops on Dependabot PRs and `Analyze (python)` never fires — freezing every Dependabot PR. If someone toggles GitHub's default CodeQL setup on, it will silently disable `codeql.yml` and break the required-checks contract — restore advanced via the Actions UI or API.
 
 ## Conventions
 
@@ -141,19 +141,19 @@ Before adding a test:
 
 ## CI
 
-Seven workflows; the unified `ci.yml` holds all but one of the required checks.
+Seven workflows. The unified `ci.yml` holds four of the six required checks (`lint`, `typecheck`, `security`, `quality-gate`); `codeql.yml` emits `codeql` and `semgrep.yml` emits `semgrep`.
 
 | Workflow | File | Notes |
 |---|---|---|
-| CI | `ci.yml` | Jobs are named to match the org ruleset check names: **`test`, `lint`, `typecheck`, `security`, `quality-gate`**. `test-run` is the per-Python matrix; `test` is the aggregator. Non-required: `numerical-stability`, `eigenvalue-precision`, `threshold-verification`, `coverage`. |
-| CodeQL Analysis | `codeql.yml` | Emits **`Analyze (python)`** (required by org ruleset). Do not rename the job or add a `name:` override. |
+| CI | `ci.yml` | Job keys mapped to ruleset checks: **`lint`, `typecheck`, `security`, `quality-gate`**. `test-run` is the per-Python matrix; `test` is the aggregator (runs on every PR but is not in the ruleset's required list). Non-required: `numerical-stability`, `eigenvalue-precision`, `threshold-verification`, `coverage`. |
+| CodeQL Analysis | `codeql.yml` | Emits **`codeql`** (job key, required by org ruleset). Also emits `Analyze (python)` on `push` events to main and the weekly schedule, but not on Dependabot PRs (token is read-only). Do not rename the job or add a `name:` override. |
 | Semgrep | `semgrep.yml` | Emits **`semgrep`** (required). Runs `p/python` + `p/owasp-top-ten`. |
 | OpenSSF Scorecard | `scorecard.yml` | Scheduled + on-push to main. Calls the org-shared workflow. |
 | Notebook Validation | `notebooks.yml` | Executes `cd_pde_demo.ipynb`, validates ≥7 output cells, lints via nbqa. |
 | Figure Validation | `figures.yml` | Runs `generate_figures.py`, verifies all 14 PNG+PDF files exist. |
 | Docs | `docs.yml` | Builds zensical site. |
 
-**Org ruleset contract (`CI: Python Tier`)** requires: `test`, `lint`, `typecheck`, `security`, `Analyze (python)`, `semgrep`, `quality-gate`. Job keys in the workflow files map 1-to-1 to these check names — don't rename jobs without updating the ruleset, and don't add `name:` overrides that would change the emitted check name.
+**Org ruleset contract (`CI: Python Tier`)** requires: `lint`, `typecheck`, `security`, `codeql`, `semgrep`, `quality-gate`. Job keys in the workflow files map 1-to-1 to these check names — don't rename jobs without updating the ruleset, and don't add `name:` overrides that would change the emitted check name. (`test` is the aggregator job in `ci.yml` and runs on every PR, but is not in the ruleset's required list.)
 
 ## When adding new code
 

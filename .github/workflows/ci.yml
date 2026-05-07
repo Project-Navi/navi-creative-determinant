@@ -1,7 +1,10 @@
 # CI — Creative Determinant
 #
-# All org-required checks live here. Job keys ARE the check names.
-# CONTRACT: test, lint, typecheck, security, quality-gate
+# Holds four of the six org-required checks; job keys ARE the check names.
+# CONTRACT (this file): lint, typecheck, security, quality-gate
+# Other required checks live in codeql.yml ('codeql') and semgrep.yml ('semgrep').
+# The 'test' aggregator job below is NOT in the required list, but is preserved
+# as a fail-fast signal for the test-run matrix.
 
 name: CI
 
@@ -19,7 +22,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ── required checks ────────────────────────────────────────
+  # ── required checks (lint / typecheck / security / quality-gate) and 'test' aggregator ─
 
   test-run:
     runs-on: ubuntu-latest
@@ -50,7 +53,10 @@ jobs:
           path: results/
           retention-days: 30
 
-  # CONTRACT: org ruleset requires this exact check name 'test'
+  # NOTE: 'test' is NOT in the org ruleset's required-checks list — runs on
+  # every PR as a fail-fast aggregator over the test-run matrix, but the
+  # ruleset doesn't gate on it. Keep the job key 'test' anyway so any future
+  # decision to require it is a one-line ruleset edit.
   test:
     needs: test-run
     if: always()
