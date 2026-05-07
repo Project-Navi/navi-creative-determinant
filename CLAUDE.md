@@ -141,7 +141,7 @@ Before adding a test:
 
 ## CI
 
-Seven workflows; the unified `ci.yml` holds all but one of the required checks.
+Seven workflows. The unified `ci.yml` holds four of the six required checks (`lint`, `typecheck`, `security`, `quality-gate`); `codeql.yml` emits `codeql` and `semgrep.yml` emits `semgrep`.
 
 | Workflow | File | Notes |
 |---|---|---|
