@@ -70,6 +70,6 @@ def test_2d_eigenvalue_formula(self):
 ## Continuous Integration
 
 The org ruleset requires these checks to pass on every PR to `main`:
-`test`, `lint`, `typecheck`, `security`, `Analyze (python)`, `semgrep`, `quality-gate`.
+`lint`, `typecheck`, `security`, `codeql`, `semgrep`, `quality-gate`.
 
-The `test` check is an aggregator over the matrix job `test-run (3.10|3.11|3.12)` defined in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml). The matrix installs dependencies via `uv sync --locked` and runs `uv run pytest tests/ -v`.
+The `test` aggregator job (over the matrix `test-run (3.10|3.11|3.12)` defined in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) runs on every PR but is not in the ruleset's required list. The matrix installs dependencies via `uv sync --locked` and runs `uv run pytest tests/ -v`.
