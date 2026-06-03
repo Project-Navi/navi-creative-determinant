@@ -27,7 +27,7 @@ jobs:
       - name: Run Semgrep
         run: semgrep scan --config p/python --config p/owasp-top-ten --sarif -o semgrep.sarif .
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@e46ed2cbd01164d986452f91f178727624ae40d7  # v4.35.3
+        uses: github/codeql-action/upload-sarif@87557b9c84dde89fdd9b10e88954ac2f4248e463  # v4.36.1
         if: always()
         with:
           sarif_file: semgrep.sarif
