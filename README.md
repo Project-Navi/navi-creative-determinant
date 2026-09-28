@@ -55,13 +55,13 @@ uv run jupyter lab notebooks/
 - **[`creative_determinant.pdf`](paper/creative_determinant.pdf)**: The core paper, presenting the mathematical framework, interpretive layer, and operational proposals.
 - **[`cd_formalization/`](cd_formalization/)**: Lean 4 formalization of the Creative Determinant framework against Mathlib. Definitions (semiotic manifold, operators, BVP, weak coherent configuration) are machine-checked. Existence (Theorem 3.12) and nontriviality (Theorem 3.16) are proved conditional on PdeInfra — an explicit axiom surface packaging classical PDE results not yet in Mathlib. See the [formalization README](cd_formalization/README.md) for build instructions and axiom boundary details.
 - **[`cd_pde_demo.ipynb`](notebooks/cd_pde_demo.ipynb)**: Jupyter notebook with numerical demonstrations of viability thresholds, equilibrium emergence, and canonical closure in 1D, 2D, and 3D.
-- **[Research Roadmap](https://project-navi.github.io/navi-creative-determinant/reference/roadmap/)**: Research directions and open questions—invitations for others to contribute.
+- **[Research Roadmap](https://docs.projectnavi.ai/navi-creative-determinant/reference/roadmap/)**: Research directions and open questions—invitations for others to contribute.
 - **[CONTRIBUTING.md](CONTRIBUTING.md)**: How to participate, extend, or challenge the framework.
-- **[Open Problems](https://project-navi.github.io/navi-creative-determinant/explanation/open-problems/)**: Explicit gaps and unresolved theoretical questions.
+- **[Open Problems](https://docs.projectnavi.ai/navi-creative-determinant/explanation/open-problems/)**: Explicit gaps and unresolved theoretical questions.
 - **[experiments/](experiments/)**: Scaffolding for empirical instantiations and tests.
-- **[FAQ](https://project-navi.github.io/navi-creative-determinant/reference/faq/)**: Short answers to common questions.
-- **[Conceptual Primer](https://project-navi.github.io/navi-creative-determinant/explanation/conceptual-primer/)**: A gentle introduction for non-technical audiences.
-- **[Author's Note](https://project-navi.github.io/navi-creative-determinant/explanation/authors-note/)**: Origin story and motivation behind the framework.
+- **[FAQ](https://docs.projectnavi.ai/navi-creative-determinant/reference/faq/)**: Short answers to common questions.
+- **[Conceptual Primer](https://docs.projectnavi.ai/navi-creative-determinant/explanation/conceptual-primer/)**: A gentle introduction for non-technical audiences.
+- **[Author's Note](https://docs.projectnavi.ai/navi-creative-determinant/explanation/authors-note/)**: Origin story and motivation behind the framework.
 - **[figures/](figures/)**: Publication-quality visualizations of framework dynamics.
 
 ## Entry Ramps by Background
@@ -106,7 +106,7 @@ If you build on this work, please cite:
 
 > *The knowledge is free, the community is open. If you wish to support our mission, [buy a t-shirt](https://projectnavi.printful.me/).* 🐘
 
-See **[CONTRIBUTING.md](CONTRIBUTING.md)** for how to participate. See the **[Research Roadmap](https://project-navi.github.io/navi-creative-determinant/reference/roadmap/)** for open research directions. See **[Open Problems](https://project-navi.github.io/navi-creative-determinant/explanation/open-problems/)** for unresolved theoretical questions.
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** for how to participate. See the **[Research Roadmap](https://docs.projectnavi.ai/navi-creative-determinant/reference/roadmap/)** for open research directions. See **[Open Problems](https://docs.projectnavi.ai/navi-creative-determinant/explanation/open-problems/)** for unresolved theoretical questions.
 
 Please read our **[Code of Conduct](CODE_OF_CONDUCT.md)**—a trauma-informed, peer support-based community covenant that reflects how we work together.
 
@@ -162,7 +162,7 @@ Apache 2.0 allows you to use, modify, and build upon this work—even commercial
 
 ### Ethical Covenant (Voluntary)
 
-While the license grants you broad rights, we invite you to honor the **[Ethical Covenant](https://project-navi.github.io/navi-creative-determinant/explanation/ethical-covenant/)**—a voluntary commitment to:
+While the license grants you broad rights, we invite you to honor the **[Ethical Covenant](https://docs.projectnavi.ai/navi-creative-determinant/explanation/ethical-covenant/)**—a voluntary commitment to:
 - Use CD responsibly in systems that affect people
 - Be intellectually honest about what CD does and doesn't prove
 - Contribute back to the research community where feasible

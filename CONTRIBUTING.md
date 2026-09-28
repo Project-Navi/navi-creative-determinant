@@ -102,8 +102,8 @@ If you are contributing substantial original content (e.g., a new theorem, a maj
 
 ## Related Documents
 
-- **[Open Problems](https://project-navi.github.io/navi-creative-determinant/explanation/open-problems/)**: Explicit theoretical gaps where contributions are needed
-- **[Research Roadmap](https://project-navi.github.io/navi-creative-determinant/reference/roadmap/)**: Research directions and proposed experiments
+- **[Open Problems](https://docs.projectnavi.ai/navi-creative-determinant/explanation/open-problems/)**: Explicit theoretical gaps where contributions are needed
+- **[Research Roadmap](https://docs.projectnavi.ai/navi-creative-determinant/reference/roadmap/)**: Research directions and proposed experiments
 - **[The Paper](paper/creative_determinant.pdf)**: Full theoretical treatment
 - **[Jupyter Notebook](notebooks/cd_pde_demo.ipynb)**: Numerical demonstrations to extend
 
