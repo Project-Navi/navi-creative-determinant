@@ -10,6 +10,8 @@ from __future__ import annotations
 import numpy as np
 from scipy.sparse import csr_matrix, diags, eye, kron
 
+from ._validation import check_positive_int, check_positive_scalar
+
 
 def laplacian_1d_dirichlet(N: int, L: float) -> tuple[csr_matrix, float]:
     """
@@ -18,16 +20,21 @@ def laplacian_1d_dirichlet(N: int, L: float) -> tuple[csr_matrix, float]:
     Parameters
     ----------
     N : int
-        Number of interior grid points.
+        Number of interior grid points (``N >= 1``).
     L : float
-        Domain length.
+        Domain length (``L > 0``).
 
     Returns
     -------
     A : scipy.sparse.csr_matrix
         Sparse N×N matrix representing -d²/dx².
     h : float
-        Grid spacing.
+        Grid spacing ``L / (N + 1)``.
+
+    Raises
+    ------
+    ValueError
+        If ``N`` is not a positive integer or ``L`` is not a positive finite number.
 
     Notes
     -----
@@ -35,7 +42,11 @@ def laplacian_1d_dirichlet(N: int, L: float) -> tuple[csr_matrix, float]:
         -Φ''(xᵢ) ≈ (-Φᵢ₋₁ + 2Φᵢ - Φᵢ₊₁) / h²
 
     Boundary conditions Φ(0) = Φ(L) = 0 are encoded implicitly
-    by only solving for interior points.
+    by only solving for interior points: the first and last rows see a single
+    interior neighbour and the (zero) boundary value.
+
+    The exact principal eigenvalue of ``A`` is ``(4/h²) sin²(πh/(2L))``, which tends to
+    ``(π/L)²`` at second order in ``h``.
 
     Example
     -------
@@ -43,7 +54,11 @@ def laplacian_1d_dirichlet(N: int, L: float) -> tuple[csr_matrix, float]:
     >>> A.shape
     (100, 100)
     """
+    N = check_positive_int("N", N)
+    L = check_positive_scalar("L", L)
     h = L / (N + 1)
+    if N == 1:
+        return csr_matrix(np.array([[2.0 / h**2]])), h
     main = 2.0 * np.ones(N) / h**2
     off = -1.0 * np.ones(N - 1) / h**2
     A = diags([off, main, off], offsets=[-1, 0, 1], format="csr")
@@ -76,6 +91,11 @@ def laplacian_2d_dirichlet(
     hy : float
         Grid spacing in y-direction.
 
+    Raises
+    ------
+    ValueError
+        If a grid size is not a positive integer or a length is not positive and finite.
+
     Notes
     -----
     Uses Kronecker product structure:
@@ -89,6 +109,10 @@ def laplacian_2d_dirichlet(
     >>> A.shape
     (2500, 2500)
     """
+    Nx = check_positive_int("Nx", Nx)
+    Ny = check_positive_int("Ny", Ny)
+    Lx = check_positive_scalar("Lx", Lx)
+    Ly = check_positive_scalar("Ly", Ly)
     hx = Lx / (Nx + 1)
     hy = Ly / (Ny + 1)
 
@@ -101,7 +125,7 @@ def laplacian_2d_dirichlet(
     Iy = eye(Ny, format="csr")
 
     # 2D Laplacian via Kronecker products
-    A = kron(Iy, Ax) + kron(Ay, Ix)
+    A = (kron(Iy, Ax) + kron(Ay, Ix)).tocsr()
 
     return A, hx, hy
 
@@ -122,6 +146,8 @@ def grid_1d(N: int, L: float) -> np.ndarray:
     x : ndarray
         Array of N+2 points from 0 to L (inclusive).
     """
+    N = check_positive_int("N", N)
+    L = check_positive_scalar("L", L)
     return np.linspace(0, L, N + 2)
 
 
@@ -141,6 +167,6 @@ def grid_2d(Nx: int, Ny: int, Lx: float, Ly: float) -> tuple[np.ndarray, np.ndar
     X, Y : ndarray
         Meshgrid arrays of shape (Ny+2, Nx+2).
     """
-    x = np.linspace(0, Lx, Nx + 2)
-    y = np.linspace(0, Ly, Ny + 2)
+    x = grid_1d(Nx, Lx)
+    y = grid_1d(Ny, Ly)
     return np.meshgrid(x, y)
