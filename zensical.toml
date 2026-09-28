@@ -5,7 +5,7 @@
 name = "navi-creative-determinant"
 site_name = "navi-creative-determinant"
 description = "The Creative Determinant — autopoietic closure as a nonlinear elliptic BVP"
-site_url = "https://project-navi.github.io/navi-creative-determinant"
+site_url = "https://docs.projectnavi.ai/navi-creative-determinant"
 repo_url = "https://github.com/Project-Navi/navi-creative-determinant"
 repo_name = "Project-Navi/navi-creative-determinant"
 copyright = "Copyright 2024-2026 Nelson Spence"
