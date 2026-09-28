@@ -195,3 +195,41 @@ class TestResidualValidation:
     def test_residual_1d_rejects_shape_mismatch(self):
         with pytest.raises(ValueError):
             residual_1d(np.linspace(0, 1, 5), np.zeros(4), 0.0, 1.0, 1.0, 2.0)
+
+
+class TestTwoDimensionalCoefficientShapes:
+    def test_2d_effective_potential_may_be_an_array(self):
+        """beta_b may be a full effective potential q(x, y) in 2D, as in 1D."""
+        Lx, Ly, Nx, Ny = 1.0, 1.0, 12, 10
+        X, Y, u_scalar, info_s = solve_2d_picard(Lx, Ly, Nx, Ny, 0.0, 30.0, 10.0)
+        q_full = 30.0 * np.ones((Ny + 2, Nx + 2))
+        _, _, u_full, info_f = solve_2d_picard(Lx, Ly, Nx, Ny, 0.0, q_full, 10.0)
+        q_int = 30.0 * np.ones((Ny, Nx))
+        _, _, u_int, info_i = solve_2d_picard(Lx, Ly, Nx, Ny, 0.0, q_int, 10.0)
+        assert info_s["converged"] and info_f["converged"] and info_i["converged"]
+        np.testing.assert_allclose(u_full, u_scalar, atol=1e-9)
+        np.testing.assert_allclose(u_int, u_scalar, atol=1e-9)
+
+    def test_2d_array_gain_times_b_field(self):
+        Lx, Ly, Nx, Ny = 1.0, 1.0, 6, 7
+        b_field = np.ones((Ny, Nx))
+        _, _, u1, _ = solve_2d_picard(Lx, Ly, Nx, Ny, 0.0, 30.0, 10.0, b_field=b_field)
+        _, _, u2, _ = solve_2d_picard(
+            Lx, Ly, Nx, Ny, 0.0, 30.0 * np.ones((Ny, Nx)), 10.0, b_field=b_field
+        )
+        np.testing.assert_allclose(u1, u2, atol=1e-12)
+
+    def test_residual_2d_accepts_scalars_and_interior_arrays(self):
+        Lx, Ly, Nx, Ny = 1.0, 2.0, 7, 9
+        X, Y, u, info = solve_2d_picard(Lx, Ly, Nx, Ny, 0.0, 30.0, 10.0)
+        hx, hy = Lx / (Nx + 1), Ly / (Ny + 1)
+        full = np.ones_like(u)
+        r_full = residual_2d(u, 0.0 * full, 30.0 * full, 10.0 * full, p=2.0, hx=hx, hy=hy)
+        r_scalar = residual_2d(u, 0.0, 30.0, 10.0, p=2.0, hx=hx, hy=hy)
+        r_int = residual_2d(
+            u, np.zeros((Ny, Nx)), 30.0 * np.ones((Ny, Nx)), 10.0, p=2.0, hx=hx, hy=hy
+        )
+        np.testing.assert_allclose(r_scalar, r_full)
+        np.testing.assert_allclose(r_int, r_full)
+        with pytest.raises(ValueError):
+            residual_2d(u, np.zeros((Nx, Ny)), 30.0, 10.0, p=2.0, hx=hx, hy=hy)

@@ -245,7 +245,10 @@ def viability_threshold_1d(L: float, b: float) -> float:
 
     Notes
     -----
-    β* = (π/L)² / b. Lean: ``viabilityThreshold``, ``viabilityThreshold_lt_iff`` (b > 0).
+    β* = (π/L)² / b for a *constant* potential b. Lean: ``viabilityThreshold``,
+    ``viabilityThreshold_lt_iff`` (b > 0). For a spatially varying potential use the
+    computed eigenvalue (``principal_eigenvalue_1d`` with the field); the constant-coefficient
+    threshold of a reference level such as ``κγ`` is then only a scale for choosing β.
 
     For β < β*: λ₁ > 0 (for a ≡ 0 only the zero solution)
     For β > β*: λ₁ < 0 (a positive solution exists)

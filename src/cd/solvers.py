@@ -472,9 +472,11 @@ def solve_2d_picard(
         Number of interior grid points in each direction (>= 1).
     a : float or ndarray
         Creative drive: scalar, interior (Ny, Nx), full (Ny+2, Nx+2), or flat interior array.
-    beta_b : float
-        Viability gain β; the effective potential is ``q = β * b_field`` (``b_field = 1`` if
-        not given, so ``beta_b`` is then ``q`` itself).
+    beta_b : float or ndarray
+        Viability gain β (scalar) or, like the 1D solver, the effective potential itself as
+        an interior ``(Ny, Nx)``, full ``(Ny+2, Nx+2)`` or flat interior array. The effective
+        potential is ``q = beta_b * b_field`` (``b_field = 1`` if not given, so ``beta_b`` is
+        then ``q``).
     c : float or ndarray
         Saturation coefficient (same shapes as ``a``), positive everywhere.
     p : float, default=2.0
@@ -509,7 +511,7 @@ def solve_2d_picard(
     max_iter = check_positive_int("max_iter", max_iter)
     damping = check_damping("damping", damping)
     tol, residual_atol, residual_rtol = _check_tolerances(tol, residual_atol, residual_rtol)
-    beta = check_finite_scalar("beta_b", beta_b)
+    beta = coefficient_2d("beta_b", beta_b, Ny, Nx)
     a_flat = coefficient_2d("a", a, Ny, Nx)
     c_flat = coefficient_2d("c", c, Ny, Nx)
     require_positive_coefficient("c", c_flat)

@@ -18,6 +18,7 @@ from ._validation import (
     check_exponent,
     check_finite_array,
     coefficient_1d,
+    coefficient_2d,
     require_positive_coefficient,
 )
 
@@ -90,6 +91,14 @@ def residual_1d(
     return -Phi_xx - rhs
 
 
+def _interior_2d(name: str, value: object, Ny: int, Nx: int) -> float | np.ndarray:
+    """Scalar, or an interior ``(Ny, Nx)`` array, from any shape the 2D solver accepts."""
+    coeff = coefficient_2d(name, value, Ny, Nx)
+    if isinstance(coeff, float):
+        return coeff
+    return np.reshape(coeff, (Ny, Nx))
+
+
 def residual_2d(
     Phi: np.ndarray,
     a_full: np.ndarray,
@@ -108,8 +117,9 @@ def residual_2d(
     ----------
     Phi : ndarray
         Field including boundaries, shape (Ny+2, Nx+2).
-    a_full, beta_b_full, c_full : ndarray
-        Coefficient fields on the full grid, shape (Ny+2, Nx+2).
+    a_full, beta_b_full, c_full : float or ndarray
+        Coefficients: scalars, full-grid arrays of shape (Ny+2, Nx+2), interior arrays of
+        shape (Ny, Nx), or flat interior arrays (the same shapes the 2D solver accepts).
     p : float
         Saturation exponent.
     hx, hy : float
@@ -123,13 +133,13 @@ def residual_2d(
     Phi = check_finite_array("Phi", Phi)
     if Phi.ndim != 2 or min(Phi.shape) < 3:
         raise ValueError("Phi must be a 2D array with at least one interior node")
-    a_full = check_finite_array("a_full", a_full, shape=Phi.shape)
-    beta_b_full = check_finite_array("beta_b_full", beta_b_full, shape=Phi.shape)
-    c_full = check_finite_array("c_full", c_full, shape=Phi.shape)
+    Ny, Nx = Phi.shape[0] - 2, Phi.shape[1] - 2
+    a_int = _interior_2d("a_full", a_full, Ny, Nx)
+    bb_int = _interior_2d("beta_b_full", beta_b_full, Ny, Nx)
+    c_int = _interior_2d("c_full", c_full, Ny, Nx)
     p = check_exponent("p", p)
     if not (np.isfinite(hx) and np.isfinite(hy) and hx > 0 and hy > 0):
         raise ValueError("hx and hy must be positive")
-    c_int = c_full[1:-1, 1:-1]
     require_positive_coefficient("c_full", c_int)
 
     Phi_xx = (Phi[1:-1, 2:] - 2 * Phi[1:-1, 1:-1] + Phi[1:-1, :-2]) / hx**2
@@ -141,9 +151,6 @@ def residual_2d(
     gmag = np.sqrt(dPhidx**2 + dPhidy**2)
 
     Phi_int = Phi[1:-1, 1:-1]
-    a_int = a_full[1:-1, 1:-1]
-    bb_int = beta_b_full[1:-1, 1:-1]
-
     rhs = a_int * gmag + bb_int * Phi_int - c_int * np.maximum(Phi_int, 0.0) ** p
     return -lap - rhs
 
