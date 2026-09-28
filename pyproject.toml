@@ -59,6 +59,12 @@ Issues = "https://github.com/Project-Navi/navi-creative-determinant/issues"
 [tool.hatch.build.targets.wheel]
 packages = ["src/cd"]
 
+# The sdist carries the package and its tests only. Without this list hatchling sweeps in
+# everything not ignored by the root .gitignore, including the Lean submodule's .lake/ build
+# cache (over 100 MB), figures, notebooks, the paper and local tool state.
+[tool.hatch.build.targets.sdist]
+only-include = ["src/cd", "tests", "README.md", "LICENSE.md", "NOTICE.md", "CITATION.cff"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
