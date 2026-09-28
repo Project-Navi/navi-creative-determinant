@@ -53,8 +53,8 @@ uv run jupyter lab notebooks/
 ## What's in This Repository
 
 - **[`creative_determinant.pdf`](paper/creative_determinant.pdf)**: The core paper, presenting the mathematical framework, interpretive layer, and operational proposals.
-- **[`cd_formalization/`](cd_formalization/)**: Lean 4 formalization of the Creative Determinant framework against Mathlib. Definitions (semiotic manifold, operators, BVP, weak coherent configuration) are machine-checked. Existence (Theorem 3.12) and nontriviality (Theorem 3.16) are proved conditional on PdeInfra — an explicit axiom surface packaging classical PDE results not yet in Mathlib. See the [formalization README](cd_formalization/README.md) for build instructions and axiom boundary details.
-- **[`cd_pde_demo.ipynb`](notebooks/cd_pde_demo.ipynb)**: Jupyter notebook with numerical demonstrations of viability thresholds, equilibrium emergence, and canonical closure in 1D, 2D, and 3D.
+- **[`cd_formalization/`](cd_formalization/)**: Lean 4 formalization against Mathlib (v4.34.1, pinned at revision `ad65a64`). Definitions (semiotic manifold model, operators, BVP, weak coherent configuration), the algebraic and order-theoretic lemmas, and the finite-graph positive-existence theorem with its explicit example are machine-checked. The continuum existence theorems (3.12, 3.16) are proved conditionally on the `PDEInfra` hypotheses — structure fields standing in for classical elliptic results not yet in Mathlib, which the paper's concrete operator does not instantiate (paper Appendix A). See the [formalization README](cd_formalization/README.md) for build instructions and the assumption boundary.
+- **[`cd_pde_demo.ipynb`](notebooks/cd_pde_demo.ipynb)**: Jupyter notebook with residual-validated numerical demonstrations of viability thresholds, equilibrium emergence and canonical closure in 1D and 2D, the verified finite-graph example, and a 3D eigenvalue illustration. Every numerical claim in it is asserted.
 - **[Research Roadmap](https://docs.projectnavi.ai/navi-creative-determinant/reference/roadmap/)**: Research directions and open questions—invitations for others to contribute.
 - **[CONTRIBUTING.md](CONTRIBUTING.md)**: How to participate, extend, or challenge the framework.
 - **[Open Problems](https://docs.projectnavi.ai/navi-creative-determinant/explanation/open-problems/)**: Explicit gaps and unresolved theoretical questions.
@@ -87,7 +87,7 @@ Start with **Sections 1 and 4** (introduction and interpretive layer), which con
 - **Characteristic fields**: care $κ$, coherence $γ$, contradiction $μ$ — dimensionless fields in $[0,1]$.
 - **Creative drive** $a(x) = κγμ$: gradient activity contributes to presence where all three fields jointly support it.
 - **Viability potential** $b(x) = κγ - λμ$: where care-coherence support dominates contradiction cost.
-- **Viability threshold**: when the principal eigenvalue $λ_1(-Δ - b; M) < 0$, nontrivial coherent configurations exist (Theorem 3.16).
+- **Viability threshold**: when the principal eigenvalue $λ_1(-Δ - b; M) < 0$, a coherent configuration positive throughout the interior exists (Theorem 3.16); the condition is exact when the creative drive vanishes (Proposition 3.19) and sufficient in general.
 - **CD condition**: coherence observables correlate with Jacobian volume dynamics in structured regimes.
 
 The paper is grounded in PDE theory (Gilbarg–Trudinger, Evans, Schaefer, Leray–Schauder), dynamical systems (Oseledets, Lyapunov, Pesin), and conceptual foundations (Maturana–Varela, Friston, Thompson, Prigogine).
@@ -130,8 +130,8 @@ test infrastructure, notebook pedagogy, documentation, and Lean 4 formalization
 **Why this isn't slop**: The intellectual contribution (theory, equations, proof
 strategy) is human-originated. AI helped transcribe those ideas into Python and
 Lean 4. The results are independently verifiable:
-- **Lean proofs**: `lake build --wfail` — type-checks or it doesn't. Zero `sorry`.
-- **Numerical code**: 24 tests against analytic solutions, O(h²) convergence, `solve_bvp` cross-checks.
+- **Lean proofs**: `lake build --wfail` — type-checks or it doesn't. Zero `sorry`; the continuum theorems are conditional on explicit hypotheses, the finite-graph theorem is not.
+- **Numerical code**: 140 tests against analytic and exact discrete solutions, O(h²) convergence, independent `solve_bvp` cross-checks, and the verified finite-graph example.
 - **Axiom surface**: Every assumption is explicit in `PdeInfra` — nothing is hidden.
 
 The math doesn't care who typed it. Clone the repo and verify.

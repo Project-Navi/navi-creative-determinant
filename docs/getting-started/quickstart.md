@@ -29,7 +29,7 @@ uv sync
 uv run pytest tests/ -v
 ```
 
-24 tests validate eigenvalue verification, nonlinear solves, viability threshold crossings, convergence rates, and canonical closure sweeps.
+140 tests validate the exact discrete eigenvalues, residual-validated nonlinear solves, viability threshold crossings, convergence rates, the finite-graph model of the Lean development, and the notebook validator.
 
 ---
 
@@ -39,7 +39,7 @@ uv run pytest tests/ -v
 uv run jupyter lab notebooks/
 ```
 
-The Jupyter notebook `cd_pde_demo.ipynb` demonstrates the PDE framework numerically in 1D, 2D, and 3D --- viability thresholds, equilibrium emergence, and canonical closure.
+The Jupyter notebook `cd_pde_demo.ipynb` demonstrates the PDE framework numerically in 1D and 2D (viability thresholds, equilibrium emergence, canonical closure), reproduces the verified finite-graph example, and ends with a 3D eigenvalue illustration. Each numerical claim is asserted in the notebook itself.
 
 ---
 
@@ -49,8 +49,8 @@ The Jupyter notebook `cd_pde_demo.ipynb` demonstrates the PDE framework numerica
 paper/                     # The core paper (creative_determinant.pdf)
 notebooks/                 # Jupyter notebook with numerical demonstrations
 src/cd/                    # Python library (solvers, eigenvalue tools, closures)
-tests/                     # 24 tests against analytic solutions
-cd_formalization/          # Lean 4 formalization (15 theorems, zero sorry)
+tests/                     # 140 tests against analytic and exact discrete solutions
+cd_formalization/          # Lean 4 formalization (finite-graph theorem proved; continuum theorems conditional)
 experiments/               # Scaffolding for empirical tests
 figures/                   # Publication-quality visualizations
 ```

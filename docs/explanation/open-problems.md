@@ -6,7 +6,7 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 ## 1. Relationship Between Weak and Strong Coherence
 
-**Status**: Open.
+**Status**: Open; one obstruction is now proved. Proposition 4.11 of the paper shows that on a compact manifold with zero boundary data (or a closed manifold) no nonnegative \(C^1\) field satisfies the strong pointwise constraint except \(\Phi \equiv 0\), so the strong ideal is unattainable in that setting and only weak configurations are reachable.
 
 **Problem**: The paper distinguishes "weak coherent configurations" (solutions to the PDE) from "strong coherent configurations" (fields satisfying the pointwise CD constraint \(\Phi(x) = \Phi(\kappa(x), \gamma(x), \mu(x))\)). Under what conditions are these equivalent? When does strong coherence imply weak, and vice versa?
 
@@ -32,7 +32,7 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 **Status**: Partial results.
 
-**Problem**: Theorem 3.12 guarantees existence of at least one solution. Under what conditions are solutions unique? When do multiple distinct equilibria coexist?
+**Problem**: The zero field always solves the equation, and Theorem 3.16 gives a solution positive in the interior when \(\lambda_1(-\Delta - b; M) < 0\). Under what conditions is the positive solution unique? When do multiple distinct positive equilibria coexist? The Lean result `scaling_uniqueness` only excludes proportional solutions \(k\Phi\).
 
 **Why it matters**: Multiplicity would correspond to "multi-stable interpretive frames" in cognitive systems --- a key enactivist prediction. Uniqueness might suggest strong convergence to a single interpretation.
 
@@ -121,6 +121,18 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 **Why it matters**: Real cognitive processes are temporal. A dynamical (not just static) CD theory would be more realistic.
 
 **Starting point**: Formulate the parabolic PDE \(\partial_t u = -\Delta u + a(x)|\nabla u| + b(x)u - c(x)u^p\) and study stability of equilibria.
+
+---
+
+## 11. Exactness of the Threshold With a Gradient Term
+
+**Status**: Settled for \(a \equiv 0\); open for \(a > 0\) in the continuum; false on finite graphs.
+
+**Problem**: For \(a \equiv 0\), a positive solution exists if and only if \(\lambda_1(-\Delta - b; M) < 0\) (paper Proposition 3.19). With a gradient term the spectral condition is sufficient (Theorem 3.16) but the necessity argument fails, and the finite-graph model has an explicit counterexample (Proposition 3.30: a positive solution with \(\lambda_1 = +1/2\)). Can a positive solution of the continuum problem exist with \(\lambda_1 \ge 0\) when \(a > 0\)? What is the correct nonlinear spectral problem?
+
+**Why it matters**: The linear indicator is used throughout the numerics; knowing where it is exact tells us when a zero result is a proof of collapse and when it is only an observation.
+
+**Starting point**: Adapt the graph counterexample to a thin continuum domain, or bound \(\int a|\nabla\Phi|\phi_1\) against \(\int c\Phi^p\phi_1\).
 
 ---
 

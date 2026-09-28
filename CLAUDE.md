@@ -6,7 +6,7 @@ Guidance for Claude Code when working in this repository.
 
 **Creative Determinant (CD)** — a research framework treating "coherent presence" as the solution to a nonlinear elliptic boundary-value problem on a semiotic manifold. The repo ships three coupled artefacts:
 
-1. **Mathematics** — `paper/creative_determinant.pdf` (+ `.tex`, `.bib`, `Makefile`) holds the theorems and proofs.
+1. **Mathematics** — `paper/creative_determinant.pdf` (+ `.tex`, `.bib`, `Makefile`) holds the theorems and proofs, including the finite-graph model of the Lean development.
 2. **Numerics** — `src/cd/` Python library, `notebooks/cd_pde_demo.ipynb`, and `figures/`.
 3. **Formalization** — `cd_formalization/` Lean 4 project (machine-checked proofs, git submodule).
 
@@ -22,7 +22,7 @@ This project uses **uv**, not pip. Do not suggest `pip install …` in session.
 # Install (creates venv, installs cd package editable + dev extras)
 uv sync
 
-# Tests (24 total across 5 files)
+# Tests (140 total across 12 files)
 uv run pytest tests/ -v
 uv run pytest tests/test_core.py -v               # eigenvalue / threshold suite
 uv run pytest tests/test_2d.py -v                 # 2D solver
@@ -36,7 +36,7 @@ uv run ruff check src/ tests/
 uv run ruff format src/ tests/                    # auto-format locally
 uv run ruff format src/ tests/ --check            # CI equivalent
 
-# Type check (mypy informational in CI; `|| true`)
+# Type check (required in CI; fails on any error)
 uv run mypy src/cd --ignore-missing-imports
 
 # Notebook
@@ -64,18 +64,27 @@ src/cd/                  # Python library (SciPy sparse matrices throughout)
 ├── solvers.py           # solve_1d_picard, solve_2d_picard (Picard iteration)
 ├── eigenvalues.py       # principal_eigenvalue_*, viability_threshold_*
 ├── fields.py            # viability_canonical, creative_drive, gaussian_bump_*
-└── analysis.py          # residual_*, check_convergence, solution_type, linfty_bound
+├── graph.py             # Lean finite-graph model: SemioticGraph, solve_graph, triangle
+├── _validation.py       # input validation shared by the numerical modules
+└── analysis.py          # residual_*, check_convergence, classify_branch, presence_statistics, linfty_bound
 
-tests/                   # pytest suite — validates theorems, not implementation
-├── test_core.py         # 12 tests: eigenvalues, convergence, residuals, thresholds
-├── test_2d.py           # 2 tests
-├── test_eigenvalues.py  # 3 tests
-├── test_fields.py       # 4 tests
-└── test_spatial_solver.py  # 3 tests
+tests/                   # pytest suite — validates theorems, not implementation (140 tests)
+├── test_core.py         # eigenvalues, convergence, residuals, thresholds
+├── test_spectra.py      # exact discrete eigenvalues, anisotropy, smallest grids
+├── test_solver_diagnostics.py  # meaning of convergence, validation, termination reasons
+├── test_barriers.py     # ordered barriers, monotone iteration, exact a = 0 threshold
+├── test_independent_checks.py  # manufactured residual, solve_bvp, mesh refinement
+├── test_graph.py        # Lean finite-graph model: triangle crosswalk, counterexamples
+├── test_analysis_statistics.py # explicit quadrature and interior statistics
+├── test_validate_notebook.py   # notebook validator negative fixtures
+└── test_2d.py, test_eigenvalues.py, test_fields.py, test_spatial_solver.py
 
 notebooks/
-├── cd_pde_demo.ipynb    # Primary pedagogical artefact; CI executes it
+├── cd_pde_demo.ipynb    # Primary pedagogical artefact; CI executes and validates it
 └── alternates/          # Local experimental variants (untracked workspace)
+
+scripts/
+└── validate_notebook.py # Fail-closed validator for the executed notebook (used by CI)
 
 figures/
 ├── generate_figures.py  # Regenerates all paper figures
@@ -97,7 +106,7 @@ experiments/             # Scaffolding for empirical instantiations
 - **Ruff runs `--no-fix --check` in pre-commit.** It won't auto-repair; formatting violations reject the commit. Run `uv run ruff format src/ tests/` locally before committing.
 - **Gitleaks pre-commit hook is enabled.** Files matching secret patterns (API keys, tokens, private keys) block the commit. Do not `--no-verify` to bypass — rotate the secret and commit a redacted version.
 - **Large files cap: 1024 KB** (`check-added-large-files`). Existing figures (>200 KB) are tracked because generation is scripted. New binaries ≥1 MB will be rejected.
-- **Notebook CI asserts ≥7 code-cell outputs.** If you restructure `cd_pde_demo.ipynb`, make sure executed cells still emit ≥7 outputs or `notebooks.yml` will fail.
+- **Notebook CI validates claims, not output counts.** `notebooks.yml` executes `cd_pde_demo.ipynb` and runs `scripts/validate_notebook.py`, which rejects any error output, any unexecuted code cell, any `CHECK FAILED` text, fewer than 30 `CHECK PASSED` lines, or a missing `ALL_NOTEBOOK_CHECKS_PASSED` marker. New numerical claims in the notebook go through the `check(condition, name)` helper. The notebook is also linted fail-closed (`nbqa ruff`, ignoring E501/E402).
 - **CI triggers are path-filtered.** `notebooks.yml` only runs on `notebooks/**` or `src/**`; `figures.yml` only on `figures/**` or `src/**`. `ci.yml` runs on every push/PR.
 - **CodeQL is advanced setup, not default.** Required check name is `codeql` (the job key in `codeql.yml`), not `Analyze (python)` (the SARIF-upload-side check). The job-level check was chosen because Dependabot's `GITHUB_TOKEN` is forced read-only on `pull_request` events, so the SARIF upload no-ops on Dependabot PRs and `Analyze (python)` never fires — freezing every Dependabot PR. If someone toggles GitHub's default CodeQL setup on, it will silently disable `codeql.yml` and break the required-checks contract — restore advanced via the Actions UI or API.
 
@@ -122,7 +131,9 @@ experiments/             # Scaffolding for empirical instantiations
 
 ### Mathematical honesty
 - Label results as **Theorem**, **Conjecture**, or **Heuristic** in code comments and docstrings (same rule as `CONTRIBUTING.md`).
-- Lean proofs rest on an explicit `PdeInfra` axiom surface — don't claim the framework is axiom-free in docs or commit messages.
+- The continuum existence theorems in Lean are conditional on the `PDEInfra` hypotheses (structure fields, not Lean axioms); the finite-graph theorem is proved outright. Don't claim the continuum operator instantiates that interface (it does not: see paper Appendix A), and don't describe the framework as axiom-free.
+- Three numerical models are distinct: the continuum problem (centered finite differences), the Lean finite-graph model (`cd.graph`, unnormalized weights, square-root gradient), and the 3D eigenvalue illustration. Never relabel one as another.
+- A solver run is accepted only by the residual of the discrete equation (`info["converged"]`, `info["termination"]`, `info["branch"]`); a run that returns zero is not evidence that no positive branch exists.
 
 ## Testing philosophy
 
@@ -141,16 +152,17 @@ Before adding a test:
 
 ## CI
 
-Seven workflows. The unified `ci.yml` holds four of the six required checks (`lint`, `typecheck`, `security`, `quality-gate`); `codeql.yml` emits `codeql` and `semgrep.yml` emits `semgrep`.
+Eight workflows. The unified `ci.yml` holds four of the six required checks (`lint`, `typecheck`, `security`, `quality-gate`); `codeql.yml` emits `codeql` and `semgrep.yml` emits `semgrep`.
 
 | Workflow | File | Notes |
 |---|---|---|
-| CI | `ci.yml` | Job keys mapped to ruleset checks: **`lint`, `typecheck`, `security`, `quality-gate`**. `test-run` is the per-Python matrix; `test` is the aggregator (runs on every PR but is not in the ruleset's required list). Non-required: `numerical-stability`, `eigenvalue-precision`, `threshold-verification`, `coverage`. |
+| CI | `ci.yml` | Job keys mapped to ruleset checks: **`lint`, `typecheck`, `security`, `quality-gate`**. `typecheck` (mypy) and `security` (bandit, pip-audit on the locked environment) fail closed. `test-run` is the per-Python matrix; `test` is the aggregator (runs on every PR but is not in the ruleset's required list). Non-required: `numerical-stability`, `eigenvalue-precision`, `threshold-verification` (pytest subsets), `coverage`. |
 | CodeQL Analysis | `codeql.yml` | Emits **`codeql`** (job key, required by org ruleset). Also emits `Analyze (python)` on `push` events to main and the weekly schedule, but not on Dependabot PRs (token is read-only). Do not rename the job or add a `name:` override. |
 | Semgrep | `semgrep.yml` | Emits **`semgrep`** (required). Runs `p/python` + `p/owasp-top-ten`. |
 | OpenSSF Scorecard | `scorecard.yml` | Scheduled + on-push to main. Calls the org-shared workflow. |
-| Notebook Validation | `notebooks.yml` | Executes `cd_pde_demo.ipynb`, validates ≥7 output cells, lints via nbqa. |
-| Figure Validation | `figures.yml` | Runs `generate_figures.py`, verifies all 14 PNG+PDF files exist. |
+| Notebook Validation | `notebooks.yml` | Executes `cd_pde_demo.ipynb` from a fresh kernel, validates it with `scripts/validate_notebook.py` (fail-closed), lints via nbqa (fail-closed). |
+| Figure Validation | `figures.yml` | Runs `generate_figures.py` (library-backed), requires the `ALL_FIGURES_OK` marker (every solve converged), verifies all 14 PNG+PDF files exist. |
+| Paper | `paper.yml` | Rebuilds the PDF from source with bibliography, fails on unresolved references, compares the committed PDF text with the rebuilt one. |
 | Docs | `docs.yml` | Builds zensical site. |
 
 **Org ruleset contract (`CI: Python Tier`)** requires: `lint`, `typecheck`, `security`, `codeql`, `semgrep`, `quality-gate`. Job keys in the workflow files map 1-to-1 to these check names — don't rename jobs without updating the ruleset, and don't add `name:` overrides that would change the emitted check name. (`test` is the aggregator job in `ci.yml` and runs on every PR, but is not in the ruleset's required list.)

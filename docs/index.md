@@ -8,7 +8,7 @@ hide:
 
 **Autopoietic closure as a nonlinear elliptic BVP on a compact Riemannian manifold.**
 
-A field theory of coherence and meaning, with Lean 4-verified existence conditions (15 theorems, zero sorry).
+A field theory of coherence and meaning, with a machine-checked finite-graph existence theorem and conditionally formalized continuum theorems (Lean 4, Mathlib v4.34.1).
 
 [Get Started](getting-started/quickstart.md){ .md-button .md-button--primary }
 [Conceptual Primer](explanation/conceptual-primer.md){ .md-button }
@@ -26,7 +26,7 @@ A field theory of coherence and meaning, with Lean 4-verified existence conditio
 | Contradiction | \(\mu\) | Generative tension driving exploration |
 | Creative drive | \(a(x) = \kappa\gamma\mu\) | Gradient activity where all three fields jointly support |
 | Viability potential | \(b(x) = \kappa\gamma - \lambda\mu\) | Where care-coherence support dominates contradiction cost |
-| Viability threshold | \(\lambda_1(-\Delta - b;\, M) < 0\) | Nontrivial coherent configurations exist (Theorem 3.16) |
+| Viability threshold | \(\lambda_1(-\Delta - b;\, M) < 0\) | A positive coherent configuration exists (Theorem 3.16); exact when \(a \equiv 0\) (Proposition 3.19) |
 | CD condition | --- | Coherence observables correlate with Jacobian volume dynamics |
 
 ---
