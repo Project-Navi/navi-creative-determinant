@@ -7,7 +7,7 @@ name = "creative-determinant"
 version = "0.1.0"
 description = "A field theory of coherence and meaning: nonlinear elliptic PDEs for presence emergence"
 readme = "README.md"
-license = {file = "LICENSE.md"}
+license = {file = "LICENSE"}
 authors = [
     {name = "Nelson Spence", email = "nelson@projectnavi.ai"}
 ]
