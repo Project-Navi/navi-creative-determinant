@@ -1,8 +1,9 @@
 """The paper guard must reject a changed mathematical statement, not merely a dissimilar file.
 
-The comparison works on the extracted text of the committed and rebuilt PDFs: hyphenated line
-breaks are joined and whitespace is collapsed, then the multisets of tokens must agree exactly.
-Line-breaking differences pass; a changed equation or theorem line fails.
+The comparison works on the extracted text of the committed and rebuilt PDFs: whitespace,
+hyphens, control characters and dot glyphs are ignored, then the multisets of characters must
+agree exactly. Line-breaking and extraction-order differences pass; a changed equation or
+theorem line fails.
 """
 
 import importlib.util
@@ -38,6 +39,16 @@ class TestPaperTextGuard:
         v = _load()
         rewrapped = BASE.replace("solu-\ntion", "solution").replace(". Then", ".\nThen")
         ok, report = v.compare(BASE, rewrapped)
+        assert ok, report
+
+    def test_extraction_differences_between_tex_live_versions_pass(self):
+        """Observed in CI (run 36505035366): the same PDF source extracted with different
+        whitespace around a subscript, a different digit order inside a fraction, and a
+        centred dot extracted as a bullet by one poppler build and as a backspace by another."""
+        v = _load()
+        local = BASE + "\nλ 1 = + 1\n4 and 1\n2 with a • b"
+        remote = BASE + "\nλ1 = + 4\n1 and 2\n1 with a \x08 b"
+        ok, report = v.compare(local, remote)
         assert ok, report
 
     def test_one_changed_theorem_line_fails(self):

@@ -169,7 +169,7 @@ Eight workflows. The unified `ci.yml` holds four of the six required checks (`li
 | OpenSSF Scorecard | `scorecard.yml` | Scheduled + on-push to main. Calls the org-shared workflow. |
 | Notebook Validation | `notebooks.yml` | Executes `cd_pde_demo.ipynb` from a fresh kernel, validates it with `scripts/validate_notebook.py` (fail-closed), lints via nbqa (fail-closed). |
 | Figure Validation | `figures.yml` | Runs `generate_figures.py` (library-backed), requires the `ALL_FIGURES_OK` marker (every solve converged), verifies all 14 PNG+PDF files exist. |
-| Paper | `paper.yml` | Rebuilds the PDF from source with bibliography, fails on unresolved references, and requires the committed PDF's text to match the rebuilt one token for token (`scripts/compare_paper_text.py`). |
+| Paper | `paper.yml` | Rebuilds the PDF from source with bibliography, fails on unresolved references, and requires the committed PDF's text to match the rebuilt one character for character (whitespace and extraction-order differences ignored) (`scripts/compare_paper_text.py`). |
 | Docs | `docs.yml` | Builds zensical site. |
 
 **Org ruleset contract (`CI: Python Tier`)** requires: `lint`, `typecheck`, `security`, `codeql`, `semgrep`, `quality-gate`. Job keys in the workflow files map 1-to-1 to these check names — don't rename jobs without updating the ruleset, and don't add `name:` overrides that would change the emitted check name. (`test` is the aggregator job in `ci.yml` and runs on every PR, but is not in the ruleset's required list.)

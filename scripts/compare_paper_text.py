@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 """Compare the extracted text of two builds of the paper and fail on any changed content.
 
-Both inputs are ``pdftotext -layout`` outputs. Normalization is deliberately narrow: words
-hyphenated across a line break are re-joined, ASCII hyphens are dropped (so the same compound
-word hyphenated at different positions compares equal; the Unicode minus sign of typeset
-mathematics is kept), and the text is split on whitespace. The multisets of the resulting
-tokens must agree exactly. Line-breaking and pagination differences therefore pass; a changed
-theorem statement, equation, number or sentence fails, and the differing tokens are listed.
+Both inputs are ``pdftotext -layout`` outputs. The comparison is made on the multiset of
+content characters: whitespace is ignored (pdftotext places it differently around subscripts
+and inside fractions depending on the TeX Live and poppler versions), ASCII hyphens are dropped
+(hyphenation at a line break; the Unicode minus sign of typeset mathematics is kept), and
+control characters and centred-dot glyphs are dropped (the same glyph is extracted as U+2022 or
+as a backspace by different font maps). Every other character must occur the same number of
+times in both texts. Line-breaking, pagination and extraction-order differences therefore pass;
+any changed, added or removed letter, digit or sign fails, and the differing characters are
+listed.
+
+Limitation: a rearrangement of the same characters (for instance two digits swapped within one
+fraction) is not detected. A token-level comparison was tried first and rejected the paper on
+a different TeX Live version for extraction-order differences alone.
 
 This is a drift guard between the committed PDF and the PDF rebuilt from source, not a
 certificate of the mathematics.
@@ -16,24 +23,26 @@ from __future__ import annotations
 
 import argparse
 import pathlib
-import re
 import sys
 from collections import Counter
 
+_DOT_GLYPHS = frozenset("\u2022\u00b7\u22c5")  # bullet, middle dot, dot operator
 
-def normalize(text: str) -> list[str]:
-    """Tokens of ``text`` after joining line-break hyphenation and dropping ASCII hyphens."""
-    text = text.replace("\f", "\n")
-    text = re.sub(r"-\n\s*(?=\S)", "", text)  # "solu-\ntion" -> "solution"
-    text = text.replace("-", "")
-    return text.split()
+
+def normalize(text: str) -> Counter[str]:
+    """Multiset of the content characters of ``text`` (see the module docstring)."""
+    return Counter(
+        ch
+        for ch in text
+        if not ch.isspace() and ch != "-" and ord(ch) >= 32 and ch not in _DOT_GLYPHS
+    )
 
 
 def compare(text_a: str, text_b: str) -> tuple[bool, list[str]]:
-    """Return ``(ok, report)``; ``ok`` iff the normalized token multisets are identical."""
-    ca, cb = Counter(normalize(text_a)), Counter(normalize(text_b))
+    """Return ``(ok, report)``; ``ok`` iff the normalized character multisets are identical."""
+    ca, cb = normalize(text_a), normalize(text_b)
     only_a, only_b = ca - cb, cb - ca
-    report = [f"tokens: {sum(ca.values())} vs {sum(cb.values())}"]
+    report = [f"characters: {sum(ca.values())} vs {sum(cb.values())}"]
     if only_a:
         report.append(
             f"only in first ({sum(only_a.values())}): "

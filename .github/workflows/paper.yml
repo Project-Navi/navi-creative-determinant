@@ -56,11 +56,11 @@ jobs:
           echo "pages: $pages"
           test "$pages" -ge 10
 
-      # scripts/compare_paper_text.py joins line-break hyphenation and compares the token
-      # multisets of both texts exactly; line breaks and pagination may differ, a changed
-      # statement, equation or sentence may not. Its negative fixtures are in
-      # tests/test_paper_guard.py.
-      - name: Compare committed PDF text with the rebuilt PDF (exact token multiset)
+      # scripts/compare_paper_text.py compares the character multisets of both texts, ignoring
+      # whitespace, hyphens and extraction-only glyph differences; line breaks, pagination and
+      # extraction order may differ, a changed letter, digit or sign may not. Its negative
+      # fixtures are in tests/test_paper_guard.py.
+      - name: Compare committed PDF text with the rebuilt PDF (exact character multiset)
         run: |
           pdftotext -layout paper/creative_determinant.pdf committed.txt
           pdftotext -layout build/creative_determinant.pdf rebuilt.txt
