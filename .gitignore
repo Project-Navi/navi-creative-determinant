@@ -82,3 +82,6 @@ notebooks/alternates/
 
 # Claude Code worktrees created by background agents
 .claude/worktrees/
+
+# intermediate dot files written by paper/stack_figures.py
+paper/*.dot.generated

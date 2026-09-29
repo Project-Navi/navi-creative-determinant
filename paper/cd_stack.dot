@@ -1,0 +1,175 @@
+// The Creative Determinant stack: one source for the docs diagram and the paper figures.
+//
+// Structure and labels live here. Every statement number is a paper number (Sections 2-3 of
+// creative_determinant.tex); scripts/check_stack_citations.py checks them against the rebuilt
+// PDF in CI. paper/stack_figures.py renders this file as the brand-themed SVG for the docs
+// site and, with a print palette, as the two paper figures (clusters L1 for Figure 1; L2, L3,
+// L4 and EXT plus the two Layer 1 context nodes OP and LAM for Figure 2).
+//
+// `label` is the full text shown on the docs site; `plabel`, where present, is the compact
+// text used in the paper figures, whose captions and surrounding text carry the details.
+// Regenerate with `make -C paper` after editing (needs graphviz and python3).
+//
+// Styling follows the Project Navi brand guide (background #141414, text #e8e4de, accent
+// #7eb8a8; tiers #7eb8a8 positive, #d4a574 neutral, #9a958e muted), as in the
+// takens-formalization proof-architecture diagram.
+
+digraph cd_stack {
+  rankdir=TB
+  newrank=true
+  bgcolor="transparent"
+  nodesep=0.35
+  ranksep=0.5
+  node [fontname="DM Sans" fontsize=11 style=filled fillcolor="#1a1a1a"
+        fontcolor="#e8e4de" color="#2a2a2a" shape=box margin="0.15,0.08"
+        penwidth=1.5]
+  edge [fontname="DM Sans" fontsize=10 fontcolor="#9a958e" color="#7eb8a8"
+        arrowsize=0.6 penwidth=1.2]
+
+  // ---------- L1 ----------
+  subgraph cluster_L1 {
+    label="Layer 1: mathematical core (Section 3, static coefficients)"
+    plabel="Mathematical core (Section 3)"
+    labeljust=l
+    fontname="Fraunces"
+    fontsize=14
+    fontcolor="#7eb8a8"
+    color="#2a2a2a"
+    style=dashed
+    margin=16
+
+    FIELDS [label="Characteristic fields (Definition 2.3)\nκ, γ, μ : M → [0,1]\ncare, coherence, contradiction"
+            plabel="Characteristic fields (Definition 2.3)\nκ, γ, μ ∈ [0,1]"]
+    ADEF [label="Creative drive\na(x) = κ(x) γ(x) μ(x) ∈ [0,1]"
+          plabel="Creative drive\na = κγμ"]
+    BDEF0 [label="Canonical viability closure (Definition 3.3)\nb(x) = κ(x) γ(x) − λ μ(x),   λ > 0 contradiction cost"
+           plabel="Canonical closure (Definition 3.3)\nb = κγ − λμ"]
+    SYS [label="Effective system\ncompact manifold M with ∂M ≠ ∅\nDirichlet condition Φ = 0 on ∂M"
+         plabel="Compact M, ∂M ≠ ∅\nΦ = 0 on ∂M"]
+    PDE [label="Saturated CD model V1′ (Definition 3.1)\n−ΔΦ = a(x)|∇Φ| + b(x)Φ − c(x)Φᵖ in M,   Φ = 0 on ∂M\nc ≥ c₀ > 0,   p > 1"
+         plabel="Model V1′ (Definition 3.1)\n−ΔΦ = a|∇Φ| + bΦ − cΦᵖ"
+         color="#7eb8a8"]
+    OP [label="Viability operator\n−Δ − b on M (Dirichlet)"
+        plabel="Operator −Δ − b"]
+    LAM [label="Principal eigenvalue\nλ₁(−Δ − b; M)"
+         plabel="λ₁(−Δ − b; M)"
+         color="#7eb8a8"]
+    RESULTS [label="Existence (Theorem 3.12): a nonnegative weak coherent configuration exists;\nΦ ≡ 0 is always one\nPositive existence (Theorem 3.16): λ₁ < 0 ⇒ a solution positive in the interior\nExact threshold (Proposition 3.19): λ₁ < 0 is also necessary when a ≡ 0\nWith drive (Proposition 3.21): sufficient only;\na positive solution with λ₁ = +1/4 exists on an interval\nFinite-graph analogue (Theorem 3.26): proved outright and machine-checked in Lean"
+             plabel="Theorem 3.12: a nonnegative solution exists (Φ ≡ 0 is one)\nTheorem 3.16: λ₁ < 0 ⇒ a positive solution\nProposition 3.19: also necessary when a ≡ 0\nProposition 3.21: sufficient only with drive\nTheorem 3.26: finite-graph analogue (Lean)"
+             color="#7eb8a8"]
+
+    FIELDS -> ADEF
+    FIELDS -> BDEF0
+    ADEF -> PDE
+    BDEF0 -> PDE
+    BDEF0 -> OP
+    SYS -> PDE
+    SYS -> OP
+    OP -> LAM
+    PDE -> RESULTS
+    LAM -> RESULTS
+  }
+
+  // ---------- L2 ----------
+  subgraph cluster_L2 {
+    label="Layer 2: witnesses (Section 3.7), observed versus capacity"
+    plabel="Witnesses (Section 3.7)"
+    labeljust=l
+    fontname="Fraunces"
+    fontsize=14
+    fontcolor="#7eb8a8"
+    color="#2a2a2a"
+    style=dashed
+    margin=16
+
+    PSI [label="Temporal witness (empirical)\nψ(t) ∈ [0,1],   ψ ∈ C³ or declared estimators"
+         plabel="Temporal witness\nψ(t) ∈ [0,1]"]
+    DER [label="Temporal derivatives\nψ′ (volatility),   ψ″ (acceleration),   ψ‴ (jerk)"
+         plabel="ψ′, ψ″, ψ‴"]
+    PSIS [label="Spectral capacity witness (Definition 3.36)\nψₛ(t) = 1 / (1 + exp(λ₁(t) / s)) ∈ (0,1),   s > 0\nproposed proxy; comparing it with ψ\nneeds a stated calibration (Remark 3.37)"
+          plabel="Spectral capacity witness (Definition 3.36)\nψₛ = 1 / (1 + exp(λ₁/s))"
+          color="#7eb8a8"]
+
+    PSI -> DER
+    DER -> PSIS [style=invis]
+  }
+
+  // ---------- L3 ----------
+  subgraph cluster_L3 {
+    label="Layer 3: debt, resilience and effective cost (Definitions 3.34 to 3.42)"
+    plabel="Debt, resilience, effective cost (Definitions 3.34 to 3.42)"
+    labeljust=l
+    fontname="Fraunces"
+    fontsize=14
+    fontcolor="#7eb8a8"
+    color="#2a2a2a"
+    style=dashed
+    margin=16
+
+    RBASE [label="Base temporal resilience (Definition 3.34)\nR_base = (1 + β [ψ″]⁺) / (1 + α₁ |ψ′| + α₃ |ψ‴|)\nα₁, β, α₃ carry the units time, time², time³"
+           plabel="Base resilience R_base\n(Definition 3.34)"]
+    DEBT [label="Coherence debt (Definition 3.38)\nḊ = η [ψ − ψₛ]⁺ − ρ D,   D(0) ≥ 0,   η, ρ > 0\n0 ≤ D(t) ≤ max{D(0), η/ρ}   (Remark 3.39)"
+          plabel="Coherence debt (Definition 3.38)\nḊ = η[ψ − ψₛ]⁺ − ρD"]
+    RTOT [label="Total resilience (Definition 3.40)\nR = R_base / (1 + D)"
+          plabel="R = R_base / (1 + D)\n(Definition 3.40)"]
+    LAMEFF [label="Effective contradiction cost (Definition 3.40)\nλ_eff = λ₀ / R,   λ₀ > 0 baseline cost"
+            plabel="λ_eff = λ₀ / R\n(Definition 3.40)"]
+    BDEF [label="Dynamical viability closure (Definition 3.42)\nb(x,t) = κ(x,t) γ(x,t) − λ_eff(t) μ(x,t)"
+          plabel="Dynamical closure (Definition 3.42)\nb(x,t) = κγ − λ_eff(t) μ"
+          color="#7eb8a8"]
+
+    PSI -> DEBT
+    PSIS -> DEBT
+    DER -> RBASE
+    DEBT -> RTOT
+    RBASE -> RTOT
+    RTOT -> LAMEFF
+    LAMEFF -> BDEF
+  }
+
+  // ---------- L4 ----------
+  subgraph cluster_L4 {
+    label="Layer 4: feedback and interpretation (heuristic, not analysed)"
+    plabel="Feedback and interpretation (heuristic)"
+    labeljust=l
+    fontname="Fraunces"
+    fontsize=14
+    fontcolor="#9a958e"
+    color="#2a2a2a"
+    style=dotted
+    margin=16
+
+    LOOP [label="Feedback loop (Remark 3.41)\nψ > ψₛ sustained ⇒ D ↑ ⇒ R ↓ ⇒ λ_eff ↑ ⇒ b ↓ ⇒ λ₁ ↑ ⇒ ψₛ ↓\na fragility tendency, bounded by Remark 3.39;\nconvergence, oscillation or saturation is not analysed"
+          plabel="Feedback loop (Remark 3.41)\na tendency, not analysed"
+          style="filled,dotted" fontcolor="#9a958e" color="#9a958e"]
+    INTERP [label="Architectural interpretation (Remark 3.43)\nsmooth, stabilizing ψ (large R_base) lowers λ_eff\nchronic overcapacity (large D) raises λ_eff\nchanges of M(t) or of the fields shift ψₛ through λ₁(t)\nno prediction theorem; the tests of Section 5 are separate proposals"
+            plabel="Architectural interpretation\n(Remark 3.43)"
+            style="filled,dotted" fontcolor="#9a958e" color="#9a958e"]
+
+    LOOP -> INTERP
+  }
+
+  // ---------- EXT ----------
+  subgraph cluster_EXT {
+    label="Deferred extension (Remark 3.44): capacity erosion, not analysed"
+    plabel="Deferred (Remark 3.44)"
+    labeljust=l
+    fontname="Fraunces"
+    fontsize=14
+    fontcolor="#d4a574"
+    color="#2a2a2a"
+    style=dashed
+    margin=16
+
+    EROSION [label="Thresholded degradation of the fields\nκ̇ = −δ_κ [D − D_crit]⁺,   γ̇ = −δ_γ [D − D_crit]⁺,   μ̇ = +δ_μ [D − D_crit]⁺\nor erosion through the effective system M(t)"
+             plabel="Capacity erosion\nof κ, γ, μ or M(t)"
+             style="filled,dashed" fontcolor="#d4a574" color="#d4a574"]
+  }
+
+  // ---------- cross-layer edges ----------
+  LAM -> PSIS [label="λ₁(t) = λ₁(−Δ − b(·,t); M(t))" plabel="λ₁(t)"]
+  BDEF -> OP [label="b(·,t) re-evaluated at each t" plabel="updates b(·,t)" constraint=false]
+  BDEF -> LOOP
+  DEBT -> EROSION [style=dashed color="#d4a574" constraint=false]
+  EROSION -> BDEF [style=dashed color="#d4a574" label="would feed back" constraint=false]
+}
