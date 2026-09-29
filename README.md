@@ -1,6 +1,6 @@
 # Creative Determinant (CD): A Field Theory of Coherence and Meaning
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE.md)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Mathematical Validation](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/ci.yml/badge.svg)](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/ci.yml)
 [![Notebook Validation](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/notebooks.yml/badge.svg)](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/notebooks.yml)
 [![Figure Validation](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/figures.yml/badge.svg)](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/figures.yml)
@@ -149,7 +149,7 @@ Austin, Texas
 
 ## License and Ethical Use
 
-The Creative Determinant framework is licensed under **[Apache 2.0](LICENSE.md)** to maximize accessibility for research, education, and innovation.
+The Creative Determinant framework is licensed under **[Apache 2.0](LICENSE)** to maximize accessibility for research, education, and innovation.
 
 ### Why Apache 2.0?
 

@@ -54,7 +54,7 @@ Short answers to common questions about the Creative Determinant (CD) framework.
 
 ## What license is this under?
 
-Apache 2.0. See [LICENSE.md](https://github.com/Project-Navi/navi-creative-determinant/blob/main/LICENSE.md) for full terms.
+Apache 2.0. See [LICENSE](https://github.com/Project-Navi/navi-creative-determinant/blob/main/LICENSE) for full terms.
 
 All contributions are licensed under the same terms. If you contribute substantial original work, you may also publish it separately under your own name without asking permission.
 
