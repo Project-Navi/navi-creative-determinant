@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-Guidance for Claude Code when working in this repository.
+Guidance for coding agents and contributors working in this repository.
 
 ## Project
 
@@ -16,7 +16,7 @@ Status: version 1.1.0 (package and repository release). Research seed, intention
 
 ## Commands
 
-This project uses **uv**, not pip. Do not suggest `pip install …` in session.
+This project uses **uv**, not pip. Do not suggest `pip install …`.
 
 ```bash
 # Install (creates the venv, installs cd editable plus the dev dependency group)
@@ -64,7 +64,7 @@ uv run pre-commit run --all-files
 
 ### Regenerating scientific artefacts after a numerics change
 
-After any edit under `src/cd/`, run the figure and notebook commands above. Figures must end with `ALL_FIGURES_OK` and all 14 files must exist; PDF figures that differ only in metadata need not be committed. The notebook is committed **with** its executed outputs (the repository tests validate them), so execute it in place, validate, lint, and commit `notebooks/cd_pde_demo.ipynb` together with the source change. Any `.tex` edit is committed together with the rebuilt PDF. The stack diagram has one source, `paper/cd_stack.dot`: after editing it run `make -C paper` (regenerates the docs SVG and the two figure PDFs, which are inputs to the paper build) and rebuild the paper; a repository test fails when the SVG is stale, and the paper workflow checks that every statement number the diagram cites exists in the rebuilt PDF.
+After any edit under `src/cd/`, run the figure and notebook commands above. Figures must end with `ALL_FIGURES_OK` and all 14 files must exist; PDF figures that differ only in metadata need not be committed. The notebook is committed **with** its executed outputs (the repository tests validate them), so execute it in place, validate, lint, and commit `notebooks/cd_pde_demo.ipynb` together with the source change. Any `.tex` edit is committed together with the rebuilt PDF. The stack diagram has one source, `paper/cd_stack.dot`: after editing it run `make -C paper` (regenerates the docs SVG and the paper's stack figures, which are inputs to the paper build) and rebuild the paper. A repository test fails when the SVG is stale. The paper workflow runs `scripts/check_stack_citations.py`, which requires every statement or section the diagram and `docs/explanation/cd-stack.md` cite to have a `// cites:` line in `cd_stack.dot` whose title matches that statement's header in the rebuilt PDF.
 
 ### Bumping the Lean submodule
 
@@ -90,7 +90,7 @@ notebooks/cd_pde_demo.ipynb   # the one working companion; CI executes and valid
 scripts/
 ├── validate_notebook.py      # fail-closed notebook validator (REQUIRED_CHECKS)
 ├── check_paper_artifact.py   # byte-identity gate between the committed PDF and its rebuild
-└── check_stack_citations.py  # the stack diagram's statement numbers exist in the rebuilt paper
+└── check_stack_citations.py  # the stack diagram's citations match statement headers in the rebuilt paper
 figures/                 # generate_figures.py and the 7 PNG+PDF pairs it writes
 paper/                   # .tex, .bib, .bbl, the committed PDF, build_paper.sh, cd_stack.dot + stack_figures.py (figures), README
 cd_formalization/        # git SUBMODULE → Project-Navi/cd-formalization (Lean 4)
@@ -108,7 +108,7 @@ docs/                    # Diataxis structure, rendered via zensical (zensical.t
 - **Gitleaks pre-commit hook is enabled.** Files matching secret patterns (API keys, tokens, private keys) block the commit. Do not `--no-verify` to bypass — rotate the secret and commit a redacted version.
 - **Large files cap: 1024 KB** (`check-added-large-files`). Figures and the executed notebook are tracked because their generation is scripted; the notebook is close to 0.9 MB, so keep its outputs lean. New binaries ≥1 MB are rejected.
 - **Notebook CI validates claims, not output counts.** `notebooks.yml` executes `cd_pde_demo.ipynb` on Python 3.12 and runs `scripts/validate_notebook.py`, which rejects any error output, any unexecuted code cell, any `CHECK FAILED` text, fewer than 30 `CHECK PASSED` lines, a missing or misplaced `ALL_NOTEBOOK_CHECKS_PASSED` marker, or any essential claim (`REQUIRED_CHECKS` in the script) that is missing or duplicated. New numerical claims in the notebook go through the `check(condition, name)` helper; renaming an essential claim requires updating `REQUIRED_CHECKS` and `tests/repo/test_validate_notebook_required.py`. The notebook is also linted fail-closed (`nbqa ruff`, ignoring E501/E402).
-- **Statement numbers in the stack diagram are literal.** `paper/cd_stack.dot` cites Definitions, Theorems, Propositions and Remarks by number; inserting a numbered statement in Section 2 or 3 shifts them. `scripts/check_stack_citations.py` runs in the paper workflow and fails on a number that no longer exists; fix the diagram, regenerate, rebuild.
+- **Statement numbers in the stack diagram are literal.** `paper/cd_stack.dot` and `docs/explanation/cd-stack.md` cite Definitions, Theorems, Propositions, Remarks and Sections by number, and each cited number has a `// cites: <Kind> <n.m> = <title start>` line in `cd_stack.dot`. Inserting a numbered statement in Section 2 or 3 shifts the numbers; `scripts/check_stack_citations.py` then fails because a header no longer matches its title. Fix the numbers and the `cites:` lines, regenerate, rebuild.
 - **CI triggers are path-filtered.** `ci.yml` runs on pushes and pull requests to `main`. `notebooks.yml` runs on `notebooks/**`, `src/**`, `scripts/validate_notebook.py`, `pyproject.toml`, `uv.lock`; `figures.yml` on `figures/**`, `src/**`, `pyproject.toml`, `uv.lock`; `paper.yml` on `paper/**`, `scripts/check_paper_artifact.py`, `scripts/check_stack_citations.py` and itself; `docs.yml` on `docs/**`, `zensical.toml` and itself.
 - **CodeQL is advanced setup, not default.** `codeql.yml` emits the check `codeql` (the job key), not `Analyze (python)` (the SARIF-upload-side check, which never fires on Dependabot PRs because their `GITHUB_TOKEN` is read-only). The check is not currently in the ruleset's required list, but keep the job key stable, and if someone toggles GitHub's default CodeQL setup on, it silently disables `codeql.yml` — restore advanced setup via the Actions UI or API.
 

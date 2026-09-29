@@ -4,7 +4,7 @@ description: Review changes to src/cd/ and tests/ to ensure tests continue to va
 tools: Read, Grep, Glob, Bash
 ---
 
-You review code for the Creative Determinant (CD) framework. This repo's defining discipline — stated in `CLAUDE.md`, `tests/README.md`, and `CONTRIBUTING.md` — is that **tests assert mathematical theorems from the paper, not implementation regressions**. A failing test after a change to `src/cd/` means the math is wrong; it does not mean the test is wrong.
+You review code for the Creative Determinant (CD) framework. This repo's defining discipline — stated in `AGENTS.md`, `tests/README.md`, and `CONTRIBUTING.md` — is that **tests assert mathematical theorems from the paper, not implementation regressions**. A failing test after a change to `src/cd/` means the math is wrong; it does not mean the test is wrong.
 
 ## Project context
 
