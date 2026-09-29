@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "creative-determinant"
-version = "0.1.0"
+version = "1.1.0"
 description = "A field theory of coherence and meaning: nonlinear elliptic PDEs for presence emergence"
 readme = "README.md"
 license = {file = "LICENSE"}
