@@ -2,8 +2,8 @@
 #
 # Rebuilds paper/creative_determinant.pdf from source with bibliography and
 # cross-references, fails on unresolved references or citations, and checks
-# that the committed PDF's text agrees with the freshly built one, so that the
-# TeX source and the checked-in PDF cannot drift apart silently. The rebuilt
+# that the committed PDF's text agrees with the freshly built one token for
+# token, so that the TeX source and the checked-in PDF cannot drift apart. The rebuilt
 # PDF is uploaded as an artifact; the committed file is never modified here.
 
 name: Paper
@@ -16,11 +16,13 @@ on:
     branches: [main]
     paths:
       - 'paper/**'
+      - 'scripts/compare_paper_text.py'
       - '.github/workflows/paper.yml'
   pull_request:
     branches: [main]
     paths:
       - 'paper/**'
+      - 'scripts/compare_paper_text.py'
       - '.github/workflows/paper.yml'
   workflow_dispatch:
 
@@ -54,22 +56,18 @@ jobs:
           echo "pages: $pages"
           test "$pages" -ge 10
 
-      - name: Compare committed PDF text with the rebuilt PDF
+      # scripts/compare_paper_text.py joins line-break hyphenation and compares the token
+      # multisets of both texts exactly; line breaks and pagination may differ, a changed
+      # statement, equation or sentence may not. Its negative fixtures are in
+      # tests/test_paper_guard.py.
+      - name: Compare committed PDF text with the rebuilt PDF (exact token multiset)
         run: |
           pdftotext -layout paper/creative_determinant.pdf committed.txt
           pdftotext -layout build/creative_determinant.pdf rebuilt.txt
-          python3 - <<'EOF'
-          import difflib, re
-          def norm(path):
-              text = open(path, encoding="utf-8", errors="replace").read()
-              return [re.sub(r"\s+", " ", line).strip() for line in text.splitlines() if line.strip()]
-          a, b = norm("committed.txt"), norm("rebuilt.txt")
-          ratio = difflib.SequenceMatcher(None, a, b).ratio()
-          print(f"text similarity committed vs rebuilt: {ratio:.4f} ({len(a)} vs {len(b)} lines)")
-          if ratio < 0.97:
-              print("::error::the committed PDF does not match the source; rebuild and commit paper/creative_determinant.pdf")
-              raise SystemExit(1)
-          EOF
+          python3 scripts/compare_paper_text.py committed.txt rebuilt.txt || {
+            echo "::error::the committed PDF does not match the source; rebuild and commit paper/creative_determinant.pdf"
+            exit 1
+          }
 
       - name: Upload rebuilt PDF
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
