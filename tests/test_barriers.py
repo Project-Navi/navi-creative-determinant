@@ -1,6 +1,6 @@
 """Ordered barriers and monotone iteration for the finite-difference lane with a = 0.
 
-Discrete analogue of the repaired paper argument (Theorem 3.16 route): eps*phi_1 is a
+Discrete analogue of the paper's barrier argument for Theorem 3.16: eps*phi_1 is a
 subsolution when lambda_1 < 0 and c eps^{p-1} <= -lambda_1; the plateau M is a supersolution
 when c M^{p-1} >= q_+. With the shift K >= c p M^{p-1} - q the shifted Picard map is monotone on
 [0, M], so the iterates from below are nondecreasing and the iterates from above nonincreasing.

@@ -68,7 +68,9 @@ class TestCollocationCrossCheck:
 
     def test_collocation_zero_start_returns_zero_not_nonexistence(self):
         """Starting the collocation at zero returns the zero solution; that says nothing about
-        the positive branch, which the previous test finds from a positive start."""
+        the positive branch, which ``test_fd_solution_agrees_with_independent_collocation``
+        finds from the amplitude-0.6 sine start (the previous test shows that a small start
+        collapses to zero as well)."""
         L, q, c, p = 1.0, 15.0, 10.0, 2.0
         x = np.linspace(0.0, L, 200)
 

@@ -188,7 +188,9 @@ class TestAnalysisFailClosed:
     def test_unconverged_is_unresolved_not_trivial(self):
         assert solution_type({"maxPhi": 1e-9, "converged": False}) == "unresolved"
 
-    def test_converged_labels_kept_for_compatibility(self):
+    def test_converged_run_is_labelled_by_amplitude(self):
+        """``solution_type`` labels a converged run ``trivial`` or ``nontrivial`` by its
+        amplitude alone; the sign-checked classification is ``classify_branch``."""
         assert solution_type({"maxPhi": 1e-9, "converged": True}) == "trivial"
         assert solution_type({"maxPhi": 0.5, "converged": True}) == "nontrivial"
 
@@ -294,8 +296,8 @@ class TestConvergenceReportContract:
         assert "update" in msg and "tolerance" in msg
 
     def test_report_without_tol_is_unvalidated_not_accepted(self, converged_1d_report):
-        """Reports produced before ``tol`` was recorded cannot be re-validated: they are
-        reported as unvalidated / incomplete, never as accepted."""
+        """A report without the recorded ``tol`` cannot have its update criterion
+        re-validated: it is unvalidated / incomplete, never accepted."""
         info = {k: v for k, v in converged_1d_report.items() if k != "tol"}
         ok, msg = check_convergence(info)
         assert ok is False

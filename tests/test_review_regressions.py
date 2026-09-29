@@ -1,8 +1,14 @@
-"""Regressions for the defects found in the mathematical review of the Stage A candidate.
+"""Properties of the solver and finite-graph code that a mathematical review found violated.
 
-Each test expresses the corrected behaviour of the real ``cd`` package and failed at the
-reviewed head (21c2402) for the stated reason. Graph tests evaluate operators directly from
-pair differences so that the spectral assembly is checked against an independent formula.
+Each test states one such property of the ``cd`` package: the graph spectral assembly must
+not see self weights and must agree with the operator evaluated from pair differences and
+with the Rayleigh quotient; the edge condition is exact, without additive slack; an
+eigenvalue within the floating-point margin of zero is indeterminate, never a certificate;
+an initial field that already solves the discrete equation is accepted with defined
+diagnostics; negative initial data is rejected; branch labels are sign-checked; and the
+convergence checker re-validates the numbers it is given instead of trusting the flag.
+Graph tests evaluate operators directly from pair differences so that the spectral assembly
+is checked against an independent formula.
 """
 
 import numpy as np
