@@ -76,3 +76,6 @@ site/
 
 # Local experimental notebook variants (per CLAUDE.md: untracked workspace)
 notebooks/alternates/
+
+# Serena (local code-intelligence tool state)
+.serena/
