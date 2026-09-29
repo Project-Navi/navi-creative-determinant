@@ -11,12 +11,12 @@ Thank you for your interest in contributing to the Creative Determinant (CD) fra
 - Alternative coefficient structures, closures, or boundary conditions.
 - Bifurcation analysis, multiplicity results, or regularity improvements.
 
-**Standard**: State assumptions clearly. Label results as **Theorem**, **Conjecture**, or **Heuristic**. Cite sources. Be honest about proof gaps.
+**Standard**: State assumptions clearly. Label results as **Theorem**, **Conjecture**, or **Heuristic**. A fact established only by computation (a residual-validated solve, a measured convergence rate) is labelled **Observation (numerical)**. Cite sources. Be honest about proof gaps.
 
 ---
 
 ### 2. Numerical and Computational Work
-- Improved solvers for the V1 PDE or extensions.
+- Improved solvers for the V1′ PDE or extensions.
 - Parameter sweeps, stability analyses, convergence studies.
 - Visualizations, animations, or interactive demos.
 
@@ -118,4 +118,4 @@ nelson@projectnavi.ai
 
 ---
 
-**The CD framework is a research seed meant to grow through collective engagement. Your contributions --- whether extensions, tests, or critiques --- are what will make it flourish.**
+The CD framework is a research seed meant to grow through collective engagement. Your contributions, whether extensions, tests, or critiques, are what will make it flourish.
