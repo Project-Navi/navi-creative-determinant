@@ -29,12 +29,15 @@ FINAL_MARKER = "ALL_NOTEBOOK_CHECKS_PASSED"
 PASS_MARKER = "CHECK PASSED"
 FAIL_MARKER = "CHECK FAILED"
 
-# The essential claims of notebooks/cd_pde_demo.ipynb, by the exact name each check prints.
-# Each must appear exactly once; losing any of them fails validation even if the count of
-# other passed checks stays high.
+# The essential claims of notebooks/cd_pde_demo.ipynb, by the exact name each check prints,
+# listed in notebook order. Each must appear exactly once; losing any of them fails validation
+# even if the count of other passed checks stays high. The list includes the convergence and
+# residual checks the other claims depend on (a claim about a converged solve is vacuous
+# without them), the Lean crosswalk facts of the triangle, and the 3D sign statements.
 REQUIRED_CHECKS = [
     "FD eigenvalue equals the exact discrete formula",
     "FD eigenvalue is within O(h^2) of the continuum formula",
+    "all 20 solves converged (residual-validated)",
     "every converged maximum respects the a = 0 discrete maximum-principle bound",
     "lambda_1 > 0: the zero branch (exact for a = 0)",
     "lambda_1 < 0: a positive branch",
@@ -42,16 +45,23 @@ REQUIRED_CHECKS = [
     "iterates from the plateau are nonincreasing",
     "a clipped run returns the zero branch: not evidence of nonexistence",
     "second-order convergence of max Phi (ratios ~ 4)",
-    "collocation (a = 0) agrees with FD to 1e-5",
-    "collocation (a = 0.5) agrees with FD to 1e-5",
+    "discrete residual at solver tolerance on every grid",
+    "converse barrier identities hold analytically on the grid",
     "continuum converse: positive branch below the linear threshold (lambda_1 = +1/4, a = 1)",
     "continuum converse: the branch lies between the barriers v and 3/4",
+    "collocation (a = 0) agrees with FD to 1e-5",
+    "collocation (a = 0.5) agrees with FD to 1e-5",
+    "residual at k = 1 is at tolerance",
     "every scaled field k != 1 has a residual above 1e-2",
     "wherever lambda_1 < 0 the solver found the positive branch (sufficiency, Theorem 3.16)",
+    "both 2D solves converged with residual_2d < 1e-6",
     "positive case: lambda_1 < 0 and a positive branch",
     "collapsed case: lambda_1 > 0 and the zero solution",
+    "triangle: L u = 2 and |grad u| = 2 at both interior vertices",
     "triangle: (0, 2, 2) is an exact solution",
+    "triangle: energy(0,1,1) = -2 and lambda_1 = -1",
     "triangle: all hypotheses of exists_pos_graph hold",
+    "proof constants match the Lean construction",
     "Jacobi iteration from eps*phi increases to (0, 2, 2)",
     "Jacobi iteration from the plateau decreases to (0, 2, 2)",
     "converse counterexample: positive solution with lambda_1 = +1/2",
@@ -59,6 +69,8 @@ REQUIRED_CHECKS = [
     "graph gradient sqrt(2) vs centered difference 0",
     "3D asymmetric anisotropic potential matches an independent assembly",
     "3D constant-coefficient eigenvalue matches the exact discrete formula",
+    "3D: weak bump (lambda = 0.3) negative and strong bump (lambda = 1.5) positive discrete indicator",
+    "3D near threshold: discrete indicator negative while the continuum value is positive",
 ]
 
 

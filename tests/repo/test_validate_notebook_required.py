@@ -1,6 +1,8 @@
-"""The notebook validator must require each essential claim exactly once, in order, before
-the completion marker; a missing or duplicated required claim fails even when enough other
-CHECK PASSED lines remain."""
+"""The notebook validator must require each essential claim exactly once and the completion
+marker after the last check; a missing or duplicated required claim fails even when enough other
+CHECK PASSED lines remain. The committed notebook must satisfy the required list, and the list
+must be complete, duplicate-free and in the notebook's own order so the two cannot drift apart
+silently."""
 
 from nbformat.v4 import new_code_cell, new_markdown_cell, new_notebook, new_output
 
@@ -71,6 +73,31 @@ class TestRequiredClaims:
 
     def test_committed_notebook_contains_every_required_claim(self, load_script, repo_root):
         v = load_script("validate_notebook")
-        assert len(v.REQUIRED_CHECKS) >= 12
         ok, msgs = v.validate(repo_root / "notebooks" / "cd_pde_demo.ipynb", min_checks=30)
         assert ok, msgs
+
+    def test_required_list_is_complete_and_duplicate_free(self, load_script):
+        """The list names 36 essential claims and no name twice (a duplicate would make the
+        exactly-once rule unsatisfiable)."""
+        v = load_script("validate_notebook")
+        assert len(v.REQUIRED_CHECKS) == 36
+        assert len(set(v.REQUIRED_CHECKS)) == len(v.REQUIRED_CHECKS)
+
+    def test_required_claims_follow_the_notebook_order(self, load_script, repo_root):
+        """The required names occur in the committed notebook in list order, so a reader can
+        follow the list against the notebook and a reordering of sections is noticed."""
+        import nbformat
+
+        v = load_script("validate_notebook")
+        nb = nbformat.read(repo_root / "notebooks" / "cd_pde_demo.ipynb", as_version=4)
+        printed = []
+        for cell in nb.cells:
+            if cell.cell_type != "code":
+                continue
+            for out in cell.get("outputs", []):
+                if out.get("output_type") == "stream":
+                    for line in out.get("text", "").splitlines():
+                        if line.startswith("CHECK PASSED: "):
+                            printed.append(line[len("CHECK PASSED: ") :])
+        required = set(v.REQUIRED_CHECKS)
+        assert [name for name in printed if name in required] == v.REQUIRED_CHECKS
