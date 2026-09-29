@@ -15,6 +15,7 @@ import numpy as np
 import pytest
 
 from cd import (
+    check_convergence,
     principal_eigenvalue_1d,
     residual_1d,
     solve_1d_picard,
@@ -83,7 +84,8 @@ class TestPicardConvergence:
 
         x, Phi, info = solve_1d_picard(L, N, a=a, beta_b=beta_above * b, c=c, p=p)
 
-        assert info["inf_err"] < 1e-8, f"Solver did not converge: final error = {info['inf_err']}"
+        ok, msg = check_convergence(info)
+        assert ok, f"Solver did not converge: {msg}"
         assert info["iters"] < 8000, f"Solver took too many iterations: {info['iters']}"
 
     def test_convergence_below_threshold(self):
@@ -100,7 +102,8 @@ class TestPicardConvergence:
 
         x, Phi, info = solve_1d_picard(L, N, a=a, beta_b=beta_below * b, c=c, p=p)
 
-        assert info["inf_err"] < 1e-8, f"Solver did not converge: final error = {info['inf_err']}"
+        ok, msg = check_convergence(info)
+        assert ok, f"Solver did not converge: {msg}"
 
 
 # =============================================================================

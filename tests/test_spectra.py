@@ -14,12 +14,6 @@ from cd import (
 from cd.eigenvalues import principal_eigenpair_1d, principal_eigenvalue_1d_spatial
 
 
-def discrete_lambda1_1d(N, L, q):
-    """Exact principal eigenvalue of the (N x N) centered-difference Dirichlet matrix minus q."""
-    h = L / (N + 1)
-    return 4.0 / h**2 * np.sin(np.pi * h / (2.0 * L)) ** 2 - q
-
-
 class TestOperatorSign:
     def test_1d_operator_is_minus_second_derivative(self):
         N, L = 200, 1.0
@@ -65,7 +59,7 @@ class TestOperatorSign:
 
 class TestExactDiscreteEigenvalues:
     @pytest.mark.parametrize("N", [1, 2, 7, 64, 600])
-    def test_1d_matches_closed_form_discrete_eigenvalue(self, N):
+    def test_1d_matches_closed_form_discrete_eigenvalue(self, N, discrete_lambda1_1d):
         L, q = 1.3, 5.0
         lam = principal_eigenvalue_1d(N, L, q)
         assert lam == pytest.approx(
@@ -113,7 +107,7 @@ class TestExactDiscreteEigenvalues:
 
 
 class TestNearThreshold:
-    def test_absolute_error_near_zero_eigenvalue(self):
+    def test_absolute_error_near_zero_eigenvalue(self, discrete_lambda1_1d):
         """At q equal to the discrete threshold the exact discrete eigenvalue is 0; use an
         absolute tolerance rather than dividing by it."""
         N, L = 300, 1.0

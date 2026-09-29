@@ -193,14 +193,6 @@ class TestAnalysisFailClosed:
         assert solution_type({"maxPhi": 0.5, "converged": True}) == "nontrivial"
 
 
-@pytest.fixture(scope="module")
-def converged_1d_report():
-    """Report of an ordinary converged 1D run (positive branch, iters > 0)."""
-    _, _, info = solve_1d_picard(1.0, 31, 0.0, 15.0, 10.0, tol=1e-10)
-    assert info["converged"] and info["iters"] > 0
-    return info
-
-
 class TestConvergenceReportContract:
     """``check_convergence`` re-validates every numerical invariant behind the solver's
     acceptance rule (residual criterion, strict update criterion, solved-start convention,

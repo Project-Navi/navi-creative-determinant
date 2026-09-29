@@ -30,17 +30,6 @@ from cd.graph import (
 )
 
 
-def _triangle_with_b(b_value: float) -> SemioticGraph:
-    return SemioticGraph(
-        w=np.ones((3, 3)),
-        boundary=np.array([True, False, False]),
-        a=np.ones(3),
-        b=np.full(3, b_value),
-        c=np.ones(3),
-        p=2.0,
-    )
-
-
 class TestTriangleCrosswalk:
     """``SemioticGraph.triangle``: K_3, unit weights (diagonal included), boundary {0},
     kappa = gamma = mu = 1, b = 2, c = 1, p = 2."""
@@ -148,9 +137,9 @@ class TestProofConstants:
         assert np.all(residual(G, sub)[1:] <= 1e-13)
         assert np.all(residual(G, sup)[1:] >= -1e-13)
 
-    def test_constants_require_negative_eigenvalue(self):
+    def test_constants_require_negative_eigenvalue(self, triangle_with_b):
         with pytest.raises(ValueError):
-            proof_constants(_triangle_with_b(0.5))
+            proof_constants(triangle_with_b(0.5))
 
 
 class TestGraphSolver:
@@ -302,10 +291,10 @@ class TestEdgeConditionAndConnectivity:
 
 
 class TestCounterexamples:
-    def test_negative_eigenvalue_is_not_necessary_on_graphs(self):
+    def test_negative_eigenvalue_is_not_necessary_on_graphs(self, triangle_with_b):
         """Keep the triangle's weights, a = c = 1, p = 2 but set b = 1/2: (0, 1/2, 1/2) solves
         while lambda_1 = +1/2. The converse of the graph theorem is false in general."""
-        G = _triangle_with_b(0.5)
+        G = triangle_with_b(0.5)
         u = np.array([0.0, 0.5, 0.5])
         np.testing.assert_allclose(residual(G, u), 0.0, atol=1e-14)
         lam, _ = principal_eigenpair(G)
