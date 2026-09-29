@@ -29,7 +29,7 @@ uv sync
 uv run pytest tests/ -v
 ```
 
-180 test functions validate the exact discrete eigenvalues, residual-validated nonlinear solves, viability threshold crossings, convergence rates, the finite-graph model of the Lean development, and the notebook validator.
+191 test functions (167 package tests, 24 repository-artefact tests under `tests/repo/`) validate the exact discrete eigenvalues, residual-validated nonlinear solves, viability threshold crossings, convergence rates, the finite-graph model of the Lean development, and the notebook validator.
 
 ---
 
@@ -49,7 +49,7 @@ The Jupyter notebook `cd_pde_demo.ipynb` demonstrates the PDE framework numerica
 paper/                     # The core paper (creative_determinant.pdf)
 notebooks/                 # Jupyter notebook with numerical demonstrations
 src/cd/                    # Python library (solvers, eigenvalue tools, closures)
-tests/                     # 180 test functions against analytic and exact discrete solutions
+tests/                     # 167 package test functions (+ 24 in tests/repo/ for scripts, notebook and paper)
 cd_formalization/          # Lean 4 formalization (finite-graph theorem proved; continuum theorems conditional)
 experiments/               # Scaffolding for empirical tests
 figures/                   # Publication-quality visualizations

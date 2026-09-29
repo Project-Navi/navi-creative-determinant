@@ -131,7 +131,7 @@ test infrastructure, notebook pedagogy, documentation, and Lean 4 formalization
 strategy) is human-originated. AI helped transcribe those ideas into Python and
 Lean 4. The results are independently verifiable:
 - **Lean proofs**: `lake build --wfail` — type-checks or it doesn't. Zero `sorry`; the continuum theorems are conditional on explicit hypotheses, the finite-graph theorem is not.
-- **Numerical code**: 180 test functions against analytic and exact discrete solutions, O(h²) convergence, independent `solve_bvp` cross-checks, and the verified finite-graph example.
+- **Numerical code**: 191 test functions (167 package tests plus 24 repository-artefact tests) against analytic and exact discrete solutions, O(h²) convergence, independent `solve_bvp` cross-checks, and the verified finite-graph example.
 - **Axiom surface**: Every assumption is explicit in `PdeInfra` — nothing is hidden.
 
 The math doesn't care who typed it. Clone the repo and verify.

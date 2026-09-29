@@ -19,13 +19,15 @@ uv run coverage run -m pytest tests/
 uv run coverage report --show-missing
 ```
 
-## Test Coverage — 180 test functions across 17 files (parametrized cases expand to more collected tests)
+## Test Coverage — 191 test functions across 17 files (parametrized cases expand to more collected tests)
+
+Two populations: **167 package tests in 14 files directly under `tests/`** (shipped in the sdist and runnable against the installed `cd` package alone) and **24 repository-artefact tests in 3 files under `tests/repo/`** (need `scripts/`, `notebooks/` and `paper/`; excluded from the sdist). `uv run pytest tests/` collects both.
 
 | File | Tests | What They Validate |
 |------|-------|--------------------|
 | **test_core.py** | 12 | Eigenvalue formula, Picard convergence, residual bounds, bifurcation threshold (Theorems 3.12, 3.16), O(h²) grid convergence, edge cases |
 | **test_spectra.py** | 14 | Operator sign and boundary rows, exact discrete eigenvalue formula (1D, anisotropic 2D, one-point grids), second-order continuum limit, scale-aware errors at λ₁ = 0 |
-| **test_solver_diagnostics.py** | 27 | Meaning of numerical success: tiny damping is not convergence, input validation, termination reasons (max_iter / nonfinite / stagnation), clipping is not nonexistence evidence, smallest and anisotropic grids, fail-closed diagnostics, 2D coefficient shapes |
+| **test_solver_diagnostics.py** | 33 | Meaning of numerical success: tiny damping is not convergence, input validation, termination reasons (max_iter / nonfinite / stagnation), clipping is not nonexistence evidence, smallest and anisotropic grids, fail-closed diagnostics, 2D coefficient shapes; convergence report contract: solved starts (iters = 0, zero update, recorded `tol`) accepted, corrupted or incomplete reports (bad `iters`, negative norms, infinite residual limit, update not below `tol`, missing `tol`) rejected naming the reason |
 | **test_barriers.py** | 9 | Discrete ordered barriers εφ₁ and plateau M (a = 0), monotone shifted iteration from below and above, exact discrete threshold for a = 0 (Proposition 3.19), unresolved near-threshold runs |
 | **test_independent_checks.py** | 6 | Manufactured residual at second order, independent solve_bvp comparison (a = 0 and a = 0.5) including a zero-start control, mesh refinement, algebraic vs discretization error |
 | **test_graph.py** | 37 | Finite-graph lane (Lean model): verified triangle crosswalk, Jacobi residual identity, proof constants, monotone iteration from both barriers, diagonal-weight and permutation invariances, edge condition at both ends, disconnected interiors, converse counterexample (Proposition 3.32), graph bound counterexample (Proposition 3.30), graph vs centered gradient |
@@ -37,15 +39,15 @@ uv run coverage report --show-missing
 | **test_review_regressions.py** | 19 | Regressions from the mathematical review: spectral assembly is independent of self weights and verified against the direct operator and Rayleigh quotient, exact edge condition without slack, indeterminate status near λ₁ = 0, zero-step accepted roots with defined diagnostics, negative initial data rejected, sign-checked branch labels, a convergence checker that re-validates its own numbers |
 | **test_operators_3d.py** | 5 | 3D Dirichlet Laplacian and eigenvalues with an explicit (z, y, x) convention: constant-potential closed form on an anisotropic box, an asymmetric potential against an independent dense assembly, wrong layouts rejected by shape, discrete-vs-continuum sign near threshold |
 | **test_continuum_counterexample.py** | 6 | Positive continuum solution below the linear threshold (Proposition 3.21): analytic barrier identities, library solve enclosed between the barriers with λ₁ = +1/4, independent collocation agreement |
-| **test_paper_guard.py** | 5 | The paper text guard rejects a changed theorem line or a dropped sentence and accepts re-wrapped or re-hyphenated text (negative fixtures) |
-| **test_validate_notebook_required.py** | 5 | The notebook validator requires each essential claim exactly once, in order before the completion marker (negative fixtures: missing, duplicated, misplaced marker); the committed notebook satisfies it |
-| **test_validate_notebook.py** | 9 | The notebook validator fails closed on error outputs, unexecuted cells, missing markers, failed or too few checks (negative fixtures); the committed notebook passes |
+| **repo/test_paper_gate.py** | 10 | The paper artifact gate: byte identity between the committed PDF and its pinned-image rebuild; the diagnostics locate a changed sign, reversed inequality operands, swapped numerator/denominator, moved minus, changed digit, moved decimal point, changed multiplication glyph, altered exponent and dropped sentence (order-preserving text comparison) and a changed pixel (page renders) |
+| **repo/test_validate_notebook_required.py** | 5 | The notebook validator requires each essential claim exactly once, in order before the completion marker (negative fixtures: missing, duplicated, misplaced marker); the committed notebook satisfies it |
+| **repo/test_validate_notebook.py** | 9 | The notebook validator fails closed on error outputs, unexecuted cells, missing markers, failed or too few checks (negative fixtures); the committed notebook passes |
 
 Verify the total count locally:
 
 ```bash
 grep -R '^[[:space:]]*def test_' tests/ | wc -l
-# expected: 180
+# expected: 191 (167 in tests/*.py, 24 in tests/repo/*.py)
 ```
 
 The per-file counts are also visible via `grep -c "def test_" tests/test_*.py`.

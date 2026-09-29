@@ -22,7 +22,7 @@ This project uses **uv**, not pip. Do not suggest `pip install …` in session.
 # Install (creates venv, installs cd package editable + dev extras)
 uv sync
 
-# Tests (180 test functions across 17 files; parametrized cases expand when collected)
+# Tests (191 test functions across 17 files: 167 package tests in tests/, 24 repository-artefact tests in tests/repo/)
 uv run pytest tests/ -v
 uv run pytest tests/test_core.py -v               # eigenvalue / threshold suite
 uv run pytest tests/test_2d.py -v                 # 2D solver
@@ -46,9 +46,11 @@ uv run jupyter nbconvert --to notebook --execute notebooks/cd_pde_demo.ipynb
 # Figures (regenerates all 7 figures as PNG+PDF — 14 files total — into figures/)
 uv run python figures/generate_figures.py
 
-# Paper — two-step build
+# Paper — reproducible build in the pinned TeX Live image (needs docker); commit the result
+paper/build_paper.sh && cp paper/build/creative_determinant.pdf paper/
+python3 scripts/check_paper_artifact.py paper/creative_determinant.pdf paper/build/creative_determinant.pdf
 make -C paper                                     # graphviz diagrams (cd_stack.svg/pdf/png)
-latexmk -pdf -cd paper/creative_determinant.tex   # LaTeX PDF (pdflatex + bibtex passes)
+latexmk -pdf -cd paper/creative_determinant.tex   # quick local preview only; not the committed artifact
 
 # Pre-commit (install once per clone; runs on every commit)
 uv run pre-commit install
@@ -68,7 +70,7 @@ src/cd/                  # Python library (SciPy sparse matrices throughout)
 ├── _validation.py       # input validation shared by the numerical modules
 └── analysis.py          # residual_*, check_convergence, classify_branch, presence_statistics, linfty_bound
 
-tests/                   # pytest suite — validates theorems, not implementation (180 test functions)
+tests/                   # pytest suite — validates theorems, not implementation (167 package test functions, shipped in the sdist)
 ├── test_core.py         # eigenvalues, convergence, residuals, thresholds
 ├── test_spectra.py      # exact discrete eigenvalues, anisotropy, smallest grids
 ├── test_solver_diagnostics.py  # meaning of convergence, validation, termination reasons
@@ -76,13 +78,14 @@ tests/                   # pytest suite — validates theorems, not implementati
 ├── test_independent_checks.py  # manufactured residual, solve_bvp, mesh refinement
 ├── test_graph.py        # Lean finite-graph model: triangle crosswalk, counterexamples
 ├── test_analysis_statistics.py # explicit quadrature and interior statistics
-├── test_validate_notebook.py   # notebook validator negative fixtures
-├── test_validate_notebook_required.py  # required-claim coverage of the notebook
 ├── test_review_regressions.py  # review regressions: spectral assembly, solver contract
 ├── test_operators_3d.py        # 3D operators, (z, y, x) convention, independent assembly
 ├── test_continuum_counterexample.py  # positive branch below the linear threshold (a = 1)
-├── test_paper_guard.py         # paper text guard negative fixtures
-└── test_2d.py, test_eigenvalues.py, test_fields.py, test_spatial_solver.py
+├── test_2d.py, test_eigenvalues.py, test_fields.py, test_spatial_solver.py
+└── repo/                # 24 repository-artefact tests (need scripts/, notebooks/, paper/; excluded from the sdist)
+    ├── test_validate_notebook.py           # notebook validator negative fixtures
+    ├── test_validate_notebook_required.py  # required-claim coverage of the notebook
+    └── test_paper_gate.py                  # paper artifact gate: byte identity and mutation-locating diagnostics
 
 notebooks/
 ├── cd_pde_demo.ipynb    # Primary pedagogical artefact; CI executes and validates it
@@ -90,7 +93,7 @@ notebooks/
 
 scripts/
 ├── validate_notebook.py # Fail-closed validator for the executed notebook (used by CI; REQUIRED_CHECKS)
-└── compare_paper_text.py # Token-multiset guard between the committed and rebuilt PDF text (used by CI)
+└── check_paper_artifact.py # Byte-identity gate between the committed PDF and its pinned-image rebuild (used by CI)
 
 figures/
 ├── generate_figures.py  # Regenerates all paper figures
@@ -139,7 +142,7 @@ experiments/             # Scaffolding for empirical instantiations
 - Label results as **Theorem**, **Conjecture**, or **Heuristic** in code comments and docstrings (same rule as `CONTRIBUTING.md`).
 - The continuum existence theorems in Lean are conditional on the `PDEInfra` hypotheses (structure fields, not Lean axioms); the finite-graph theorem is proved outright. Don't claim the continuum operator instantiates that interface (it does not: see paper Appendix A), and don't describe the framework as axiom-free.
 - Three numerical models are distinct: the continuum problem (centered finite differences), the Lean finite-graph model (`cd.graph`, unnormalized weights, square-root gradient), and the 3D eigenvalue illustration. Never relabel one as another.
-- A solver run is accepted only by the residual of the discrete equation (`info["converged"]`, `info["termination"]`, `info["branch"]`); `check_convergence` re-validates the recorded numbers rather than trusting the flag; initial data must be nonnegative; a run that returns zero is not evidence that no positive branch exists.
+- A solver run is accepted only by the residual of the discrete equation (`info["converged"]`, `info["termination"]`, `info["branch"]`); `check_convergence` re-validates the recorded numbers rather than trusting the flag (residual criterion, the update criterion against the recorded `tol`, boundary data, and the type, finiteness and sign of every field; a report missing `tol` is unvalidated, never accepted); initial data must be nonnegative; a run that returns zero is not evidence that no positive branch exists.
 - The spectral condition λ₁ < 0 is sufficient in general and exact only for a ≡ 0 (Propositions 3.19 and 3.21). Graph eigenvalues are assembled from off-diagonal weights and verified against the direct operator; a value within the floating-point margin of zero is `indeterminate`, never a certificate.
 
 ## Testing philosophy
@@ -169,7 +172,7 @@ Eight workflows. The unified `ci.yml` holds four of the six required checks (`li
 | OpenSSF Scorecard | `scorecard.yml` | Scheduled + on-push to main. Calls the org-shared workflow. |
 | Notebook Validation | `notebooks.yml` | Executes `cd_pde_demo.ipynb` from a fresh kernel, validates it with `scripts/validate_notebook.py` (fail-closed), lints via nbqa (fail-closed). |
 | Figure Validation | `figures.yml` | Runs `generate_figures.py` (library-backed), requires the `ALL_FIGURES_OK` marker (every solve converged), verifies all 14 PNG+PDF files exist. |
-| Paper | `paper.yml` | Rebuilds the PDF from source with bibliography, fails on unresolved references, and requires the committed PDF's text to match the rebuilt one character for character (whitespace and extraction-order differences ignored) (`scripts/compare_paper_text.py`). |
+| Paper | `paper.yml` | Rebuilds the PDF with `paper/build_paper.sh` in the pinned TeX Live image (digest + fixed `SOURCE_DATE_EPOCH`, byte-reproducible), fails on unresolved references, and requires the committed PDF to be byte-identical to the rebuild (`scripts/check_paper_artifact.py`; on mismatch it prints an order-preserving text diff and a page render comparison). Edit the `.tex`, run the script, commit the rebuilt PDF with it. |
 | Docs | `docs.yml` | Builds zensical site. |
 
 **Org ruleset contract (`CI: Python Tier`)** requires: `lint`, `typecheck`, `security`, `codeql`, `semgrep`, `quality-gate`. Job keys in the workflow files map 1-to-1 to these check names — don't rename jobs without updating the ruleset, and don't add `name:` overrides that would change the emitted check name. (`test` is the aggregator job in `ci.yml` and runs on every PR, but is not in the ruleset's required list.)
