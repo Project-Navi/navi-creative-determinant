@@ -42,7 +42,7 @@ See the [Quickstart](https://docs.projectnavi.ai/navi-creative-determinant/getti
 
 ## Where to Start
 
-Entry ramps by background (PDE and analysis, AI and interpretability, Lean, cognitive science and philosophy) and a 30-second summary of the core concepts live on the [documentation landing page](https://docs.projectnavi.ai/navi-creative-determinant/). The key mathematical qualification is the viability threshold: when the principal eigenvalue $λ_1(-Δ - b; M) < 0$, a coherent configuration positive throughout the interior exists (Theorem 3.16); the condition is exact when the creative drive vanishes (Proposition 3.19) and sufficient only in general (Proposition 3.21 gives a positive solution with $λ_1 = +1/4$ when the drive is active).
+Entry ramps by background (PDE and analysis, AI and interpretability, Lean, cognitive science and philosophy) and a 30-second summary of the core concepts live on the [documentation landing page](https://docs.projectnavi.ai/navi-creative-determinant/). The [CD Stack](https://docs.projectnavi.ai/navi-creative-determinant/explanation/cd-stack/) page shows in one diagram how the fields, the operator, the spectral threshold and the temporal closure fit together, and which parts are proved, defined, heuristic or deferred; the same diagram source produces Figures 1 and 2 of the paper. The key mathematical qualification is the viability threshold: when the principal eigenvalue $λ_1(-Δ - b; M) < 0$, a coherent configuration positive throughout the interior exists (Theorem 3.16); the condition is exact when the creative drive vanishes (Proposition 3.19) and sufficient only in general (Proposition 3.21 gives a positive solution with $λ_1 = +1/4$ when the drive is active).
 
 ---
 

@@ -49,6 +49,7 @@ A field theory of coherence and meaning, with a machine-checked finite-graph exi
 |---------|----------|
 | [Quickstart](getting-started/quickstart.md) | Install, run tests, open the notebook |
 | [Conceptual Primer](explanation/conceptual-primer.md) | Gentle introduction without math |
+| [The CD Stack](explanation/cd-stack.md) | One diagram of how the pieces fit, with what is proved, defined, heuristic or deferred |
 | [Author's Note](explanation/authors-note.md) | Origin story and motivation |
 | [Open Problems](explanation/open-problems.md) | Eleven explicit theoretical gaps |
 | [Ethical Covenant](explanation/ethical-covenant.md) | Voluntary ethical commitments |

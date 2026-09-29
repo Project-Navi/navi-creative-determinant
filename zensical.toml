@@ -25,6 +25,7 @@ nav = [
   ]},
   {"Explanation" = [
     {"Conceptual Primer" = "explanation/conceptual-primer.md"},
+    {"The CD Stack" = "explanation/cd-stack.md"},
     {"Author's Note" = "explanation/authors-note.md"},
     {"Open Problems" = "explanation/open-problems.md"},
     {"Ethical Covenant" = "explanation/ethical-covenant.md"},
