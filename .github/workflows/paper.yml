@@ -1,0 +1,72 @@
+# Paper artifact check
+#
+# Rebuilds paper/creative_determinant.pdf from source in the pinned TeX Live image used by
+# paper/build_paper.sh (the same image, epoch and command that produced the committed PDF),
+# fails on unresolved references or citations, and requires the committed PDF to be the
+# byte-identical build of the source (scripts/check_paper_artifact.py). When the bytes differ
+# the gate prints an order-preserving text diff and a page-by-page render comparison so the
+# drift can be located. The rebuilt PDF is uploaded as an artifact; the committed file is never
+# modified here.
+
+name: Paper
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'paper/**'
+      - 'scripts/check_paper_artifact.py'
+      - '.github/workflows/paper.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'paper/**'
+      - 'scripts/check_paper_artifact.py'
+      - '.github/workflows/paper.yml'
+  workflow_dispatch:
+
+jobs:
+  build-paper:
+    name: Build paper from source
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      # poppler is used only by the gate's diagnostics (pdftotext, pdftoppm, pdfinfo); the
+      # PDF itself is produced inside the pinned image.
+      - name: Install poppler for the gate diagnostics
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends poppler-utils
+
+      - name: Build in the pinned TeX Live image
+        run: paper/build_paper.sh build
+
+      - name: Check the build log and page count
+        run: |
+          if grep -E "Reference .* undefined|Citation .* undefined|multiply defined" build/creative_determinant.log; then
+            echo "::error::unresolved references or citations"
+            exit 1
+          fi
+          pages=$(pdfinfo build/creative_determinant.pdf | awk '/^Pages:/ {print $2}')
+          echo "pages: $pages"
+          test "$pages" -ge 10
+
+      - name: Require the committed PDF to be the byte-identical build of the source
+        run: |
+          python3 scripts/check_paper_artifact.py paper/creative_determinant.pdf build/creative_determinant.pdf || {
+            echo "::error::paper/creative_determinant.pdf is not the build of the source in the pinned image; run paper/build_paper.sh and commit build/creative_determinant.pdf"
+            exit 1
+          }
+
+      - name: Upload rebuilt PDF
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: rebuilt-paper
+          path: build/creative_determinant.pdf
+          retention-days: 14

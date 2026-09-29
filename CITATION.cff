@@ -12,8 +12,11 @@ url: "https://projectnavi.ai"
 abstract: >-
   The Creative Determinant (CD) framework models autopoietic closure as a
   nonlinear elliptic boundary value problem on a compact Riemannian manifold.
-  Fifteen theorems are machine-verified in Lean 4 against the Mathlib library
-  with zero sorry axioms. The framework bridges mathematical rigor (elliptic
+  A finite-graph positive-existence theorem with an explicit example, and the
+  algebraic and order-theoretic lemmas, are machine-checked in Lean 4 against
+  Mathlib; the continuum existence theorems are formalized conditionally on an
+  explicit analytic interface and proved classically in the paper. The
+  framework bridges mathematical rigor (elliptic
   PDEs, fixed-point theorems), philosophical depth (enactivist and semiotic
   foundations), and empirical testability (the CD condition with explicit
   falsifiability criteria).

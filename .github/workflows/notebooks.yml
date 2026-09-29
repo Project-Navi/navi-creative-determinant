@@ -1,7 +1,10 @@
 # Notebook Validation CI
 #
-# Validates that the Jupyter notebook executes without errors and produces
-# expected outputs. The notebook is the primary pedagogical artifact—it must work.
+# Executes the Jupyter notebook from a fresh kernel and validates it with
+# scripts/validate_notebook.py: no error outputs, every code cell executed, at
+# least 30 self-asserted numerical checks passed, and the final marker present.
+# The notebook is the primary pedagogical artifact—it must work and its claims
+# must hold, not merely produce output cells.
 
 name: Notebook Validation
 
@@ -14,6 +17,7 @@ on:
     paths:
       - 'notebooks/**'
       - 'src/**'
+      - 'scripts/validate_notebook.py'
       - 'pyproject.toml'
       - 'uv.lock'
       - '.github/workflows/notebooks.yml'
@@ -22,8 +26,10 @@ on:
     paths:
       - 'notebooks/**'
       - 'src/**'
+      - 'scripts/validate_notebook.py'
       - 'pyproject.toml'
       - 'uv.lock'
+      - '.github/workflows/notebooks.yml'
   workflow_dispatch:
 
 jobs:
@@ -62,34 +68,13 @@ jobs:
             cd_pde_demo.ipynb
           echo "✓ Notebook executed successfully"
 
-      - name: Validate notebook outputs
-        run: |
-          echo "Validating notebook produces expected outputs..."
-          uv run python -c "
-          import json
-
-          with open('notebooks/executed_demo.ipynb') as f:
-              nb = json.load(f)
-
-          # Count cells with outputs
-          output_cells = sum(1 for cell in nb['cells']
-                            if cell['cell_type'] == 'code' and cell.get('outputs'))
-
-          # Count figure outputs
-          figure_outputs = sum(1 for cell in nb['cells']
-                              if cell['cell_type'] == 'code'
-                              for output in cell.get('outputs', [])
-                              if output.get('output_type') == 'display_data')
-
-          print(f'Code cells with outputs: {output_cells}')
-          print(f'Figure outputs: {figure_outputs}')
-
-          if output_cells < 7:
-              print('WARNING: Fewer outputs than expected')
-              exit(1)
-
-          print('✓ Notebook outputs validated')
-          "
+      # The notebook asserts its own numerical claims (residuals, branch labels, exact discrete
+      # eigenvalues, the verified finite-graph example) and prints CHECK PASSED for each one.
+      # The validator rejects any error output, any unexecuted code cell, any CHECK FAILED text,
+      # fewer than 30 passed checks, or a missing ALL_NOTEBOOK_CHECKS_PASSED marker. Its own
+      # negative fixtures are exercised in tests/repo/test_validate_notebook.py.
+      - name: Validate executed notebook (fails closed)
+        run: uv run python scripts/validate_notebook.py notebooks/executed_demo.ipynb --min-checks 30
 
       - name: Upload executed notebook
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -118,8 +103,5 @@ jobs:
       - name: Install dependencies (from uv.lock)
         run: uv sync --locked
 
-      - name: Check notebook code quality
-        run: |
-          echo "Checking notebook code quality..."
-          uv run nbqa ruff notebooks/cd_pde_demo.ipynb --ignore E501,E402 || true
-          echo "✓ Notebook lint complete (warnings shown above)"
+      - name: Check notebook code quality (fails on findings)
+        run: uv run nbqa ruff notebooks/cd_pde_demo.ipynb --ignore E501,E402

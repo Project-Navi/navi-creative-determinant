@@ -105,8 +105,8 @@ jobs:
           enable-cache: true
       - name: Install dependencies (from uv.lock)
         run: uv sync --locked
-      - name: Run mypy
-        run: uv run mypy src/cd --ignore-missing-imports --no-error-summary || true
+      - name: Run mypy (fails on any error)
+        run: uv run mypy src/cd --ignore-missing-imports
 
   # CONTRACT: org ruleset requires this exact check name 'security'
   security:
@@ -123,10 +123,10 @@ jobs:
           enable-cache: true
       - name: Install dependencies (from uv.lock)
         run: uv sync --locked
-      - name: Bandit
-        run: uv run bandit -r src/ -ll || true
-      - name: pip-audit
-        run: uv run pip-audit || true
+      - name: Bandit (fails on medium or higher findings)
+        run: uv run bandit -r src/ -ll
+      - name: pip-audit (audits the locked environment CI installs; fails on known vulnerabilities)
+        run: uv run pip-audit
 
   # CONTRACT: org ruleset requires this exact check name 'quality-gate'
   quality-gate:
@@ -170,49 +170,11 @@ jobs:
           enable-cache: true
       - name: Install dependencies (from uv.lock)
         run: uv sync --locked
-      - name: Run numerical stability tests
-        run: |
-          uv run python -c "
-          import sys
-          sys.path.insert(0, 'src')
-          from cd import solve_1d_picard, principal_eigenvalue_1d
-          from cd.eigenvalues import viability_threshold_1d
-          import numpy as np
-
-          print('Testing numerical stability across grid resolutions...')
-          print()
-
-          L, b, c, p = 1.0, 0.8, 10.0, 2.0
-          beta_star = viability_threshold_1d(L, b)
-          beta = 1.2 * beta_star
-
-          results = []
-          for N in [50, 100, 200, 400, 800, 1600]:
-              x, Phi, info = solve_1d_picard(L, N, a=0.0, beta_b=beta*b, c=c, p=p)
-              lam = principal_eigenvalue_1d(N, L, beta*b)
-              results.append((N, info['maxPhi'], lam, info['iters']))
-              print(f'  N={N:4d}: max\u03a6={info[\"maxPhi\"]:.6f}, \u03bb\u2081={lam:.6f}, iters={info[\"iters\"]}')
-
-          print()
-          print('Convergence analysis:')
-          for i in range(1, len(results)):
-              N_prev, phi_prev, _, _ = results[i-1]
-              N_curr, phi_curr, _, _ = results[i]
-              if abs(phi_prev) > 1e-10:
-                  ratio = abs(phi_curr - phi_prev) / abs(results[-1][1] - phi_prev) if abs(results[-1][1] - phi_prev) > 1e-10 else 0
-                  print(f'  N={N_prev}\u2192{N_curr}: \u0394(max\u03a6)={abs(phi_curr-phi_prev):.2e}')
-
-          final_values = [r[1] for r in results[-3:]]
-          spread = max(final_values) - min(final_values)
-          print()
-          print(f'Solution spread (last 3 grids): {spread:.2e}')
-
-          if spread > 0.01:
-              print('WARNING: Solution not converged!')
-              sys.exit(1)
-          else:
-              print('Numerical stability verified')
-          "
+      # Mesh refinement of max Phi at second order, discrete residual at solver tolerance on
+      # every grid, manufactured-residual stencil check, and an independent solve_bvp comparison
+      # (with and without the gradient term). A run that does not converge fails these tests.
+      - name: Grid refinement and independent solves
+        run: uv run pytest tests/test_independent_checks.py tests/test_solver_diagnostics.py -v --tb=short
 
   eigenvalue-precision:
     runs-on: ubuntu-latest
@@ -229,40 +191,10 @@ jobs:
           enable-cache: true
       - name: Install dependencies (from uv.lock)
         run: uv sync --locked
-      - name: Verify eigenvalue precision
-        run: |
-          uv run python -c "
-          import sys
-          sys.path.insert(0, 'src')
-          from cd import principal_eigenvalue_1d
-          import numpy as np
-
-          print('Verifying eigenvalue formula')
-          print()
-
-          L = 1.0
-          b = 0.8
-
-          max_error = 0
-          for N in [100, 200, 400, 800, 1600]:
-              print(f'Grid N={N}:')
-              for beta in [5.0, 10.0, 15.0, 20.0]:
-                  lam_numeric = principal_eigenvalue_1d(N, L, beta * b)
-                  lam_analytic = (np.pi / L)**2 - beta * b
-                  rel_error = abs(lam_numeric - lam_analytic) / abs(lam_analytic)
-                  max_error = max(max_error, rel_error)
-                  status = 'OK' if rel_error < 0.001 else 'FAIL'
-                  print(f'  beta={beta:5.1f}: numeric={lam_numeric:10.6f}, analytic={lam_analytic:10.6f}, error={rel_error:.2e} {status}')
-              print()
-
-          print(f'Maximum relative error: {max_error:.2e}')
-
-          if max_error > 0.001:
-              print('ERROR: Eigenvalue precision below threshold!')
-              sys.exit(1)
-          else:
-              print('Eigenvalue precision verified (error < 0.1%)')
-          "
+      # Exact discrete eigenvalue formula (1D, anisotropic 2D, smallest grids), second-order
+      # continuum limit, and scale-aware behaviour at lambda_1 = 0.
+      - name: Discrete and continuum spectra
+        run: uv run pytest tests/test_spectra.py tests/test_eigenvalues.py -v --tb=short
 
   threshold-verification:
     runs-on: ubuntu-latest
@@ -279,45 +211,12 @@ jobs:
           enable-cache: true
       - name: Install dependencies (from uv.lock)
         run: uv sync --locked
-      - name: Verify bifurcation threshold
-        run: |
-          uv run python -c "
-          import sys
-          sys.path.insert(0, 'src')
-          from cd import solve_1d_picard, principal_eigenvalue_1d
-          from cd.eigenvalues import viability_threshold_1d
-          import numpy as np
-
-          L, N, b, c, p = 1.0, 400, 0.8, 10.0, 2.0
-          beta_star = viability_threshold_1d(L, b)
-
-          print(f'Viability threshold: beta* = {beta_star:.6f}')
-          print()
-
-          trivial_count = 0
-          nontrivial_count = 0
-
-          for ratio in np.linspace(0.5, 1.5, 21):
-              beta = ratio * beta_star
-              lam = principal_eigenvalue_1d(N, L, beta * b)
-              _, _, info = solve_1d_picard(L, N, a=0.0, beta_b=beta*b, c=c, p=p)
-              sol_type = 'TRIVIAL' if info['maxPhi'] < 1e-6 else 'NONTRIVIAL'
-              if info['maxPhi'] < 1e-6:
-                  trivial_count += 1
-              else:
-                  nontrivial_count += 1
-              print(f'  {ratio:5.2f} | {lam:8.4f} | {info[\"maxPhi\"]:8.6f} | {sol_type}')
-
-          print()
-          print(f'Trivial solutions: {trivial_count}')
-          print(f'Nontrivial solutions: {nontrivial_count}')
-
-          if trivial_count < 5 or nontrivial_count < 5:
-              print('ERROR: Bifurcation not detected correctly!')
-              sys.exit(1)
-          else:
-              print('Bifurcation threshold verified')
-          "
+      # For a = 0 the discrete threshold is exact: every converged solve must land on the branch
+      # predicted by the sign of lambda_1, near-threshold runs with a small budget must report
+      # 'unresolved' rather than a label, the barrier iteration must be monotone, and the
+      # finite-graph crosswalk (verified triangle, converse and bound counterexamples) must hold.
+      - name: Branch classification, barriers and graph crosswalk
+        run: uv run pytest tests/test_barriers.py tests/test_graph.py tests/test_core.py -v --tb=short
 
   coverage:
     runs-on: ubuntu-latest

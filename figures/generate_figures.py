@@ -2,16 +2,29 @@
 """
 Generate publication-quality figures for the Creative Determinant PDE framework.
 
-Outputs saved to navi-creative-determinant/figures/
-Run from repo root: python figures/generate_figures.py
+All numerics come from the ``cd`` library: residual-validated Picard solvers, discrete
+principal eigenvalues, and the canonical field constructors. This script only chooses
+parameters and draws. Every solve records its termination reason and branch; a point whose
+solve did not converge (branch ``unresolved`` or ``invalid``) is drawn as a hollow red marker
+with no line through it and is counted in the per-figure ``FIGURE ...`` summary line.
+
+Outputs are saved next to this file (``figures/``). Run from the repo root:
+    uv run python figures/generate_figures.py
 """
 
+from __future__ import annotations
+
+import json
+import time
+from collections.abc import Sequence
+from functools import partial
 from pathlib import Path
+from typing import NamedTuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.sparse import diags, eye, kron
-from scipy.sparse.linalg import eigsh, spsolve
+
+import cd
 
 # Publication style
 plt.rcParams.update(
@@ -32,162 +45,202 @@ plt.rcParams.update(
 
 OUTPUT_DIR = Path(__file__).parent
 
+# =============================================================================
+# Parameters (single source of truth; printed at startup)
+# =============================================================================
+
+SOLVER_1D = {"max_iter": 8000, "tol": 1e-10, "damping": 0.5}
+SOLVER_2D = {"max_iter": 8000, "tol": 1e-8, "damping": 0.6}
+RESIDUAL = {"residual_atol": 1e-8, "residual_rtol": 1e-8}  # acceptance criterion, both solvers
+CANONICAL = {"kappa": 0.9, "gamma": 0.9, "c": 10.0, "p": 2.0}  # b0 = kappa * gamma = 0.81
+MU_1D = {"center": 0.5, "sigma": 0.12, "amplitude": 1.0}  # center and sigma as fractions of L
+CONST_1D = {"L": 1.0, "a": 0.0, "b": 0.8, "c": 10.0, "p": 2.0}  # constant-coefficient problem
+CANON_1D = {"L": 1.0, "N": 800, **CANONICAL, "mu": MU_1D}
+CANON_2D = {"Lx": 1.0, "Ly": 1.0, **CANONICAL}
+BETAS = np.linspace(0.0, 30.0, 61).tolist()
+LAMBDAS = np.linspace(0.0, 4.0, 21).tolist()
+
+PARAMETERS = {
+    "solver_1d": SOLVER_1D,
+    "solver_2d": SOLVER_2D,
+    "residual_criterion": RESIDUAL,
+    "fig1_eigenvalue_threshold": {"L": 1.0, "N": 600, "b": 0.8, "beta_values": BETAS},
+    "fig2_threshold_comparison": {**CONST_1D, "N": 800, "beta_ratios": [0.8, 1.2]},
+    "fig3_canonical_closure_sweep": {**CANON_1D, "beta_ratio": 1.2, "lambda_values": LAMBDAS},
+    "fig4_2d_presence_field": {
+        **CANON_2D,
+        "Nx": 100,
+        "Ny": 100,
+        "mu": {"x0": 0.5, "y0": 0.5, "sigma": 0.20, "amplitude": 0.6},
+        "lam": 0.5,
+        "beta_ratio": 1.8,
+    },
+    "fig5_grid_refinement": {**CONST_1D, "beta_ratio": 1.2, "N_values": [100, 200, 400, 800, 1600]},
+    "fig6_field_decomposition": {**CANON_1D, "lam": 1.5},
+    "fig7_2d_phase_transition": {
+        **CANON_2D,
+        "Nx": 80,
+        "Ny": 80,
+        "mu": {"x0": 0.5, "y0": 0.5, "sigma": 0.18, "amplitude": 0.8},
+        "lambda_values": [0.3, 1.8],
+        "beta_ratio": 1.5,
+    },
+}
+
+# Points that failed are drawn with this style and never joined by a line.
+UNRESOLVED_STYLE = {
+    "linestyle": "none",
+    "marker": "o",
+    "markersize": 9,
+    "markerfacecolor": "none",
+    "markeredgecolor": "red",
+    "markeredgewidth": 1.5,
+}
+UNRESOLVED_LABEL = "unresolved solve (not a certified solution)"
+
 
 # =============================================================================
-# Utilities
+# Bookkeeping helpers
 # =============================================================================
 
 
-def laplacian_1d_dirichlet(N, L):
-    """Sparse matrix for -d²/dx² on (0,L) with Dirichlet BC, N interior points."""
-    h = L / (N + 1)
-    main = 2.0 * np.ones(N) / h**2
-    off = -1.0 * np.ones(N - 1) / h**2
-    A = diags([off, main, off], offsets=[-1, 0, 1], format="csr")
-    return A, h
+class PointRecord(NamedTuple):
+    """Outcome of one numerical result that a figure draws (``value`` = maxPhi or λ₁)."""
+
+    label: str
+    branch: str
+    termination: str
+    iters: int = 0
+    residual_inf: float = float("nan")
+    value: float = float("nan")
+
+    @property
+    def resolved(self) -> bool:
+        return self.branch in ("zero", "positive", "nonnegative")
 
 
-def principal_eigenvalue_Lb_1d_const(N, L, beta_b):
-    """Principal eigenvalue of (-d²/dx²) - (beta_b) I on (0,L), Dirichlet."""
-    A, _ = laplacian_1d_dirichlet(N, L)
-    M = A - beta_b * diags([np.ones(N)], [0], format="csr")
-    lam, _ = eigsh(M, k=1, which="SA")
-    return float(lam[0])
-
-
-def principal_eigenvalue_Lb_1d_spatial(N, L, beta_b_full):
-    """Principal eigenvalue of (-d²/dx²) - diag(beta*b(x)) on interior nodes."""
-    A, _ = laplacian_1d_dirichlet(N, L)
-    bb_int = beta_b_full[1:-1]
-    M = A - diags([bb_int], [0], format="csr")
-    lam, _ = eigsh(M, k=1, which="SA")
-    return float(lam[0])
-
-
-def gaussian_bump_1d(x, center, sigma, amplitude=1.0):
-    return amplitude * np.exp(-0.5 * ((x - center) / sigma) ** 2)
-
-
-def gaussian_bump_2d(X, Y, cx, cy, sigma, amplitude=1.0):
-    return amplitude * np.exp(-((X - cx) ** 2 + (Y - cy) ** 2) / (2 * sigma**2))
-
-
-def solve_V1prime_1d_picard(L, N, a, beta_b, c, p=2.0, max_iter=8000, tol=1e-10, damping=0.5):
-    """Solve -Phi'' = a|Phi'| + (beta_b)Phi - c Phi^p with Dirichlet BC."""
-    A, h = laplacian_1d_dirichlet(N, L)
-    x = np.linspace(0, L, N + 2)
-    Phi = 0.1 * np.sin(np.pi * x / L)
-    Phi_int = Phi[1:-1].copy()
-
-    def grad_abs(Phi_full):
-        d = (Phi_full[2:] - Phi_full[:-2]) / (2 * h)
-        return np.abs(d)
-
-    for it in range(max_iter):
-        Phi_full = np.zeros(N + 2)
-        Phi_full[1:-1] = Phi_int
-        gabs = grad_abs(Phi_full)
-        rhs = a * gabs + beta_b * Phi_int - c * np.maximum(Phi_int, 0.0) ** p
-        Phi_new = spsolve(A, rhs)
-        Phi_next = (1 - damping) * Phi_int + damping * Phi_new
-        Phi_next = np.maximum(Phi_next, 0.0)
-        err = np.linalg.norm(Phi_next - Phi_int, ord=np.inf)
-        Phi_int = Phi_next
-        if err < tol:
-            break
-
-    Phi = np.zeros(N + 2)
-    Phi[1:-1] = Phi_int
-    return x, Phi, {"iters": it + 1, "inf_err": float(err), "maxPhi": float(Phi.max())}
-
-
-def solve_V1prime_1d_picard_spatial(
-    L, N, a_x, beta_b_x, c_x, p=2.0, max_iter=10000, tol=1e-10, damping=0.5
-):
-    """Solve with spatially-varying coefficients."""
-    A, h = laplacian_1d_dirichlet(N, L)
-    x = np.linspace(0, L, N + 2)
-    a_int = a_x[1:-1]
-    bb_int = beta_b_x[1:-1]
-    c_int = c_x[1:-1]
-
-    Phi = 0.1 * np.sin(np.pi * x / L)
-    Phi_int = Phi[1:-1].copy()
-
-    def grad_abs(Phi_full):
-        d = (Phi_full[2:] - Phi_full[:-2]) / (2 * h)
-        return np.abs(d)
-
-    for it in range(max_iter):
-        Phi_full = np.zeros(N + 2)
-        Phi_full[1:-1] = Phi_int
-        gabs = grad_abs(Phi_full)
-        rhs = a_int * gabs + bb_int * Phi_int - c_int * np.maximum(Phi_int, 0.0) ** p
-        Phi_new = spsolve(A, rhs)
-        Phi_next = (1 - damping) * Phi_int + damping * Phi_new
-        Phi_next = np.maximum(Phi_next, 0.0)
-        err = np.linalg.norm(Phi_next - Phi_int, ord=np.inf)
-        Phi_int = Phi_next
-        if err < tol:
-            break
-
-    Phi = np.zeros(N + 2)
-    Phi[1:-1] = Phi_int
-    return x, Phi, {"iters": it + 1, "inf_err": float(err), "maxPhi": float(Phi.max())}
-
-
-def laplacian_2d_dirichlet(Nx, Ny, Lx, Ly):
-    """Sparse matrix for -Δ on (0,Lx)x(0,Ly) with Dirichlet BC."""
-    hx = Lx / (Nx + 1)
-    hy = Ly / (Ny + 1)
-    Ax = (
-        diags([-np.ones(Nx - 1), 2 * np.ones(Nx), -np.ones(Nx - 1)], [-1, 0, 1], format="csr")
-        / hx**2
+def record_solve(label: str, info: dict) -> PointRecord:
+    """Build a record from a solver ``info`` dict and print its diagnostics."""
+    rec = PointRecord(label, str(info["branch"]), str(info["termination"]), int(info["iters"]))
+    rec = rec._replace(residual_inf=float(info["residual_inf"]), value=float(info["maxPhi"]))
+    print(
+        f"  {label}: branch={rec.branch} termination={rec.termination} "
+        f"iters={rec.iters} residual={rec.residual_inf:.2e} maxPhi={rec.value:.4g}"
     )
-    Ay = (
-        diags([-np.ones(Ny - 1), 2 * np.ones(Ny), -np.ones(Ny - 1)], [-1, 0, 1], format="csr")
-        / hy**2
+    return rec
+
+
+def record_eigenvalue(label: str, compute) -> PointRecord:
+    """Evaluate ``compute()`` (a principal eigenvalue); a failed eigensolve is an invalid point."""
+    try:
+        lam1 = float(compute())
+    except RuntimeError as exc:  # eigensolver did not converge
+        print(f"  {label}: eigensolver failed ({exc})")
+        lam1 = float("nan")
+    ok = np.isfinite(lam1)
+    return PointRecord(
+        label, "positive" if ok else "invalid", "converged" if ok else "nonfinite", value=lam1
     )
-    Ix = eye(Nx, format="csr")
-    Iy = eye(Ny, format="csr")
-    A = kron(Iy, Ax) + kron(Ay, Ix)
-    return A, hx, hy
 
 
-def gradmag_2d(Phi, hx, hy):
-    dPhidx = (Phi[1:-1, 2:] - Phi[1:-1, :-2]) / (2 * hx)
-    dPhidy = (Phi[2:, 1:-1] - Phi[:-2, 1:-1]) / (2 * hy)
-    return np.sqrt(dPhidx**2 + dPhidy**2)
+def summarize(stem: str, records: Sequence[PointRecord], extra: Sequence[PointRecord] = ()) -> int:
+    """Print the machine-readable summary line; return the number of unresolved points.
+
+    ``extra`` holds auxiliary points (eigenvalues drawn beside a sweep) that are not counted in
+    the line but still block ``ALL_FIGURES_OK`` if invalid.
+    """
+    n_bad = sum(not r.resolved for r in records)
+    print(
+        f"FIGURE {stem}: points={len(records)} converged={len(records) - n_bad} unresolved={n_bad}"
+    )
+    n_extra = sum(not r.resolved for r in extra)
+    if n_extra:
+        print(f"  plus {n_extra} invalid auxiliary eigenvalue point(s)")
+    return n_bad + n_extra
 
 
-def solve_V1prime_2d_picard(
-    Lx, Ly, Nx, Ny, a_full, beta_b_full, c_full, p=2.0, damping=0.6, tol=1e-8, max_iter=4000
-):
-    """Solve 2D V1' equation."""
-    A, hx, hy = laplacian_2d_dirichlet(Nx, Ny, Lx, Ly)
-    x = np.linspace(0, Lx, Nx + 2)
-    y = np.linspace(0, Ly, Ny + 2)
-    X, Y = np.meshgrid(x, y)
-    Phi = 0.1 * np.sin(np.pi * X / Lx) * np.sin(np.pi * Y / Ly)
+def save(stem: str) -> None:
+    plt.tight_layout()
+    plt.savefig(OUTPUT_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
+    plt.savefig(OUTPUT_DIR / f"{stem}.pdf", bbox_inches="tight")
+    plt.close()
+    print(f"  Saved: {stem}.png/pdf")
 
-    for it in range(max_iter):
-        gmag = gradmag_2d(Phi, hx, hy)
-        Phi_int = Phi[1:-1, 1:-1]
-        a_int = a_full[1:-1, 1:-1]
-        bb_int = beta_b_full[1:-1, 1:-1]
-        c_int = c_full[1:-1, 1:-1]
-        rhs_int = a_int * gmag + bb_int * Phi_int - c_int * np.maximum(Phi_int, 0.0) ** p
-        rhs = rhs_int.reshape(-1)
-        Phi_new_int = spsolve(A, rhs).reshape(Ny, Nx)
-        Phi_next = Phi.copy()
-        Phi_next[1:-1, 1:-1] = (1 - damping) * Phi_int + damping * Phi_new_int
-        Phi_next[1:-1, 1:-1] = np.maximum(Phi_next[1:-1, 1:-1], 0.0)
-        err = np.linalg.norm(Phi_next - Phi, ord=np.inf)
-        Phi = Phi_next
-        if err < tol:
-            break
 
-    return X, Y, Phi, {"iters": it + 1, "inf_err": float(err), "maxPhi": float(Phi.max())}, (hx, hy)
+def labels(ax, xlabel: str, ylabel: str, title: str, title_size: int = 14) -> None:
+    ax.set_xlabel(xlabel, fontsize=12)
+    ax.set_ylabel(ylabel, fontsize=12)
+    ax.set_title(title, fontsize=title_size)
+
+
+def plot_sweep(ax, xs, records: list[PointRecord], fmt: str, **kwargs) -> None:
+    """Line through resolved points only; hollow markers, no line, at unresolved ones.
+
+    NaN gaps break the line at every unresolved point, so no segment ever crosses one.
+    An unresolved point with a nonfinite value is drawn at 0 (it carries no value).
+    """
+    xs = np.asarray(xs, dtype=float)
+    ys = np.array([r.value for r in records], dtype=float)
+    ok = np.array([r.resolved for r in records], dtype=bool)
+    ax.plot(xs, np.where(ok, ys, np.nan), fmt, **kwargs)
+    if not ok.all():
+        bad_y = np.where(np.isfinite(ys), ys, 0.0)[~ok]
+        ax.plot(xs[~ok], bad_y, label=UNRESOLVED_LABEL, **UNRESOLVED_STYLE)
+
+
+def plot_curve(ax, x, Phi, rec: PointRecord, label: str, **kwargs) -> None:
+    """A 1D field: solid line if resolved, sparse hollow markers (no line) otherwise."""
+    if rec.resolved:
+        ax.plot(x, Phi, label=label, **kwargs)
+        return
+    style = {**UNRESOLVED_STYLE, "markevery": max(1, len(x) // 40)}
+    ax.plot(x, np.nan_to_num(Phi), label=f"{label} — UNRESOLVED ({rec.termination})", **style)
+
+
+def draw_field(ax, X, Y, Phi, rec: PointRecord, title: str, levels: int):
+    """Heatmap of a 2D field; an unresolved field is flagged in the title and gets no contours."""
+    extent = [0, X.max(), 0, Y.max()]
+    im = ax.imshow(np.nan_to_num(Phi), origin="lower", extent=extent, cmap="viridis")
+    if not rec.resolved:
+        ax.set_title(f"UNRESOLVED ({rec.termination}): {title}", fontsize=11, color="red")
+    else:
+        ax.set_title(title, fontsize=13)
+        if np.all(np.isfinite(Phi)) and Phi.max() > 1e-6:  # contours only where there is structure
+            ax.contour(X, Y, Phi, levels=levels, colors="white", linewidths=0.8, alpha=0.7)
+    ax.set_xlabel("$x$", fontsize=12)
+    ax.set_ylabel("$y$", fontsize=12)
+    return im
+
+
+def solve_2d_canonical(P: dict, lam: float, beta: float, label: str):
+    """Build the canonical 2D fields for one contradiction cost, solve, and check the residual.
+
+    ``a`` is passed as the full (Ny+2, Nx+2) grid array and ``c`` as a scalar; the solver takes
+    the gain ``beta`` and the interior viability field so that ``q = beta * b``.
+    """
+    Lx, Ly, Nx, Ny, m = P["Lx"], P["Ly"], P["Nx"], P["Ny"], P["mu"]
+    X, Y = np.meshgrid(np.linspace(0, Lx, Nx + 2), np.linspace(0, Ly, Ny + 2))
+    mu = np.clip(cd.gaussian_bump_2d(X, Y, m["x0"], m["y0"], m["sigma"], m["amplitude"]), 0.0, 1.0)
+    b = cd.viability_canonical(P["kappa"], P["gamma"], mu, lam)
+    a = cd.creative_drive(P["kappa"], P["gamma"], mu)
+    args = (Lx, Ly, Nx, Ny, a, beta, P["c"])
+    _, _, Phi, info = cd.solve_2d_picard(
+        *args, p=P["p"], b_field=b[1:-1, 1:-1], **SOLVER_2D, **RESIDUAL
+    )
+    rec = record_solve(label, info)
+    res_inf = float("nan")
+    if np.all(np.isfinite(Phi)):
+        c_full = np.full(Phi.shape, P["c"])
+        hx, hy = Lx / (Nx + 1), Ly / (Ny + 1)
+        res_inf = float(np.max(np.abs(cd.residual_2d(Phi, a, beta * b, c_full, P["p"], hx, hy))))
+    print(f"    residual_2d ||R||_inf = {res_inf:.3e}")
+    return X, Y, b, Phi, rec
+
+
+def mu_1d(P: dict, x: np.ndarray) -> np.ndarray:
+    m = P["mu"]
+    bump = cd.gaussian_bump_1d(x, m["center"] * P["L"], m["sigma"] * P["L"], m["amplitude"])
+    return np.clip(bump, 0.0, 1.0)
 
 
 # =============================================================================
@@ -195,21 +248,22 @@ def solve_V1prime_2d_picard(
 # =============================================================================
 
 
-def fig1_eigenvalue_threshold():
+def fig1_eigenvalue_threshold() -> int:
+    stem = "fig1_eigenvalue_threshold"
     print("Generating Figure 1: Eigenvalue threshold crossing...")
-    L = 1.0
-    N = 600
-    b_const = 0.8
+    P = PARAMETERS[stem]
+    L, N, b = P["L"], P["N"], P["b"]
+    beta_values = np.array(P["beta_values"])
+    beta_star = cd.viability_threshold_1d(L, b)
 
-    beta_values = np.linspace(0.0, 30.0, 61)
-    lam_num = np.array(
-        [principal_eigenvalue_Lb_1d_const(N, L, beta * b_const) for beta in beta_values]
-    )
-    lam_ana = (np.pi / L) ** 2 - beta_values * b_const
-    beta_star = (np.pi / L) ** 2 / b_const
+    records = [
+        record_eigenvalue(f"beta={beta:.2f}", partial(cd.principal_eigenvalue_1d, N, L, beta * b))
+        for beta in beta_values
+    ]
+    lam_ana = (np.pi / L) ** 2 - beta_values * b
 
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.plot(beta_values, lam_num, "o", markersize=4, label="Numerical (FD)", alpha=0.7)
+    plot_sweep(ax, beta_values, records, "o", markersize=4, label="Numerical (FD)", alpha=0.7)
     ax.plot(
         beta_values, lam_ana, "-", linewidth=2, label=r"Analytic: $\lambda_1 = (\pi/L)^2 - \beta b$"
     )
@@ -217,39 +271,31 @@ def fig1_eigenvalue_threshold():
     ax.axvline(
         beta_star, color="r", linestyle="--", linewidth=1.5, label=rf"$\beta^* = {beta_star:.2f}$"
     )
-
-    # Shade regions
-    ax.fill_between(
-        beta_values,
-        lam_ana,
-        0,
-        where=(lam_ana > 0),
-        alpha=0.15,
-        color="blue",
-        label="Subcritical (no emergence)",
+    regions = (
+        (1, "blue", "Subcritical (no emergence)"),
+        (-1, "green", "Supercritical (emergence)"),
     )
-    ax.fill_between(
-        beta_values,
-        lam_ana,
-        0,
-        where=(lam_ana < 0),
-        alpha=0.15,
-        color="green",
-        label="Supercritical (emergence)",
+    for sign, color, label in regions:
+        ax.fill_between(
+            beta_values,
+            lam_ana,
+            0,
+            where=(sign * lam_ana > 0),
+            alpha=0.15,
+            color=color,
+            label=label,
+        )
+    labels(
+        ax,
+        r"$\beta$ (viability gain)",
+        r"$\lambda_1(-\Delta - \beta b)$",
+        "Viability Threshold: When Support Exceeds Dissipation",
     )
-
-    ax.set_xlabel(r"$\beta$ (viability gain)", fontsize=12)
-    ax.set_ylabel(r"$\lambda_1(-\Delta - \beta b)$", fontsize=12)
-    ax.set_title("Viability Threshold: When Support Exceeds Dissipation", fontsize=14)
     ax.legend(loc="upper right")
     ax.set_xlim(0, 30)
     ax.set_ylim(-15, 12)
-
-    plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / "fig1_eigenvalue_threshold.png", dpi=300, bbox_inches="tight")
-    plt.savefig(OUTPUT_DIR / "fig1_eigenvalue_threshold.pdf", bbox_inches="tight")
-    plt.close()
-    print("  Saved: fig1_eigenvalue_threshold.png/pdf")
+    save(stem)
+    return summarize(stem, records)
 
 
 # =============================================================================
@@ -257,50 +303,36 @@ def fig1_eigenvalue_threshold():
 # =============================================================================
 
 
-def fig2_threshold_comparison():
+def fig2_threshold_comparison() -> int:
+    stem = "fig2_threshold_comparison"
     print("Generating Figure 2: Below/above threshold comparison...")
-    L = 1.0
-    p = 2.0
-    c = 10.0
-    a = 0.0
-    b = 0.8
-
-    beta_star = (np.pi / L) ** 2 / b
-    beta_below = 0.8 * beta_star
-    beta_above = 1.2 * beta_star
-
-    x1, Phi1, _ = solve_V1prime_1d_picard(L, 800, a=a, beta_b=beta_below * b, c=c, p=p)
-    x2, Phi2, _ = solve_V1prime_1d_picard(L, 800, a=a, beta_b=beta_above * b, c=c, p=p)
+    P = PARAMETERS[stem]
+    L, N, a, b, c, p = P["L"], P["N"], P["a"], P["b"], P["c"], P["p"]
+    beta_star = cd.viability_threshold_1d(L, b)
 
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.plot(
-        x1,
-        Phi1,
-        linewidth=2,
-        color="steelblue",
-        label=rf"Below threshold: $\beta = 0.8\beta^*$ (max = {Phi1.max():.2g})",
-    )
-    ax.plot(
-        x2,
-        Phi2,
-        linewidth=2,
-        color="forestgreen",
-        label=rf"Above threshold: $\beta = 1.2\beta^*$ (max = {Phi2.max():.3f})",
-    )
+    records = []
+    cases = zip(P["beta_ratios"], ("steelblue", "forestgreen"), ("Below", "Above"), (".2g", ".3f"))
+    for ratio, color, word, fmt in cases:
+        beta_b = ratio * beta_star * b
+        x, Phi, info = cd.solve_1d_picard(
+            L, N, a=a, beta_b=beta_b, c=c, p=p, **SOLVER_1D, **RESIDUAL
+        )
+        rec = record_solve(f"{word.lower()} threshold beta={ratio}*beta_star", info)
+        records.append(rec)
+        label = rf"{word} threshold: $\beta = {ratio}\beta^*$ (max = {rec.value:{fmt}})"
+        plot_curve(ax, x, Phi, rec, label, linewidth=2, color=color)
 
-    ax.set_xlabel(r"$x$", fontsize=12)
-    ax.set_ylabel(r"$\Phi(x)$ (presence field)", fontsize=12)
-    ax.set_title(
-        "Presence Emergence: Nontrivial Equilibrium Above Viability Threshold", fontsize=14
+    labels(
+        ax,
+        r"$x$",
+        r"$\Phi(x)$ (presence field)",
+        "Presence Emergence: Nontrivial Equilibrium Above Viability Threshold",
     )
     ax.legend(loc="upper right")
     ax.set_xlim(0, 1)
-
-    plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / "fig2_threshold_comparison.png", dpi=300, bbox_inches="tight")
-    plt.savefig(OUTPUT_DIR / "fig2_threshold_comparison.pdf", bbox_inches="tight")
-    plt.close()
-    print("  Saved: fig2_threshold_comparison.png/pdf")
+    save(stem)
+    return summarize(stem, records)
 
 
 # =============================================================================
@@ -308,83 +340,58 @@ def fig2_threshold_comparison():
 # =============================================================================
 
 
-def fig3_canonical_closure_sweep():
+def fig3_canonical_closure_sweep() -> int:
+    stem = "fig3_canonical_closure_sweep"
     print("Generating Figure 3: Canonical closure sweep...")
-    L = 1.0
-    N = 800
+    P = PARAMETERS[stem]
+    L, N, c, p, kappa, gamma = P["L"], P["N"], P["c"], P["p"], P["kappa"], P["gamma"]
     x = np.linspace(0, L, N + 2)
+    mu = mu_1d(P, x)
+    a_x = cd.creative_drive(kappa, gamma, mu)
+    beta = P["beta_ratio"] * cd.viability_threshold_1d(L, kappa * gamma)
+    lam_values = np.array(P["lambda_values"])
 
-    kappa = 0.9
-    gamma = 0.9
-    b0 = kappa * gamma
-
-    mu = gaussian_bump_1d(x, center=0.5 * L, sigma=0.12 * L, amplitude=1.0)
-    mu = np.clip(mu, 0.0, 1.0)
-    a_x = b0 * mu
-
-    p = 2.0
-    c0 = 10.0
-    c_x = c0 * np.ones_like(x)
-
-    beta_star = (np.pi / L) ** 2 / b0
-    beta = 1.2 * beta_star
-
-    lam_values = np.linspace(0.0, 4.0, 21)
-    maxPhi = []
-    lam1_vals = []
-
+    records, eig_records = [], []
     for lam in lam_values:
-        b_x = b0 - lam * mu
-        beta_b_x = beta * b_x
-        x_sol, Phi_sol, info = solve_V1prime_1d_picard_spatial(
-            L, N, a_x=a_x, beta_b_x=beta_b_x, c_x=c_x, p=p, damping=0.5
-        )
-        maxPhi.append(Phi_sol.max())
-        lam1_vals.append(principal_eigenvalue_Lb_1d_spatial(N, L, beta_b_x))
-
-    maxPhi = np.array(maxPhi)
-    lam1_vals = np.array(lam1_vals)
+        q = beta * cd.viability_canonical(kappa, gamma, mu, lam)
+        _, _, info = cd.solve_1d_picard(L, N, a=a_x, beta_b=q, c=c, p=p, **SOLVER_1D, **RESIDUAL)
+        records.append(record_solve(f"lambda={lam:.2f}", info))
+        eig = partial(cd.principal_eigenvalue_1d_spatial, N, L, q)
+        eig_records.append(record_eigenvalue(f"lambda={lam:.2f}", eig))
+    lam1 = np.nan_to_num(np.array([r.value for r in eig_records]))
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
-    # Left: Presence vs contradiction cost
-    ax1.plot(lam_values, maxPhi, "ko-", markersize=6, linewidth=2)
-    ax1.set_xlabel(r"$\lambda$ (contradiction cost)", fontsize=12)
-    ax1.set_ylabel(r"$\max_x \Phi(x)$", fontsize=12)
-    ax1.set_title("Presence Collapse Under Contradiction", fontsize=14)
+    # Left: presence vs contradiction cost (line only through certified points)
+    plot_sweep(
+        ax1, lam_values, records, "ko-", markersize=6, linewidth=2, label=r"converged $\max\Phi$"
+    )
+    labels(
+        ax1,
+        r"$\lambda$ (contradiction cost)",
+        r"$\max_x \Phi(x)$",
+        "Presence Collapse Under Contradiction",
+    )
     ax1.axhline(0, color="gray", linestyle="--", linewidth=0.8)
+    if not all(r.resolved for r in records):
+        ax1.legend()
 
-    # Right: Eigenvalue indicator
-    ax2.plot(lam_values, lam1_vals, "bo-", markersize=6, linewidth=2)
+    # Right: eigenvalue indicator
+    plot_sweep(ax2, lam_values, eig_records, "bo-", markersize=6, linewidth=2)
     ax2.axhline(0.0, color="k", linewidth=1)
-    ax2.fill_between(
-        lam_values,
-        lam1_vals,
-        0,
-        where=(np.array(lam1_vals) < 0),
-        alpha=0.2,
-        color="green",
-        label="Viable",
+    for sign, color, label in ((-1, "green", "Viable"), (1, "red", "Non-viable")):
+        ax2.fill_between(
+            lam_values, lam1, 0, where=(sign * lam1 > 0), alpha=0.2, color=color, label=label
+        )
+    labels(
+        ax2,
+        r"$\lambda$ (contradiction cost)",
+        r"$\lambda_1(-\Delta - \beta b(\cdot))$",
+        "Eigenvalue Indicator Under Canonical Closure",
     )
-    ax2.fill_between(
-        lam_values,
-        lam1_vals,
-        0,
-        where=(np.array(lam1_vals) > 0),
-        alpha=0.2,
-        color="red",
-        label="Non-viable",
-    )
-    ax2.set_xlabel(r"$\lambda$ (contradiction cost)", fontsize=12)
-    ax2.set_ylabel(r"$\lambda_1(-\Delta - \beta b(\cdot))$", fontsize=12)
-    ax2.set_title("Eigenvalue Indicator Under Canonical Closure", fontsize=14)
     ax2.legend()
-
-    plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / "fig3_canonical_closure_sweep.png", dpi=300, bbox_inches="tight")
-    plt.savefig(OUTPUT_DIR / "fig3_canonical_closure_sweep.pdf", bbox_inches="tight")
-    plt.close()
-    print("  Saved: fig3_canonical_closure_sweep.png/pdf")
+    save(stem)
+    return summarize(stem, records, extra=eig_records)
 
 
 # =============================================================================
@@ -392,72 +399,29 @@ def fig3_canonical_closure_sweep():
 # =============================================================================
 
 
-def fig4_2d_presence_field():
-    print("Generating Figure 4: 2D presence field (this may take a moment)...")
-    Lx, Ly = 1.0, 1.0
-    Nx, Ny = 100, 100  # Higher resolution for publication
-    p = 2.0
-    c0 = 10.0
-
-    kappa = 0.9
-    gamma = 0.9
-    b0 = kappa * gamma  # = 0.81
-
-    x = np.linspace(0, Lx, Nx + 2)
-    y = np.linspace(0, Ly, Ny + 2)
-    X, Y = np.meshgrid(x, y)
-
-    # Use a gentler contradiction profile that doesn't kill viability
-    sigma = 0.20
-    mu = gaussian_bump_2d(X, Y, 0.5, 0.5, sigma, amplitude=0.6)
-    mu = np.clip(mu, 0.0, 1.0)
-
-    # Smaller contradiction cost to ensure positive viability in most of domain
-    lam = 0.5
-    b = b0 - lam * mu  # b ranges from ~0.81 down to ~0.51 (still positive everywhere)
-    a = b0 * mu
-
-    # Increase beta to ensure we're well above threshold
-    beta_star_2d = ((np.pi / Lx) ** 2 + (np.pi / Ly) ** 2) / b0
-    beta = 1.8 * beta_star_2d  # More aggressive to ensure emergence
-    beta_b = beta * b
-
-    c = c0 * np.ones_like(X)
-
+def fig4_2d_presence_field() -> int:
+    stem = "fig4_2d_presence_field"
+    print("Generating Figure 4: 2D presence field...")
+    P = PARAMETERS[stem]
+    b0 = P["kappa"] * P["gamma"]
+    beta = P["beta_ratio"] * cd.viability_threshold_2d(P["Lx"], P["Ly"], b0)
+    X, Y, b, Phi, rec = solve_2d_canonical(P, P["lam"], beta, f"lambda={P['lam']}")
     print(
-        f"  Parameters: b0={b0:.3f}, lam={lam}, beta={beta:.2f}, b_min={b.min():.3f}, b_max={b.max():.3f}"
+        f"  Parameters: b0={b0:.3f}, lam={P['lam']}, beta={beta:.2f}, b_min={b.min():.3f}, b_max={b.max():.3f}"
     )
-
-    Xg, Yg, Phi, info, _ = solve_V1prime_2d_picard(
-        Lx, Ly, Nx, Ny, a, beta_b, c, p=p, damping=0.6, tol=1e-8
-    )
-    print(f"  2D solve completed: {info}")
 
     fig, axs = plt.subplots(1, 2, figsize=(12, 5))
+    extent = [0, P["Lx"], 0, P["Ly"]]
+    im0 = axs[0].imshow(b, origin="lower", extent=extent, cmap="RdYlGn", vmin=0.0, vmax=1.0)
+    labels(axs[0], "$x$", "$y$", r"Viability Field $b(x,y) = \kappa\gamma - \lambda\mu(x,y)$", 13)
+    plt.colorbar(im0, ax=axs[0], fraction=0.046, pad=0.04).set_label("Viability", fontsize=10)
 
-    # Left: Viability field
-    im0 = axs[0].imshow(b, origin="lower", extent=[0, Lx, 0, Ly], cmap="RdYlGn", vmin=0.0, vmax=1.0)
-    axs[0].set_title(r"Viability Field $b(x,y) = \kappa\gamma - \lambda\mu(x,y)$", fontsize=13)
-    axs[0].set_xlabel("$x$", fontsize=12)
-    axs[0].set_ylabel("$y$", fontsize=12)
-    cbar0 = plt.colorbar(im0, ax=axs[0], fraction=0.046, pad=0.04)
-    cbar0.set_label("Viability", fontsize=10)
-
-    # Right: Presence field with contours
-    im1 = axs[1].imshow(Phi, origin="lower", extent=[0, Lx, 0, Ly], cmap="viridis")
-    if Phi.max() > 1e-6:  # Only add contours if there's actual structure
-        axs[1].contour(Xg, Yg, Phi, levels=10, colors="white", linewidths=0.8, alpha=0.7)
-    axs[1].set_title(r"Presence Field $\Phi(x,y)$ — V1′ Equilibrium", fontsize=13)
-    axs[1].set_xlabel("$x$", fontsize=12)
-    axs[1].set_ylabel("$y$", fontsize=12)
-    cbar1 = plt.colorbar(im1, ax=axs[1], fraction=0.046, pad=0.04)
-    cbar1.set_label("Presence intensity", fontsize=10)
-
-    plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / "fig4_2d_presence_field.png", dpi=300, bbox_inches="tight")
-    plt.savefig(OUTPUT_DIR / "fig4_2d_presence_field.pdf", bbox_inches="tight")
-    plt.close()
-    print("  Saved: fig4_2d_presence_field.png/pdf")
+    im1 = draw_field(axs[1], X, Y, Phi, rec, r"Presence Field $\Phi(x,y)$ — V1′ Equilibrium", 10)
+    plt.colorbar(im1, ax=axs[1], fraction=0.046, pad=0.04).set_label(
+        "Presence intensity", fontsize=10
+    )
+    save(stem)
+    return summarize(stem, [rec])
 
 
 # =============================================================================
@@ -465,66 +429,55 @@ def fig4_2d_presence_field():
 # =============================================================================
 
 
-def fig5_grid_refinement():
+def fig5_grid_refinement() -> int:
+    stem = "fig5_grid_refinement"
     print("Generating Figure 5: Grid refinement convergence...")
-    L = 1.0
-    p = 2.0
-    c = 10.0
-    a = 0.0
-    b = 0.8
-
-    beta_star = (np.pi / L) ** 2 / b
-    beta_above = 1.2 * beta_star
-
-    Ns = [100, 200, 400, 800, 1600]
-    max_vals = []
-    residuals = []
+    P = PARAMETERS[stem]
+    L, a, b, c, p = P["L"], P["a"], P["b"], P["c"], P["p"]
+    beta_b = P["beta_ratio"] * cd.viability_threshold_1d(L, b) * b
+    Ns = np.array(P["N_values"])
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-
-    for Nn in Ns:
-        xN, PhiN, infoN = solve_V1prime_1d_picard(L, Nn, a=a, beta_b=beta_above * b, c=c, p=p)
-        max_vals.append(PhiN.max())
-
-        # Compute residual
-        h = L / (Nn + 1)
-        Phi_xx = (PhiN[2:] - 2 * PhiN[1:-1] + PhiN[:-2]) / h**2
-        Phi_x = (PhiN[2:] - PhiN[:-2]) / (2 * h)
-        res = -Phi_xx - (
-            a * np.abs(Phi_x) + beta_above * b * PhiN[1:-1] - c * np.maximum(PhiN[1:-1], 0.0) ** p
+    records, residuals = [], []
+    for N in Ns:
+        x, Phi, info = cd.solve_1d_picard(
+            L, int(N), a=a, beta_b=beta_b, c=c, p=p, **SOLVER_1D, **RESIDUAL
         )
-        rinf = float(np.linalg.norm(res, np.inf))
-        residuals.append(rinf)
+        rec = record_solve(f"N={N}", info)
+        records.append(rec)
+        res_inf = float("nan")
+        if np.all(np.isfinite(Phi)):
+            res_inf = float(np.max(np.abs(cd.residual_1d(x, Phi, a, beta_b, c, p))))
+        residuals.append(res_inf)
+        plot_curve(ax1, x, Phi, rec, rf"$N={N}$", linewidth=1.5)
 
-        ax1.plot(xN, PhiN, linewidth=1.5, label=rf"$N={Nn}$")
-
-    ax1.set_xlabel(r"$x$", fontsize=12)
-    ax1.set_ylabel(r"$\Phi(x)$", fontsize=12)
-    ax1.set_title("Solution Convergence Under Grid Refinement", fontsize=14)
+    labels(ax1, r"$x$", r"$\Phi(x)$", "Solution Convergence Under Grid Refinement")
     ax1.legend()
 
-    # Convergence plot
-    ax2.loglog(Ns, residuals, "ko-", markersize=8, linewidth=2)
-    ax2.set_xlabel("Grid points $N$", fontsize=12)
-    ax2.set_ylabel(r"Residual $\|\mathcal{R}\|_\infty$", fontsize=12)
-    ax2.set_title("Residual Decay (Second-Order Convergence)", fontsize=14)
-
-    # Add reference line for O(h²)
-    h_ref = np.array(Ns)
-    ax2.loglog(
-        h_ref,
-        0.5 * (h_ref[0] / h_ref) ** (-2) * residuals[0],
-        "r--",
-        linewidth=1.5,
-        label=r"$O(h^2)$ reference",
-    )
-    ax2.legend()
-
-    plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / "fig5_grid_refinement.png", dpi=300, bbox_inches="tight")
-    plt.savefig(OUTPUT_DIR / "fig5_grid_refinement.pdf", bbox_inches="tight")
-    plt.close()
-    print("  Saved: fig5_grid_refinement.png/pdf")
+    # Right: discretization error of max Phi against the finest grid, log-log, with an O(h^2)
+    # reference. The discrete residual is drawn as a separate series: it sits at the solver
+    # tolerance on every grid and does not decay with h, so it is not a convergence measure.
+    ref, coarse, N_coarse = records[-1], records[:-1], Ns[:-1]
+    ax2.set_xscale("log")
+    ax2.set_yscale("log")
+    if ref.resolved:
+        errs = [r._replace(value=abs(r.value - ref.value)) for r in coarse]
+        err_label = rf"$|\max\Phi_N - \max\Phi_{{{Ns[-1]}}}|$ (discretization error)"
+        plot_sweep(ax2, N_coarse, errs, "ko-", markersize=8, linewidth=2, label=err_label)
+        anchors = [(N, e.value) for N, e in zip(N_coarse, errs) if e.resolved and e.value > 0]
+        if anchors:
+            N0, e0 = anchors[0]
+            reference = e0 * ((N0 + 1) / (N_coarse + 1)) ** 2
+            ax2.loglog(N_coarse, reference, "r--", linewidth=1.5, label=r"$O(h^2)$ reference")
+    else:
+        msg = f"reference grid N={Ns[-1]} unresolved:\nno discretization error available"
+        ax2.text(0.5, 0.6, msg, ha="center", va="center", transform=ax2.transAxes, color="red")
+    res_label = r"discrete residual $\|R_h\|_\infty$ (solver tolerance; does not decay)"
+    ax2.loglog(Ns, residuals, "s:", color="gray", markersize=7, linewidth=1.2, label=res_label)
+    labels(ax2, "Grid points $N$", "Magnitude", "Discretization error of max Phi (second order)")
+    ax2.legend(loc="center left", bbox_to_anchor=(0.0, 0.35), fontsize=9)  # empty band
+    save(stem)
+    return summarize(stem, records)
 
 
 # =============================================================================
@@ -532,48 +485,37 @@ def fig5_grid_refinement():
 # =============================================================================
 
 
-def fig6_field_decomposition():
+def fig6_field_decomposition() -> int:
+    stem = "fig6_field_decomposition"
     print("Generating Figure 6: Field decomposition visualization...")
-    L = 1.0
-    N = 800
-    x = np.linspace(0, L, N + 2)
-
-    kappa = 0.9
-    gamma = 0.9
-    b0 = kappa * gamma
-
-    mu = gaussian_bump_1d(x, center=0.5 * L, sigma=0.12 * L, amplitude=1.0)
-    mu = np.clip(mu, 0.0, 1.0)
-
-    lam = 1.5
-    b_x = b0 - lam * mu
-    a_x = b0 * mu
+    P = PARAMETERS[stem]
+    kappa, gamma = P["kappa"], P["gamma"]
+    x = np.linspace(0, P["L"], P["N"] + 2)
+    mu = mu_1d(P, x)
+    b_x = cd.viability_canonical(kappa, gamma, mu, P["lam"])
+    a_x = cd.creative_drive(kappa, gamma, mu)
 
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.plot(
-        x, np.ones_like(x) * b0, "k--", linewidth=1.5, label=r"$\kappa\gamma$ (care × coherence)"
+        x,
+        np.full_like(x, kappa * gamma),
+        "k--",
+        linewidth=1.5,
+        label=r"$\kappa\gamma$ (care × coherence)",
     )
     ax.plot(x, mu, "r-", linewidth=2, label=r"$\mu(x)$ (contradiction field)")
     ax.plot(x, b_x, "g-", linewidth=2, label=r"$b(x) = \kappa\gamma - \lambda\mu(x)$ (viability)")
     ax.plot(x, a_x, "b-", linewidth=2, label=r"$a(x) = \kappa\gamma\mu(x)$ (creative drive)")
-
     ax.axhline(0, color="gray", linestyle=":", linewidth=0.8)
     ax.fill_between(
         x, 0, b_x, where=(b_x < 0), alpha=0.2, color="red", label="Negative viability region"
     )
-
-    ax.set_xlabel(r"$x$", fontsize=12)
-    ax.set_ylabel("Field intensity", fontsize=12)
-    ax.set_title("Canonical Closure: Field Decomposition", fontsize=14)
+    labels(ax, r"$x$", "Field intensity", "Canonical Closure: Field Decomposition")
     ax.legend(loc="upper right", fontsize=9)
     ax.set_xlim(0, 1)
     ax.set_ylim(-0.6, 1.1)
-
-    plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / "fig6_field_decomposition.png", dpi=300, bbox_inches="tight")
-    plt.savefig(OUTPUT_DIR / "fig6_field_decomposition.pdf", bbox_inches="tight")
-    plt.close()
-    print("  Saved: fig6_field_decomposition.png/pdf")
+    save(stem)
+    return summarize(stem, [])  # pure field plot: no solves
 
 
 # =============================================================================
@@ -581,102 +523,63 @@ def fig6_field_decomposition():
 # =============================================================================
 
 
-def fig7_2d_phase_transition():
+def fig7_2d_phase_transition() -> int:
+    stem = "fig7_2d_phase_transition"
     print("Generating Figure 7: 2D phase transition comparison...")
-    Lx, Ly = 1.0, 1.0
-    Nx, Ny = 80, 80
-    p = 2.0
-    c0 = 10.0
-
-    kappa = 0.9
-    gamma = 0.9
-    b0 = kappa * gamma
-
-    x = np.linspace(0, Lx, Nx + 2)
-    y = np.linspace(0, Ly, Ny + 2)
-    X, Y = np.meshgrid(x, y)
-
-    sigma = 0.18
-    mu = gaussian_bump_2d(X, Y, 0.5, 0.5, sigma, amplitude=0.8)
-    mu = np.clip(mu, 0.0, 1.0)
-
-    # Common beta
-    beta_star_2d = ((np.pi / Lx) ** 2 + (np.pi / Ly) ** 2) / b0
-    beta = 1.5 * beta_star_2d
-    c = c0 * np.ones_like(X)
-
-    # Case 1: Low contradiction (viable)
-    lam_low = 0.3
-    b_low = b0 - lam_low * mu
-    a_low = b0 * mu
-    beta_b_low = beta * b_low
-
-    # Case 2: High contradiction (collapse)
-    lam_high = 1.8
-    b_high = b0 - lam_high * mu
-    a_high = b0 * mu
-    beta_b_high = beta * b_high
-
-    _, _, Phi_low, info_low, _ = solve_V1prime_2d_picard(
-        Lx, Ly, Nx, Ny, a_low, beta_b_low, c, p=p, damping=0.6, tol=1e-8
-    )
-    _, _, Phi_high, info_high, _ = solve_V1prime_2d_picard(
-        Lx, Ly, Nx, Ny, a_high, beta_b_high, c, p=p, damping=0.6, tol=1e-8
-    )
-
-    print(f"  Low λ={lam_low}: maxPhi={info_low['maxPhi']:.4f}")
-    print(f"  High λ={lam_high}: maxPhi={info_high['maxPhi']:.4e}")
+    P = PARAMETERS[stem]
+    beta = P["beta_ratio"] * cd.viability_threshold_2d(P["Lx"], P["Ly"], P["kappa"] * P["gamma"])
+    lam_low, lam_high = P["lambda_values"]
+    X, Y, _, Phi_low, rec_low = solve_2d_canonical(P, lam_low, beta, f"low lambda={lam_low}")
+    _, _, _, Phi_high, rec_high = solve_2d_canonical(P, lam_high, beta, f"high lambda={lam_high}")
 
     fig, axs = plt.subplots(1, 2, figsize=(12, 5))
-
-    im0 = axs[0].imshow(Phi_low, origin="lower", extent=[0, Lx, 0, Ly], cmap="viridis")
-    if Phi_low.max() > 1e-6:
-        axs[0].contour(X, Y, Phi_low, levels=8, colors="white", linewidths=0.7, alpha=0.7)
-    axs[0].set_title(
-        rf"Viable: $\lambda = {lam_low}$ (max $\Phi$ = {Phi_low.max():.3f})", fontsize=13
-    )
-    axs[0].set_xlabel("$x$", fontsize=12)
-    axs[0].set_ylabel("$y$", fontsize=12)
+    title_low = rf"Viable: $\lambda = {lam_low}$ (max $\Phi$ = {rec_low.value:.3f})"
+    title_high = rf"Collapsed: $\lambda = {lam_high}$ (max $\Phi$ = {rec_high.value:.2e})"
+    im0 = draw_field(axs[0], X, Y, Phi_low, rec_low, title_low, 8)
     plt.colorbar(im0, ax=axs[0], fraction=0.046, pad=0.04)
-
-    im1 = axs[1].imshow(Phi_high, origin="lower", extent=[0, Lx, 0, Ly], cmap="viridis")
-    axs[1].set_title(
-        rf"Collapsed: $\lambda = {lam_high}$ (max $\Phi$ = {Phi_high.max():.2e})", fontsize=13
-    )
-    axs[1].set_xlabel("$x$", fontsize=12)
-    axs[1].set_ylabel("$y$", fontsize=12)
+    im1 = draw_field(axs[1], X, Y, Phi_high, rec_high, title_high, 8)
     plt.colorbar(im1, ax=axs[1], fraction=0.046, pad=0.04)
-
     plt.suptitle(
         "2D Phase Transition: Presence Collapse Under Excess Contradiction", fontsize=14, y=1.02
     )
-    plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / "fig7_2d_phase_transition.png", dpi=300, bbox_inches="tight")
-    plt.savefig(OUTPUT_DIR / "fig7_2d_phase_transition.pdf", bbox_inches="tight")
-    plt.close()
-    print("  Saved: fig7_2d_phase_transition.png/pdf")
+    save(stem)
+    return summarize(stem, [rec_low, rec_high])
 
 
 # =============================================================================
 # Main
 # =============================================================================
 
-if __name__ == "__main__":
+FIGURES = (
+    fig1_eigenvalue_threshold,
+    fig2_threshold_comparison,
+    fig3_canonical_closure_sweep,
+    fig4_2d_presence_field,
+    fig5_grid_refinement,
+    fig6_field_decomposition,
+    fig7_2d_phase_transition,
+)
+
+
+def main() -> None:
     print("=" * 60)
     print("Creative Determinant PDE Framework — Figure Generation")
     print("=" * 60)
     print(f"Output directory: {OUTPUT_DIR}")
+    print(f"cd version: {cd.__version__}")
+    print("PARAMETERS = " + json.dumps(PARAMETERS, indent=2))
     print()
 
-    fig1_eigenvalue_threshold()
-    fig2_threshold_comparison()
-    fig3_canonical_closure_sweep()
-    fig4_2d_presence_field()
-    fig5_grid_refinement()
-    fig6_field_decomposition()
-    fig7_2d_phase_transition()
+    t0 = time.perf_counter()
+    unresolved = sum(make() for make in FIGURES)
+    elapsed = time.perf_counter() - t0
 
     print()
     print("=" * 60)
-    print("All figures generated successfully!")
+    print(f"All figures generated in {elapsed:.1f} s")
+    print("ALL_FIGURES_OK" if unresolved == 0 else "FIGURES_WITH_UNRESOLVED_POINTS")
     print("=" * 60)
+
+
+if __name__ == "__main__":
+    main()

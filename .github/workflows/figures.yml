@@ -47,13 +47,20 @@ jobs:
       - name: Install dependencies (from uv.lock)
         run: uv sync --locked
 
+      # The generator records the branch and termination of every solve behind every
+      # figure and prints ALL_FIGURES_OK only when each one converged; an unresolved point
+      # is drawn as a hollow marker with no line through it and fails this job.
       - name: Regenerate figures
         run: |
           echo "═══════════════════════════════════════════════════════════════"
           echo "  FIGURE REGENERATION"
           echo "═══════════════════════════════════════════════════════════════"
-          cd figures
-          uv run python generate_figures.py
+          set -o pipefail
+          uv run python figures/generate_figures.py | tee figures/generate.log
+          grep -q '^ALL_FIGURES_OK$' figures/generate.log || {
+            echo "::error::a figure contains an unresolved or invalid solve"
+            exit 1
+          }
 
       - name: Verify figure outputs
         run: |

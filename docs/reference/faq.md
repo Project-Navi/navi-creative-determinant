@@ -42,7 +42,7 @@ Short answers to common questions about the Creative Determinant (CD) framework.
 
 ## Is there existing code I can run?
 
-**Yes.** The Jupyter notebook [`cd_pde_demo.ipynb`](https://github.com/Project-Navi/navi-creative-determinant/blob/main/notebooks/cd_pde_demo.ipynb) demonstrates the PDE framework numerically in 1D, 2D, and 3D. It includes eigenvalue verification, nonlinear solves, viability threshold crossings, and canonical closure sweeps. You can run it locally with Python, NumPy, SciPy, and Matplotlib.
+**Yes.** The Jupyter notebook [`cd_pde_demo.ipynb`](https://github.com/Project-Navi/navi-creative-determinant/blob/main/notebooks/cd_pde_demo.ipynb) demonstrates the PDE framework numerically in 1D and 2D, reproduces the verified finite-graph example, and includes a 3D eigenvalue illustration: eigenvalue verification, residual-validated nonlinear solves, viability threshold crossings, and canonical closure sweeps, each asserted in the notebook. You can run it locally with Python, NumPy, SciPy, and Matplotlib.
 
 ---
 

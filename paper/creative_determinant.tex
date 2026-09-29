@@ -7,6 +7,9 @@
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{booktabs}
+\usepackage{float}
+\setlength{\emergencystretch}{2em}
+\urlstyle{tt}
 
 % ---------- Theorem environments ----------
 \theoremstyle{plain}
@@ -18,6 +21,7 @@
 \theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
 \newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{example}[theorem]{Example}
 
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
@@ -49,10 +53,10 @@ On a compact Riemannian manifold \(M\) (the \emph{semiotic manifold}), we study 
 -\Delta \Phi = a(x)\,\abs{\nabla \Phi} + b(x)\,\Phi - c(x)\,\Phi^p\quad\text{in }M,\qquad \Phi=0\quad\text{on }\partial M,
 \]
 where \(a(x)=\kappa(x)\gamma(x)\mu(x)\in[0,1]\) encodes the \emph{creative drive} (care \(\times\) coherence \(\times\) contradiction), \(b(x)\) is the \emph{viability potential} (autopoietic support minus dissolution, with canonical closure \(b=\kappa\gamma - \lambda\mu\)), and \(c(x)\Phi^p\) enforces \emph{carrying capacity}.
-The principal eigenvalue condition \(\lambda_1(-\Delta - b; M) < 0\) provides an exact, computable threshold for the emergence of self-sustaining coherent configurations---formalizing, for the first time, the transition from incoherence to autopoietic organization.
-We establish existence of \emph{weak coherent configurations} via Schaefer's fixed-point theorem with explicit a priori bounds, and prove a nontriviality theorem: when viability exceeds dissipation, the BVP admits a positive solution and coherent presence can be self-maintained.
+The principal eigenvalue condition \(\lambda_1(-\Delta - b; M) < 0\) provides a computable criterion for the emergence of self-sustaining coherent configurations: it is sufficient in general and exact when the gradient coefficient vanishes---formalizing the transition from incoherence to autopoietic organization.
+We set up a Schaefer fixed-point framework with explicit a priori bounds for nonnegative \emph{weak coherent configurations}, and prove by an ordered-barrier argument that when viability exceeds dissipation the BVP admits a solution that is positive throughout the interior, so coherent presence can be self-maintained.
 Beyond the PDE core, we distinguish weak from strong coherence (a gap we treat as the framework's central generative tension), formulate conditional geometric statements, and propose an operational \emph{Creative Determinant condition} \(CD(\alpha,\varepsilon,\delta)\) with five explicit falsifiability criteria.
-Core definitions---the semiotic manifold, viability closure, PDE operators, and boundary value problem structure---together with fifteen supporting theorems spanning spectral characterization, operator algebra, coefficient bounds, scaling uniqueness, and fixed-point existence are machine-verified in Lean~4 against the Mathlib library; numerical validation confirms \(O(h^2)\) convergence across grid resolutions. All proofs, computations, and verification artifacts are open source.
+The core definitions, the algebraic and order-theoretic lemmas, and a finite-graph version of the positive-existence theorem with an explicit worked example are machine-checked in Lean~4 against the Mathlib library; the continuum existence theorems are formalized only as implications from an explicit abstract interface, and this paper gives an independent classical proof of the intended continuum results while recording that its concrete operator does not instantiate that interface. Numerical validation confirms second-order grid convergence and reproduces the verified finite-graph example. All proofs, computations, and verification artifacts are open source.
 \end{abstract}
 
 \paragraph{Keywords.}
@@ -67,7 +71,7 @@ Symbolic and subsymbolic approaches to cognition and computation are often treat
 
 The manuscript is structured intentionally for an interdisciplinary audience while maintaining a rigorous mathematical spine:
 \begin{itemize}[leftmargin=2em]
-\item \textbf{Mathematical core (Sections 2--3).} A nonlinear elliptic PDE with logistic saturation on a compact Riemannian manifold, with a complete existence proof using Schaefer/Leray--Schauder machinery, and a nontriviality theorem using eigenvalue thresholds and sub-/super-solution barriers.
+\item \textbf{Mathematical core (Sections 2--3).} A nonlinear elliptic PDE with logistic saturation on a compact Riemannian manifold, with a Schaefer/Leray--Schauder framework for nonnegative solutions, a positive-existence theorem using the eigenvalue threshold and ordered barriers, an exact threshold when the gradient term vanishes, and a machine-checked finite-graph analogue.
 \item \textbf{Interpretive/structural layer (Section 4).} A careful distinction between weak (PDE) and strong (pointwise) coherence; conditional geometric statements framed as explicit ans\"atze rather than theorems about the PDE.
 \item \textbf{Operational layer (Section 5).} A testable dynamical-systems condition and empirical falsification protocols, stated as proposals rather than proved consequences.
 \end{itemize}
@@ -82,13 +86,15 @@ This gap is not a limitation---it is the \emph{core philosophical commitment}. R
 
 \subsection*{Main mathematical contributions}
 \begin{enumerate}[label=(\roman*)]
-\item \textbf{Existence (Theorem~\ref{thm:existenceV1prime}):} Under mild coefficient assumptions, the autonomous viability model with saturation admits at least one weak coherent configuration.
-\item \textbf{Nontriviality (Theorem~\ref{thm:nontrivialV1prime}):} When the viability threshold is exceeded (\(\lambda_1(-\Delta - b; M) < 0\)), there exists a positive solution---coherent presence can be self-maintained.
+\item \textbf{Existence framework (Theorem~\ref{thm:existenceV1prime}):} Under mild coefficient assumptions, the autonomous viability model with saturation has a compact fixed-point formulation with explicit a priori bounds for nonnegative weak coherent configurations; the zero field is always one of them.
+\item \textbf{Positive existence (Theorem~\ref{thm:nontrivialV1prime}):} When the viability threshold is exceeded (\(\lambda_1(-\Delta - b; M) < 0\)), there exists a solution positive throughout the interior, enclosed between a small multiple of the principal eigenfunction and a constant---coherent presence can be self-maintained.
+\item \textbf{Exact threshold without drive (Proposition~\ref{prop:exactThreshold}):} When \(a\equiv 0\) the spectral condition is also necessary, so the threshold is exact in that regime; with a gradient term it is sufficient only, and Proposition~\ref{prop:continuumConverse} gives an explicit positive solution on an interval with \(\lambda_1=+\tfrac14\).
+\item \textbf{Finite-graph theorem (Theorem~\ref{thm:graphExistence}):} A finite-graph version of the positive-existence theorem, proved without analytic hypotheses and machine-checked, with an explicit example, a maximum bound (Proposition~\ref{prop:graphBound}), and a counterexample to the converse (Proposition~\ref{prop:graphConverse}).
 \item \textbf{Canonical viability closure (Definition~\ref{def:canonicalClosure}):} The viability potential \(b = \kappa\gamma - \lambda\mu\) provides a principled link between the PDE coefficient and the CD characteristic fields.
 \end{enumerate}
 
 \subsection*{Formal verification}
-The mathematical foundations of this framework are machine-verified using the Lean~4 theorem prover~\cite{deMoura2021} with the Mathlib library~\cite{Mathlib2020}. The formalization~\cite{Spence2026Lean} covers the semiotic manifold structure, coefficient bounds, the Laplace--Beltrami and gradient-norm operators, the full boundary value problem~\eqref{eq:mainBVP}, and the definition of weak coherent configurations. Fifteen theorems are proved without \texttt{sorry} axioms, organized in six dependency tiers: (i)~pure algebra requiring no domain axioms (spectral characterization, scaling contradiction); (ii)~$L^\infty$ bound algebraic core, decomposing the maximum-principle reduction of Lemma~\ref{lem:LinftyBound} into a proved algebraic step and an axiomatized analytic step; (iii)~pure order theory (Knaster--Tarski monotone fixed-point existence, used in the sub-/super-solution iteration); (iv)~derived operator lemmas from abstract Laplacian linearity and gradient-norm homogeneity; (v)~coefficient bound lemmas from the $[0,1]$ field constraints; and (vi)~PDE-level results including a scaling uniqueness theorem showing that proportional solutions $k\Phi$ with $k>1$ are impossible. The existence theorems (Theorems~\ref{thm:existenceV1prime} and~\ref{thm:nontrivialV1prime}) are proved in Lean conditional on a \texttt{PDEInfra} typeclass that axiomatizes five classical results from elliptic PDE theory not yet available in Mathlib for abstract Riemannian manifolds: Schaefer's fixed-point theorem, Schauder estimates, the maximum principle, fixed-point nonnegativity, and sub-/super-solution monotone iteration. The compactness-of-$T$ axiom is currently a placeholder (\texttt{True}) since Mathlib lacks H\"older spaces on manifolds; the structural dependency is preserved via a \texttt{True $\to$} hypothesis in the Schaefer axiom. The axiom boundary is explicit: each assumption corresponds to a named classical result, and the \texttt{\#print axioms} command confirms that no \texttt{sorryAx} appears in any verified theorem. A complete paper-to-Lean alignment table is given in Appendix~\ref{app:verification}. All Lean source files, CI pipelines (which fail on any \texttt{sorry} via \texttt{-{}-wfail}), and computational artifacts are available at~\cite{Spence2026Lean}. Numerical validation with $O(h^2)$ grid convergence supplements the formal proofs.
+The framework is accompanied by a Lean~4 development~\cite{Spence2026Lean} against the Mathlib library~\cite{deMoura2021,Mathlib2020} (both at version v4.34.1), pinned to a specific revision in the companion repository. What is machine-checked: the definitions of the semiotic manifold model, coefficient structure, abstract operators, boundary value problem and weak coherent configuration; the coefficient bounds \(0\le a\le 1\); operator algebra; the algebraic core of the \(L^\infty\) bound (Lemma~\ref{lem:LinftyBound}); a Knaster--Tarski fixed-point lemma, the order-theoretic skeleton of the sub-/super-solution method; the scaling argument excluding proportional solutions; the one-dimensional arithmetic of the threshold \(\beta^*=(\pi/L)^2/b\); and, unconditionally, the finite-graph positive-existence theorem of Section~\ref{sec:graph} together with its explicit example. The continuum existence theorems (Theorems~\ref{thm:existenceV1prime} and~\ref{thm:nontrivialV1prime}) are proved in Lean only as implications from the class \texttt{PDEInfra} and the structure \texttt{SolutionOperator}, whose fields stand in for classical elliptic results not available in Mathlib for manifolds. Those fields are hypotheses about an abstract operator, not Lean axioms, and they are not instantiated by the concrete operator of this paper; Appendix~\ref{app:verification} records the mismatches. The analytic content of the continuum theorems is therefore the classical proof given in Section~\ref{sec:mainPDE}. Continuous integration builds every module with warnings treated as errors and audits the axioms of 49 selected declarations, all of which use only the standard Lean axioms. A complete alignment table is given in Appendix~\ref{app:verification}; the numerical companion validates the finite-difference discretization with second-order grid convergence and reproduces the verified finite-graph example.
 
 \subsection*{Main mathematical object and scope}
 The primary analytic object is the Dirichlet BVP with logistic saturation
@@ -104,8 +110,8 @@ Solutions of \eqref{eq:mainBVP} are called \emph{weak coherent configurations}. 
 
 \section{Mathematical setup}
 \subsection{Semiotic manifold and function spaces}
-\begin{definition}[Semiotic manifold]
-Let \((M,g)\) be a compact, connected, smooth Riemannian manifold of dimension \(n\ge 1\), possibly with smooth boundary \(\partial M\).
+\begin{definition}[Semiotic manifold]\label{def:semioticManifold}
+Let \((M,g)\) be a compact, connected, smooth Riemannian manifold of dimension \(n\ge 1\) with smooth boundary \(\partial M\). For the Dirichlet problem \eqref{eq:mainBVP} we require \(\partial M\ne\emptyset\); the closed case \(\partial M=\emptyset\) appears only in Proposition~\ref{prop:strongObstruction}.
 We denote by \(\nabla\) the Riemannian gradient and by \(\Delta\) the Laplace--Beltrami operator.
 \end{definition}
 
@@ -113,15 +119,15 @@ We denote by \(\nabla\) the Riemannian gradient and by \(\Delta\) the Laplace--B
 The term \emph{semiotic manifold} reflects the framework's roots in Peircean semiotics~\cite{Peirce1931}, where meaning emerges through sign relations. The manifold \(M\) is interpreted as a space of possible meanings or interpretations.
 \end{remark}
 
-We use standard H\"older spaces \(C^{k,\alpha}(M)\) for \(k\in\mathbb{N}\), \(\alpha\in(0,1)\), with the usual norms; see \cite{GilbargTrudinger2001,Evans2010}.
-We write
+We use standard H\"older spaces \(C^{k,\alpha}(\overline M)\) for \(k\in\mathbb{N}\), \(\alpha\in(0,1)\), and Sobolev spaces \(W^{k,q}(M)\), with the usual norms; see \cite{GilbargTrudinger2001,Evans2010}.
+The fixed-point arguments of Section~\ref{sec:mainPDE} take place in
 \[
-X := C^{1,\alpha}(M)\cap C^0(\overline M),\qquad X_0 := \{\psi\in X:\ \psi|_{\partial M}=0\},
+X := \{\psi\in C^1(\overline M):\ \psi|_{\partial M}=0\},
 \]
 and we interpret \(\abs{\nabla \psi}\) pointwise using the Riemannian norm induced by \(g\).
 
 \subsection{Core scalar fields and the coefficient \(a\)}
-\begin{definition}[Characteristic fields]
+\begin{definition}[Characteristic fields]\label{def:fields}
 Let \(\kappa,\gamma,\mu\in C^{0,\alpha}(M)\) be scalar fields with values in \([0,1]\). Define
 \[
 a(x) := \kappa(x)\gamma(x)\mu(x)\in[0,1].
@@ -208,132 +214,95 @@ If \(c\equiv 0\), \eqref{eq:V1prime} reduces to the positively homogeneous equat
 which is an idealized ``no-saturation'' limit. The saturation term is mathematically and interpretively important: it breaks homogeneity and enables barrier constructions yielding nontrivial equilibria.
 \end{remark}
 
-\subsection{Existence of weak coherent configurations (Schaefer/Leray--Schauder)}
-We now prove existence of solutions to \eqref{eq:V1prime}.
-The proof follows the same compactness spine as the original Schauder approach, but uses Schaefer's fixed-point theorem~\cite{Schaefer1955} (a variant of the Leray--Schauder continuation principle~\cite{LeraySchauder1934}) to avoid invariant-ball vulnerabilities.
+\subsection{Existence of nonnegative weak coherent configurations (Schaefer/Leray--Schauder)}\label{sec:existence}
+We now set up the fixed-point framework for \eqref{eq:V1prime}. Throughout, \(\partial M\neq\emptyset\) (the Dirichlet problem needs a boundary), \(n=\dim M\), and \(q>n\) is a fixed exponent. The results cited from Gilbarg--Trudinger~\cite{GilbargTrudinger2001} are stated there for bounded domains in \(\R^n\) whose boundary is \(C^{1,1}\) (Theorems~9.15 and~7.28, Lemma~9.17), \(C^{2,\alpha}\) (Theorem~6.14), Lipschitz (Theorem~7.26) or unrestricted (Theorem~3.1, Corollary~3.2, Theorem~3.5); a smooth boundary satisfies each of these. They are not applied to \(M\) directly. Appendix~\ref{app:transfer} records how each is transferred to the compact manifold: in every chart the Laplace--Beltrami operator is uniformly elliptic with smooth coefficients, so the Sobolev embedding, the interpolation inequality and the interior and boundary \(W^{2,q}\) and Schauder \emph{estimates} transfer by a finite partition of unity; \emph{existence} for the linear Dirichlet problems \(-\Delta u+Ku=f\), \(K\ge 0\), is obtained from the Lax--Milgram theorem in \(H^1_0(M)\) followed by \(H^2\), \(W^{2,q}\) and \(C^{2,\beta}\) regularity in charts (and, for \(1<q<2\), which can occur only when \(n=1\), by approximation of the datum in \(L^q\) together with the a priori estimate), with uniqueness from Green's formula; and the \emph{weak maximum principle} on an open subset of \(M^\circ\) is derived from the strong maximum principle~\cite[Thm.~3.5]{GilbargTrudinger2001}, which is local, together with the connectedness of \(M\).
+
+\paragraph{What changed.}
+An earlier version of this section worked with the operator \(\widetilde T(\psi)=S\big(a|\nabla\psi|+b\psi-c\,(\psi_+)^p\big)\) in H\"older spaces and asserted a uniform bound \(\|u\|_{L^\infty}\le K\) for its Schaefer set together with nonnegativity of its fixed points. Both assertions are false: on \(M=(0,\pi)\) with \(a=0\), \(b=c=1\), \(p=2\), every \(u_A(x)=-A\sin x\), \(A>0\), satisfies \(-u_A''=u_A=u_A-(u_A)_+^2\), hence \(\widetilde T(u_A)=u_A\), so \(\widetilde T\) has negative fixed points of arbitrarily large norm. The repair below truncates the linear term as well, works in \(C^1\) rather than \(C^{1,\alpha}\) (the map \(\psi\mapsto|\nabla\psi|\) is bounded but not continuous in H\"older norm), and obtains nonnegativity from the weak maximum principle before the \(L^\infty\) bound.
 
 \subsubsection*{Operator formulation}
 Let
 \[
-X := \left\{\psi\in C^{1,\alpha}(M):\ \psi|_{\partial M}=0\right\},
-\qquad
-Y := C^{0,\alpha}(M).
+X:=\{\psi\in C^1(\overline M):\ \psi|_{\partial M}=0\},\qquad \|\psi\|_X:=\|\psi\|_{C^1(\overline M)},
 \]
-For \(\psi\in X\), define
+a Banach space. For \(\psi\in X\) define the \emph{truncated nonlinearity}
 \[
-F_\psi(x) := a(x)|\nabla\psi(x)| + b(x)\psi(x) - c(x)\big(\psi_+(x)\big)^p,
-\qquad \psi_+ := \max\{\psi,0\}.
+F(\psi)(x):=a(x)\,|\nabla\psi(x)|+b(x)\,\psi_+(x)-c(x)\,\big(\psi_+(x)\big)^p,\qquad \psi_+:=\max\{\psi,0\}.
 \]
-Let \(S:Y\to C^{2,\alpha}(M)\cap X\) denote the Dirichlet solution operator for \(-\Delta u = f\) in \(M\), \(u|_{\partial M}=0\).
-Define the compact operator
+For \(\psi\ge 0\) this is the right-hand side of \eqref{eq:V1prime}. Let \(S\) denote the Dirichlet solution operator of \(-\Delta\): for \(f\in L^q(M)\) there is a unique \(u=Sf\in W^{2,q}(M)\cap W^{1,q}_0(M)\) with \(-\Delta u=f\), and \(\|Sf\|_{W^{2,q}}\le C\|f\|_{L^q}\)~\cite[Thm.~9.15, Lem.~9.17]{GilbargTrudinger2001}. Define
 \[
-T:X\to X,\qquad T(\psi):= S(F_\psi).
+T:X\to X,\qquad T(\psi):=S\big(F(\psi)\big).
 \]
 
 \begin{lemma}[Compactness]\label{lem:TcompactV1prime}
-The operator \(T:X\to X\) is continuous and compact.
+\(T:X\to X\) is well defined, continuous, and compact.
 \end{lemma}
-
 \begin{proof}
-The map \(\psi\mapsto |\nabla\psi|\) is continuous \(C^{1,\alpha}\to C^{0,\alpha}\), multiplication by \(a,b,c\in C^{0,\alpha}\) is continuous on \(C^{0,\alpha}\), and \(\psi\mapsto (\psi_+)^p\) is continuous \(C^{0,\alpha}\to C^{0,\alpha}\) for \(p>1\).
-Thus \(\psi\mapsto F_\psi\) is continuous \(X\to Y\).
-The Dirichlet solution operator \(S:Y\to C^{2,\alpha}\cap X\) is continuous and maps bounded sets in \(Y\) into bounded sets in \(C^{2,\alpha}\); see \cite[Ch.~6]{GilbargTrudinger2001}.
-Since the embedding \(C^{2,\alpha}(M)\hookrightarrow C^{1,\alpha}(M)\) is compact on compact \(M\) (Arzel\`a--Ascoli), the composition \(T\) is compact \(X\to X\).
+The maps \(\xi\mapsto|\xi|\) on \(\R^n\), \(s\mapsto s_+\) and \(s\mapsto (s_+)^p\) on \(\R\) are continuous, so \(\psi\mapsto F(\psi)\) is continuous from \(X\) to \(C^0(\overline M)\) (uniformly on bounded sets) and bounded: \(\|F(\psi)\|_{\infty}\le\|\nabla\psi\|_\infty+\|b\|_\infty\|\psi\|_\infty+\|c\|_\infty\|\psi\|_\infty^p\). Composing with the bounded operator \(S:L^q\to W^{2,q}\) and the Sobolev embedding \(W^{2,q}(M)\hookrightarrow C^{1,\gamma}(\overline M)\), \(\gamma=1-n/q\)~\cite[Thm.~7.26]{GilbargTrudinger2001}, shows that \(T\) is continuous into \(C^{1,\gamma}(\overline M)\) and maps bounded sets of \(X\) to bounded sets of \(C^{1,\gamma}(\overline M)\). Bounded sets of \(C^{1,\gamma}(\overline M)\) are relatively compact in \(C^1(\overline M)\) (Arzel\`a--Ascoli), and \(T(\psi)\) vanishes on \(\partial M\). Hence \(T:X\to X\) is continuous and compact.
 \end{proof}
 
 \subsubsection*{A priori bounds for Schaefer}
-We use Schaefer's theorem: it suffices to show that the set
+Schaefer's theorem (\cite[\S9.2.2, Thm.~4]{Evans2010}; \cite{Schaefer1955,Deimling1985}) gives a fixed point of a continuous compact self-map of a Banach space once the set
 \[
-\mathcal{S} := \left\{u\in X:\ u = \tau T(u)\text{ for some }\tau\in[0,1]\right\}
+\mathcal S:=\{u\in X:\ u=\tau T(u)\ \text{for some }\tau\in[0,1]\}
 \]
-is bounded in \(X\).
+is bounded. Elements of \(\mathcal S\) satisfy \(u\in W^{2,q}(M)\) and
+\begin{equation}\label{eq:schaeferEq}
+-\Delta u=\tau F(u)=\tau\Big(a|\nabla u|+b\,u_+-c\,(u_+)^p\Big)\ \text{a.e. in }M,\qquad u|_{\partial M}=0 .
+\end{equation}
 
-\begin{assumption}[Standard coercivity sign condition on \(b\)]\label{assump:bupper}
-There exists \(B\ge 0\) such that \(b(x)\le B\) for all \(x\in M\).
+\begin{assumption}[Upper bound on \(b\)]\label{assump:bupper}
+Let \(B\ge 0\) satisfy \(b(x)\le B\) for all \(x\in M\). Since \(b\in C^{0,\alpha}(M)\) and \(M\) is compact, \(B:=\max\{\max_M b,\,0\}\) always works; the assumption only names the constant that enters the bounds below.
 \end{assumption}
 
-\begin{remark}
-Assumption \ref{assump:bupper} is mild (automatic if \(b\in C^{0,\alpha}\)) and is used only to control the linear reaction term from above in the a priori estimates.
-\end{remark}
-
-\begin{lemma}[Uniform \(L^\infty\) bound for Schaefer set]\label{lem:LinftyBound}
-Assume \ref{assump:bupper}. Then there exists \(K>0\), depending only on \(B,c_0,p\), such that every \(u\in\mathcal{S}\) satisfies
-\[
-\|u\|_{L^\infty(M)} \le K.
-\]
+\begin{lemma}[Regularity and sign of the Schaefer set]\label{lem:schaeferSign}
+Every \(u\in\mathcal S\) belongs to \(C^{2,\gamma'}(\overline M)\) with \(\gamma':=\min\{\alpha,\gamma\}\) and satisfies \(u\ge 0\) on \(M\).
 \end{lemma}
-
 \begin{proof}
-Let \(u\in\mathcal{S}\). Then \(u=\tau T(u)\) for some \(\tau\in[0,1]\), hence \(u\in C^{2,\alpha}(M)\cap X\) solves
-\begin{equation}\label{eq:schaeferEq}
--\Delta u = \tau\Big(a|\nabla u| + b\,u - c\,(u_+)^p\Big),\qquad u|_{\partial M}=0.
-\end{equation}
-Let \(x_0\in \overline M\) be a point where \(u\) attains its maximum. Since \(u=0\) on \(\partial M\), either \(\max u\le 0\) or the maximum is achieved in the interior and is positive.
-Assume \(\max_M u = u(x_0)>0\). Then \(x_0\in M^\circ\), \(\nabla u(x_0)=0\), and \(\Delta u(x_0)\le 0\), so \(-\Delta u(x_0)\ge 0\).
-Evaluating \eqref{eq:schaeferEq} at \(x_0\) and using \(\nabla u(x_0)=0\) gives
-\[
-0 \le -\Delta u(x_0)
-= \tau\Big(b(x_0)\,u(x_0) - c(x_0)\,u(x_0)^p\Big)
-\le \tau\Big(B\,u(x_0) - c_0\,u(x_0)^p\Big).
-\]
-Since \(u(x_0)>0\) and \(\tau\ge 0\), this implies
-\[
-B\,u(x_0) - c_0\,u(x_0)^p \ge 0
-\quad\Longrightarrow\quad
-u(x_0)^{p-1} \le \frac{B}{c_0}.
-\]
-Hence
-\[
-\max_M u \le \left(\frac{B}{c_0}\right)^{\!1/(p-1)} =: K.
-\]
-If \(\max_M u\le 0\) then the same bound holds trivially.
+Let \(u=\tau T(u)\). By the Sobolev embedding \(u\in C^{1,\gamma}(\overline M)\), so \(|\nabla u|\), \(u_+\) and \((u_+)^p\) are in \(C^{0,\gamma}(\overline M)\) (compositions with the Lipschitz maps \(|\cdot|\), \((\cdot)_+\), and the locally Lipschitz map \(s\mapsto (s_+)^p\), \(p>1\)). Thus \(\tau F(u)\in C^{0,\gamma'}(\overline M)\), and the Dirichlet problem \(-\Delta v=\tau F(u)\), \(v|_{\partial M}=0\), has a solution \(v\in C^{2,\gamma'}(\overline M)\)~\cite[Thm.~6.14]{GilbargTrudinger2001}; by uniqueness in \(W^{2,q}\cap W^{1,q}_0\), \(v=u\).
+
+For the sign, let \(U:=\{x\in M^\circ:\ u(x)<0\}\), an open set, and suppose \(U\ne\emptyset\). On \(U\), \(u_+=0\), so \(-\Delta u=\tau a|\nabla u|\ge 0\) pointwise. Put \(\beta(x):=\tau a(x)\nabla u(x)/|\nabla u(x)|\) where \(\nabla u(x)\ne 0\) and \(\beta(x):=0\) otherwise; \(\beta\) is bounded and measurable with \(|\beta|\le 1\), and \(\tau a|\nabla u|=\beta\cdot\nabla u\). Then \(w:=-u\in C^2(U)\cap C^0(\overline U)\) satisfies \(\Delta w+\beta\cdot\nabla w=0\) in \(U\), \(w>0\) in \(U\), and \(w=0\) on \(\partial U\) (on \(\partial M\) because \(u|_{\partial M}=0\), and elsewhere on \(\partial U\) by continuity). The weak maximum principle for elliptic operators with bounded measurable coefficients~\cite[Thm.~3.1]{GilbargTrudinger2001}, in the form valid on open subsets of \(M^\circ\) (Appendix~\ref{app:transfer}(e), via~\cite[Thm.~3.5]{GilbargTrudinger2001}), gives \(\sup_U w=\sup_{\partial U}w=0\), a contradiction. Hence \(U=\emptyset\) and \(u\ge 0\).
 \end{proof}
 
-\begin{lemma}[Uniform \(C^{1,\alpha}\) bound for Schaefer set]\label{lem:C1alphaBound}
-Assume \ref{assump:bupper}. Then \(\mathcal{S}\) is bounded in \(X=C^{1,\alpha}\).
+\begin{lemma}[Uniform \(L^\infty\) bound]\label{lem:LinftyBound}
+Under Assumption~\ref{assump:bupper}, every \(u\in\mathcal S\) satisfies
+\[
+0\le u\le K:=\Big(\frac{B}{c_0}\Big)^{1/(p-1)}\quad\text{on }M .
+\]
+More generally, every nonnegative solution \(\Phi\in C^2(\overline M)\) of \eqref{eq:V1prime} satisfies \(\max_M\Phi\le K\).
 \end{lemma}
-
 \begin{proof}
-Let \(u\in\mathcal{S}\) solve \eqref{eq:schaeferEq}. By Lemma \ref{lem:LinftyBound}, \(\|u\|_{L^\infty}\le K\).
-Write the forcing as
+By Lemma~\ref{lem:schaeferSign}, \(u\ge 0\) and \(u\) is a classical solution of \eqref{eq:schaeferEq}, in which now \(u_+=u\). If \(\max_M u=0\) there is nothing to prove, and if \(\tau=0\) then \(u=0\). Otherwise the maximum is attained at \(x_0\in M^\circ\) (since \(u=0\) on \(\partial M\)), where \(\nabla u(x_0)=0\) and \(-\Delta u(x_0)\ge 0\). Evaluating \eqref{eq:schaeferEq} at \(x_0\),
 \[
-f_u := \tau\Big(a|\nabla u| + b\,u - c\,(u_+)^p\Big).
+0\le \tau\big(b(x_0)u(x_0)-c(x_0)u(x_0)^p\big)\le\tau\big(B\,u(x_0)-c_0\,u(x_0)^p\big),
 \]
-The zero-order terms \(b\,u\) and \(c(u_+)^p\) are bounded in \(C^{0,\alpha}\) by a constant depending only on \(\|b\|_{C^{0,\alpha}},\|c\|_{C^{0,\alpha}}\) and \(K\).
-For the gradient term, apply the Schauder interior estimates~\cite[Thm.~6.6]{GilbargTrudinger2001}:
-\[
-\|u\|_{C^{2,\alpha}} \le C_1\Big(\|f_u\|_{C^{0,\alpha}} + \|u\|_{C^0}\Big).
-\]
-The term \(\|a|\nabla u|\|_{C^{0,\alpha}}\) appearing in \(\|f_u\|_{C^{0,\alpha}}\) is controlled by
-\(\|a\|_{C^{0,\alpha}}\|\nabla u\|_{C^{0,\alpha}}\).
-Now apply the interpolation inequality~\cite[Lemma~6.32]{GilbargTrudinger2001}: for any \(\varepsilon>0\),
-\[
-\|\nabla u\|_{C^{0,\alpha}} \le \varepsilon\,\|u\|_{C^{2,\alpha}} + C(\varepsilon)\,\|u\|_{C^0}.
-\]
-Substituting and choosing \(\varepsilon>0\) small enough that \(C_1\|a\|_{C^{0,\alpha}}\varepsilon < \tfrac{1}{2}\), we absorb the \(\|u\|_{C^{2,\alpha}}\) term from the right-hand side:
-\[
-\|u\|_{C^{2,\alpha}} \le C_2\Big(1 + \|u\|_{C^0}\Big) \le C_2(1+K).
-\]
-Consequently \(\|u\|_{C^{1,\alpha}}\le \|u\|_{C^{2,\alpha}}\) is uniformly bounded.
+and since \(\tau>0\) and \(u(x_0)>0\), this gives \(u(x_0)^{p-1}\le B/c_0\). The same evaluation with \(\tau=1\) proves the statement for nonnegative classical solutions. (The algebraic step from \(Bv\ge c_0v^p\) to \(v\le (B/c_0)^{1/(p-1)}\) is the Lean lemma \texttt{linfty\_bound\_algebraic}; see Appendix~\ref{app:verification}.)
 \end{proof}
 
-\begin{theorem}[Existence of weak coherent configurations for \eqref{eq:V1prime}]\label{thm:existenceV1prime}
-Assume the coefficient hypotheses of Definition~\ref{def:V1prime} and the upper bound Assumption~\ref{assump:bupper}.
-Then the Dirichlet problem \eqref{eq:V1prime} admits at least one solution \(\Phi\in C^{2,\alpha}(M)\).
-Moreover, there exists a nonnegative solution \(\Phi\ge 0\).
+\begin{lemma}[Uniform \(C^1\) bound]\label{lem:C1alphaBound}
+Under Assumption~\ref{assump:bupper}, \(\mathcal S\) is bounded in \(X\); in fact it is bounded in \(C^{1,\gamma}(\overline M)\).
+\end{lemma}
+\begin{proof}
+Let \(u\in\mathcal S\). By Lemma~\ref{lem:LinftyBound}, \(0\le u\le K\), so \(|b\,u|\le\|b\|_\infty K\) pointwise (the upper bound \(B\) controls the maximum but not \(|b|\), which may be large where \(b\) is negative), and \(|\tau F(u)|\le |\nabla u|+C_0\) with \(C_0:=\|b\|_\infty K+\|c\|_\infty K^p\). The \(W^{2,q}\) estimate for the Dirichlet problem~\cite[Lem.~9.17]{GilbargTrudinger2001} and the interpolation inequality~\cite[Thm.~7.28]{GilbargTrudinger2001} give, for every \(\varepsilon>0\),
+\[
+\|u\|_{W^{2,q}}\le C\|\tau F(u)\|_{L^q}\le C\big(\|\nabla u\|_{L^q}+C_0|M|^{1/q}\big)
+\le C\big(\varepsilon\|u\|_{W^{2,q}}+C_\varepsilon\|u\|_{L^q}+C_0|M|^{1/q}\big).
+\]
+Choosing \(\varepsilon=1/(2C)\) and using \(\|u\|_{L^q}\le K|M|^{1/q}\) yields \(\|u\|_{W^{2,q}}\le C'\), with \(C'\) depending only on \(M,q,B,c_0,p\), \(\|b\|_\infty\) and \(\|c\|_\infty\). The Sobolev embedding then bounds \(\|u\|_{C^{1,\gamma}}\), hence \(\|u\|_X\).
+\end{proof}
+
+\begin{theorem}[Existence of a nonnegative weak coherent configuration]\label{thm:existenceV1prime}
+Assume the coefficient hypotheses of Definition~\ref{def:V1prime}. Then \(T\) has a fixed point \(\Phi\in X\); every fixed point of \(T\) is a nonnegative solution \(\Phi\in C^{2,\alpha}(\overline M)\) of \eqref{eq:V1prime}, and every nonnegative classical solution satisfies \(\max_M\Phi\le (B/c_0)^{1/(p-1)}\).
 \end{theorem}
-
 \begin{proof}
-By Lemma \ref{lem:TcompactV1prime}, \(T:X\to X\) is continuous and compact.
-By Lemmas \ref{lem:LinftyBound}--\ref{lem:C1alphaBound}, the Schaefer set \(\mathcal{S}\) is bounded in \(X\).
-Therefore, by Schaefer's fixed-point theorem~\cite{Schaefer1955,Deimling1985}, \(T\) has a fixed point \(\Phi\in X\), which solves \eqref{eq:V1prime}.
-Elliptic regularity upgrades \(\Phi\) to \(C^{2,\alpha}(M)\).
-
-To obtain a nonnegative solution, note that the operator uses \(\psi_+\) in the saturation term and the PDE preserves the ordering under standard maximum principle arguments.
+By Lemmas~\ref{lem:TcompactV1prime} and~\ref{lem:C1alphaBound}, Schaefer's theorem yields \(\Phi\in X\) with \(T(\Phi)=\Phi\), i.e.\ \(\Phi\in\mathcal S\) with \(\tau=1\). By Lemma~\ref{lem:schaeferSign}, \(\Phi\ge 0\) and \(\Phi\in C^{2,\gamma'}(\overline M)\); since \(\Phi_+=\Phi\), \(\Phi\) solves \eqref{eq:V1prime}. One more Schauder step upgrades the regularity: \(\nabla\Phi\in C^{1,\gamma'}\) makes \(|\nabla\Phi|\) Lipschitz, so the right-hand side of \eqref{eq:V1prime} lies in \(C^{0,\alpha}(\overline M)\) and \(\Phi\in C^{2,\alpha}(\overline M)\)~\cite[Thm.~6.14]{GilbargTrudinger2001}. The bound is Lemma~\ref{lem:LinftyBound}.
 \end{proof}
 
-\subsection{Viability exceeds dissipation: the condition for non-trivial coherence}
-The existence theorem above guarantees \emph{some} solution exists, but it might be trivial (\(\Phi\equiv 0\)). The following theorem provides the key criterion: when does the system support \emph{genuine} coherent presence? The answer is a spectral condition on the viability potential---precisely, when integrated care-coherence support dominates contradiction load strongly enough to overcome boundary dissipation.
+\paragraph{The zero solution.}
+\(\Phi\equiv 0\) solves \eqref{eq:V1prime} for every admissible choice of coefficients (Lean: \texttt{zero\_solves\_equation}), so Theorem~\ref{thm:existenceV1prime} does not by itself produce coherent presence. Its content is the fixed-point framework and the a priori bounds, which Theorem~\ref{thm:nontrivialV1prime} reuses; the substantive question is the existence of a solution that is positive in the interior.
+
+\subsection{Viability exceeds dissipation: the condition for non-trivial coherence}\label{sec:positive}
+The existence theorem above guarantees a nonnegative solution, and the zero function is one. The following theorem provides the key criterion: when does the system support \emph{genuine} coherent presence? The answer is a spectral condition on the viability potential---precisely, when integrated care-coherence support dominates contradiction load strongly enough to overcome boundary dissipation.
 
 \begin{definition}[Principal eigenvalue and viability threshold]\label{def:lambda1}
 Let \(\lambda_1(-\Delta - b;M)\) denote the principal Dirichlet eigenvalue of the operator
@@ -345,7 +314,7 @@ We say the \emph{viability threshold is exceeded} if
 \end{definition}
 
 \begin{remark}[Spectral theory]
-The existence of a principal eigenvalue with positive eigenfunction for uniformly elliptic operators follows from the Krein--Rutman theorem~\cite{KreinRutman1948}; see also~\cite[Ch.~2]{Evans2010} for the PDE context.
+For the symmetric operator \(\mathcal L_b\) with Dirichlet conditions, \(\lambda_1\) is simple and has an eigenfunction \(\phi_1\) that is positive in \(M^\circ\) (\(M\) is connected): this is the statement for self-adjoint divergence-form operators with bounded measurable coefficients~\cite[Thm.~8.38]{GilbargTrudinger2001}, transferred to \(M\) as in Appendix~\ref{app:transfer}(f); the variational proof is exposed for smooth coefficients and no zero-order term in~\cite[\S6.5.1, Thm.~2]{Evans2010} and extends to the bounded potential \(-b\) by the same argument once \(C^{2,\alpha}\) regularity of the minimizer is available (Appendix~\ref{app:transfer}(d)). For nonsymmetric operators the corresponding statement is~\cite[\S6.5.2, Thm.~3]{Evans2010} and the Krein--Rutman theorem~\cite{KreinRutman1948}. Since \(b\in C^{0,\alpha}(M)\), Schauder regularity gives \(\phi_1\in C^{2,\alpha}(\overline M)\).
 \end{remark}
 
 \begin{remark}[Interpretation of the viability threshold]\label{rem:viabilityInterpretation}
@@ -354,101 +323,74 @@ Under the canonical closure \(b=\kappa\gamma-\lambda\mu\) (Definition~\ref{def:c
 integrated care--coherence support dominates contradiction load strongly enough to overcome boundary dissipation imposed by \(\Phi|_{\partial M}=0\).
 \end{remark}
 
-\begin{theorem}[Existence of nontrivial weak coherent configurations]\label{thm:nontrivialV1prime}
-Assume the hypotheses of Theorem~\ref{thm:existenceV1prime}.
-Suppose additionally that
+\begin{theorem}[Existence of a positive weak coherent configuration]\label{thm:nontrivialV1prime}
+Assume the coefficient hypotheses of Definition~\ref{def:V1prime} and suppose
 \[
 \lambda_1(-\Delta - b;M) < 0.
 \]
-Then \eqref{eq:V1prime} admits a nontrivial nonnegative solution \(\Phi\in C^{2,\alpha}(M)\), \(\Phi\not\equiv 0\).
-In fact, \(\Phi>0\) in \(M^\circ\).
+Let \(\phi_1\) be the principal eigenfunction normalized by \(\|\phi_1\|_{L^\infty}=1\), and set
+\[
+\varepsilon:=\min\Big\{1,\Big(\frac{-\lambda_1}{\|c\|_\infty}\Big)^{1/(p-1)}\Big\},\qquad
+M_\ast:=\max\Big\{1,\Big(\frac{B}{c_0}\Big)^{1/(p-1)}\Big\}.
+\]
+Then \eqref{eq:V1prime} admits a solution \(\Phi\in C^{2,\alpha}(\overline M)\) with
+\[
+\varepsilon\,\phi_1\le\Phi\le M_\ast\quad\text{in }M;\qquad\text{in particular }\Phi>0\text{ in }M^\circ .
+\]
 \end{theorem}
 
 \begin{proof}
-Let \(\phi_1\in C^{2,\alpha}(M)\cap C^0(\overline M)\) be the positive principal eigenfunction of \(\mathcal{L}_b\),
-normalized so that \(\|\phi_1\|_{L^\infty(M)}=1\). Thus
+Write \(g(x,s):=b(x)s-c(x)s^p\) for \(s\ge 0\) and \(\beta:=-\lambda_1>0\), so that \(-\Delta\phi_1=b\phi_1-\beta\phi_1\).
+
+\paragraph{Step 1: ordered barriers.}
+\emph{Subsolution.} Let \(v:=\varepsilon\phi_1\). Then \(v=0\) on \(\partial M\), \(v>0\) in \(M^\circ\), and
 \[
--\Delta\phi_1 - b(x)\phi_1 = \lambda_1\,\phi_1,\qquad \phi_1|_{\partial M}=0,
+-\Delta v=\varepsilon b\phi_1-\varepsilon\beta\phi_1 .
 \]
-with \(\lambda_1<0\). Write \(\beta := -\lambda_1>0\); then
-\begin{equation}\label{eq:eigRewrite}
--\Delta\phi_1 = b(x)\phi_1 - \beta \phi_1.
+A subsolution has to satisfy \(v\le 0\) on \(\partial M\) (here \(v=0\), the prescribed data) and the differential inequality \(-\Delta v\le a|\nabla v|+g(x,v)\) in \(M^\circ\); only these two properties are used in Step~3. (On \(\partial M\) the left side vanishes while the right side equals \(\varepsilon a|\nabla\phi_1|\ge 0\), which is generally nonzero, so the inequality extends to the boundary but not as an equality.) In \(M^\circ\) the inequality reads, after cancelling \(\varepsilon b\phi_1\) and dividing by \(\varepsilon\phi_1>0\),
+\[
+-\beta\le a\,\frac{|\nabla\phi_1|}{\phi_1}-c\,\varepsilon^{p-1}\phi_1^{p-1}.
+\]
+Since \(a|\nabla\phi_1|\ge 0\) and \(0<\phi_1\le 1\), it suffices that \(\|c\|_\infty\varepsilon^{p-1}\le\beta\), which is the choice of \(\varepsilon\).
+
+\emph{Supersolution.} The constant \(w:=M_\ast\) satisfies \(w\ge 0=\Phi|_{\partial M}\) on \(\partial M\) and \(-\Delta w=0\), \(|\nabla w|=0\), so \(-\Delta w\ge a|\nabla w|+g(x,w)\) is equivalent to \(c(x)M_\ast^{p-1}\ge b(x)\), which follows from \(c_0M_\ast^{p-1}\ge B\). A supersolution need only dominate the zero boundary data; it need not vanish on \(\partial M\).
+
+\emph{Ordering.} \(v\le\varepsilon\le 1\le M_\ast=w\).
+
+\emph{What Steps 2--4 use.} Only the following properties of the pair \((v,w)\) enter below: \(v\in C^2(\overline M)\), \(v\ge 0\), \(v=0\) on \(\partial M\), the subsolution inequality in \(M^\circ\); \(w\) a constant with \(w\ge\max v\) and \(g(x,w)\le 0\) for all \(x\). Any pair with these properties can replace \((\varepsilon\phi_1,M_\ast)\), which is how Proposition~\ref{prop:continuumConverse} below is proved.
+
+\paragraph{Step 2: a truncated problem.}
+Let \(\theta(x,s):=\min\{\max\{s,v(x)\},M_\ast\}\in[v(x),M_\ast]\) and choose
+\[
+K:=1+\max\Big\{0,\ \|c\|_\infty\,p\,M_\ast^{p-1}-\min_M b\Big\},
+\]
+so that \(s\mapsto g(x,s)+Ks\) is nondecreasing on \([0,M_\ast]\) for every \(x\) (its derivative is \(b-c\,p\,s^{p-1}+K\ge 1\)). Consider
+\begin{equation}\label{eq:truncated}
+-\Delta u+Ku=a|\nabla u|+h(x,u)\ \text{in }M,\qquad u|_{\partial M}=0,\qquad h(x,s):=g\big(x,\theta(x,s)\big)+K\theta(x,s).
 \end{equation}
+The function \(h\) is continuous and bounded, \(|h|\le H:=BM_\ast+\|c\|_\infty M_\ast^p+KM_\ast\). Let \(S_K\) be the Dirichlet solution operator of \(-\Delta+K\), bounded \(L^q\to W^{2,q}\cap W^{1,q}_0\) with \(\|S_Kf\|_{W^{2,q}}\le C\|f\|_{L^q}\)~\cite[Thm.~9.15, Lem.~9.17]{GilbargTrudinger2001} (the zero-order coefficient \(-K\) is nonpositive), and define \(T_K(\psi):=S_K\big(a|\nabla\psi|+h(\cdot,\psi)\big)\) on \(X\). Exactly as in Lemma~\ref{lem:TcompactV1prime}, \(T_K:X\to X\) is continuous and compact.
 
-\paragraph{Step 1: sub-solution.}
-Define \(\underline{\Phi}:=\varepsilon\phi_1\) with \(\varepsilon>0\) to be chosen.
-Using \eqref{eq:eigRewrite},
-\[
--\Delta\underline{\Phi} = \varepsilon b\phi_1 - \varepsilon \beta \phi_1.
-\]
-On the other hand,
-\[
-a|\nabla\underline{\Phi}| + b\underline{\Phi} - c(\underline{\Phi})^p
-= \varepsilon a|\nabla\phi_1| + \varepsilon b\phi_1 - c\,\varepsilon^p \phi_1^p.
-\]
-To show \(\underline{\Phi}\) is a sub-solution, we need
-\[
-\varepsilon b\phi_1 - \varepsilon\beta\phi_1
-\le
-\varepsilon a|\nabla\phi_1| + \varepsilon b\phi_1 - c\,\varepsilon^p \phi_1^p.
-\]
-Cancel the common term \(\varepsilon b\phi_1\) and divide by \(\varepsilon>0\):
-\[
--\beta\phi_1 \le a|\nabla\phi_1| - c\,\varepsilon^{p-1}\phi_1^p.
-\]
-Choose \(\varepsilon>0\) such that
-\begin{equation}\label{eq:epsChoice}
-\varepsilon^{p-1}\le \frac{\beta}{2\|c\|_{L^\infty(M)}},
-\end{equation}
-so that \(c\,\varepsilon^{p-1}\phi_1^p \le (\beta/2)\phi_1\) (since \(\phi_1\le 1\)).
-Then
-\[
-a|\nabla\phi_1| - c\,\varepsilon^{p-1}\phi_1^p
-\ge
-- \frac{\beta}{2}\phi_1,
-\]
-and hence
-\[
--\beta\phi_1 \le -\frac{\beta}{2}\phi_1 \le a|\nabla\phi_1| - c\,\varepsilon^{p-1}\phi_1^p,
-\]
-since \(a|\nabla\phi_1|\ge 0\). Thus \(\underline{\Phi}\) is a sub-solution.
-Also \(\underline{\Phi}=0\) on \(\partial M\).
+Let \(u=\tau T_K(u)\), \(\tau\in[0,1]\). As in Lemma~\ref{lem:schaeferSign}, \(u\in C^{1,\gamma}(\overline M)\); moreover \(\theta(\cdot,u(\cdot))\) is a minimum and maximum of H\"older functions, hence H\"older, and \(g\) is \(C^1\) in \(s\) with H\"older coefficients, so \(h(\cdot,u(\cdot))\in C^{0,\gamma'}(\overline M)\) and \(u\in C^{2,\gamma'}(\overline M)\) is a classical solution of \(-\Delta u+Ku=\tau(a|\nabla u|+h(x,u))\). At a positive interior maximum \(x_0\) of \(u\), \(\nabla u(x_0)=0\) and \(-\Delta u(x_0)\ge 0\), whence \(Ku(x_0)\le\tau H\le H\); at a negative interior minimum, \(Ku\ge -H\). Hence \(\|u\|_\infty\le H/K\), and the argument of Lemma~\ref{lem:C1alphaBound} (with \(|\tau(a|\nabla u|+h)|\le|\nabla u|+H\)) bounds the Schaefer set of \(T_K\) in \(X\). Schaefer's theorem gives a fixed point \(u\in X\) of \(T_K\), which is a classical solution of \eqref{eq:truncated} in \(C^{2,\gamma'}(\overline M)\).
 
-\paragraph{Step 2: Dirichlet-compatible super-solution.}
-Define \(\overline{\Phi}:=K\phi_1^2\) with \(K>0\) to be chosen.
-Since \(\phi_1=0\) on \(\partial M\), we have \(\overline{\Phi}=0\) on \(\partial M\) and \(\overline{\Phi}>0\) in \(M^\circ\).
-Computing the Laplacian using the product rule and the eigenequation \eqref{eq:eigRewrite}:
+\paragraph{Step 3: comparison with the barriers.}
+Set \(U:=\{x\in M^\circ:\ u(x)<v(x)\}\), open, and suppose \(U\ne\emptyset\). On \(U\) we have \(u<v\le M_\ast\), hence \(\theta(x,u)=v(x)\) and \(h(x,u)=g(x,v)+Kv\). Using the subsolution inequality for \(v\), the difference \(z:=v-u\in C^2(U)\cap C^0(\overline U)\) satisfies in \(U\)
 \[
--\Delta(\phi_1^2) = 2|\nabla\phi_1|^2 + 2\phi_1(-\Delta\phi_1) = 2|\nabla\phi_1|^2 + 2(b-\beta)\phi_1^2.
+-\Delta z+Kz\le a|\nabla v|+g(x,v)+Kv-\big(a|\nabla u|+g(x,v)+Kv\big)=a\big(|\nabla v|-|\nabla u|\big)\le a|\nabla z| .
 \]
-Thus \(-\Delta\overline{\Phi} = K\big(2|\nabla\phi_1|^2 + 2(b-\beta)\phi_1^2\big)\).
-The super-solution condition \(-\Delta\overline{\Phi}\ge a|\nabla\overline{\Phi}| + b\overline{\Phi} - c(\overline{\Phi})^p\) reads, after dividing by \(K>0\):
-\begin{equation}\label{eq:supersol_ineq}
-2|\nabla\phi_1|^2 + 2(b-\beta)\phi_1^2 \ge 2a\phi_1|\nabla\phi_1| + b\phi_1^2 - cK^{p-1}\phi_1^{2p}.
-\end{equation}
-We verify \eqref{eq:supersol_ineq} in two regions.
+With \(\beta:=a\nabla z/|\nabla z|\) where \(\nabla z\ne 0\) (and \(0\) elsewhere), this is \(\Delta z+\beta\cdot\nabla z-Kz\ge 0\) in \(U\), an inequality for a uniformly elliptic operator with bounded coefficients and nonpositive zero-order term. Since \(z>0\) in \(U\) and \(z=0\) on \(\partial U\) (\(u=v=0\) on \(\partial M\); \(z=0\) on the interior part of \(\partial U\) by continuity), the weak maximum principle~\cite[Cor.~3.2]{GilbargTrudinger2001}, again in the form of Appendix~\ref{app:transfer}(e), gives \(\sup_U z\le\sup_{\partial U}z^+=0\), a contradiction. Thus \(u\ge v\).
 
-\emph{Near the boundary} (\(\phi_1<\delta\)):
-The dominant terms on the left are \(2|\nabla\phi_1|^2\), while on the right the leading term is \(2a\phi_1|\nabla\phi_1|\).
-By the Hopf lemma, \(|\nabla\phi_1|\ge c_H>0\) in a collar neighborhood of \(\partial M\), while \(\phi_1\to 0\).
-Hence for \(\delta\) small enough, \(2|\nabla\phi_1|^2 \ge 2a\phi_1|\nabla\phi_1|\) (since \(a\le 1\) and \(\phi_1<\delta\ll |\nabla\phi_1|\)), and the remaining terms are controlled.
-
-\emph{In the interior} (\(\phi_1\ge\delta\)):
-The saturation term \(cK^{p-1}\phi_1^{2p}\ge c_0 K^{p-1}\delta^{2p}\) grows without bound as \(K\to\infty\), while the other terms are \(K\)-independent and bounded on the compact set \(\{\phi_1\ge\delta\}\).
-Choose \(K\) large enough that this term absorbs all others.
-
-Combining, \(\overline{\Phi}=K\phi_1^2\) is a super-solution for \(K\) sufficiently large.
-
-\paragraph{Step 3: ordering and conclusion.}
-By construction, \(\underline{\Phi}=\varepsilon\phi_1\ge 0\) and \(\overline{\Phi}=K\phi_1^2\ge 0\).
-Choose \(K\) further so that \(\underline{\Phi}\le \overline{\Phi}\) in \(M\) (possible since \(\underline{\Phi}\) is bounded and \(\overline{\Phi}\) scales with \(K\)).
-Then by the classical sub-/super-solution theorem for Dirichlet problems~\cite[Thm.~10.2]{GilbargTrudinger2001} (see also~\cite{Amann1976} for a comprehensive treatment), there exists a solution \(\Phi\) of \eqref{eq:V1prime} such that
+Similarly let \(U':=\{x\in M^\circ:\ u(x)>M_\ast\}\); on \(\partial M\), \(u=0<M_\ast\), so \(\overline{U'}\cap\partial M=\emptyset\). On \(U'\), \(\theta(x,u)=M_\ast\), so \(z:=u-M_\ast\) satisfies
 \[
-\underline{\Phi}\le \Phi\le \overline{\Phi}\quad\text{in }M.
+-\Delta z+Kz=a|\nabla u|+g(x,M_\ast)+KM_\ast-KM_\ast=a|\nabla z|+g(x,M_\ast)\le a|\nabla z|,
 \]
-Since \(\underline{\Phi}\not\equiv 0\) and \(\underline{\Phi}>0\) on \(M^\circ\), it follows that \(\Phi\not\equiv 0\) and \(\Phi\ge 0\).
-Finally, applying the strong maximum principle to \eqref{eq:V1prime} yields \(\Phi>0\) in \(M^\circ\).
+because \(g(x,M_\ast)=M_\ast\big(b(x)-c(x)M_\ast^{p-1}\big)\le 0\). The same maximum principle on \(U'\), where \(z>0\) and \(z=0\) on \(\partial U'\), forces \(U'=\emptyset\). Thus \(u\le M_\ast\).
+
+\paragraph{Step 4: conclusion.}
+Since \(v\le u\le M_\ast\), \(\theta(x,u(x))=u(x)\) and \eqref{eq:truncated} reduces to \(-\Delta u+Ku=a|\nabla u|+g(x,u)+Ku\), i.e.\ \(u\) solves \eqref{eq:V1prime}. The Schauder step of Theorem~\ref{thm:existenceV1prime} gives \(u\in C^{2,\alpha}(\overline M)\), and \(u\ge\varepsilon\phi_1>0\) in \(M^\circ\). Set \(\Phi:=u\).
 \end{proof}
+
+\paragraph{What changed, and the relation to the sub-/super-solution literature.}
+The earlier version of this proof used the super-solution \(K\phi_1^2\). That construction fails for two independent reasons. First, \(-\Delta(\phi_1^2)=2\phi_1(-\Delta\phi_1)-2|\nabla\phi_1|^2\): the gradient term enters with a negative sign, which reverses the boundary behaviour claimed there (for \(\phi_1=\sin x\) on \((0,\pi)\), \(-\Delta(\phi_1^2)=-2\cos 2x<0\) near the boundary). Second, no constant \(K\) makes \(K\phi_1^2\ge\varepsilon\phi_1\) hold up to a Dirichlet boundary: the inequality requires \(K\phi_1\ge\varepsilon\), which fails wherever \(0<\phi_1<\varepsilon/K\). A constant super-solution has neither problem. The barrier pair \((\varepsilon\phi_1,M_\ast)\) is the classical one for problems with gradient dependence of at most quadratic growth, going back to Amann and Crandall~\cite{AmannCrandall1978} and the survey~\cite{Amann1976}; Steps~2--3 above give a self-contained proof in the present setting rather than an appeal to a general theorem, so that every hypothesis used is visible.
 
 \subsection{Master equation and the driven/coupled case}
 \begin{remark}[Master equation and specializations]\label{rem:masterEquation}
@@ -465,9 +407,151 @@ where \(f\) encodes exogenous significance / environmental input.
 \end{remark}
 
 \begin{remark}[Forcing as the cost of striving]
-The exogenous forcing function \(f(x)\) admits a novel interpretation connecting the master equation to the weak/strong coherence distinction. Suppose \(\Phi_{\mathrm{weak}}\) is a stable weak coherent configuration (a solution of the autonomous PDE) and \(\Phi_{\mathrm{strong}}\) is the idealized strong coherence target. Then \(f(x)\) may be modeled as the \emph{measurable residual}---the energy required to pull the system from its stable weak configuration toward the strong coherence ideal.
+The exogenous forcing function \(f(x)\) admits a novel interpretation connecting the master equation to the weak/strong coherence distinction. Suppose \(\Phi_{\mathrm{weak}}\) is a weak coherent configuration (a solution of the autonomous PDE; its dynamical stability is not established here, since no evolution law has been specified) and \(\Phi_{\mathrm{strong}}\) is the idealized strong coherence target. Then \(f(x)\) may be modeled as the \emph{measurable residual}---the energy required to pull the system from its stable weak configuration toward the strong coherence ideal.
 
-If the gap between strong and weak coherence is large, the required \(f(x)\) is large; if they nearly coincide, \(f(x)\) is negligible. This reframing provides a roadmap for empirical testing: measure the forcing required to achieve near-ideal coherence, and this quantifies the ``cost of striving.'' The master equation thus bridges the conceptual distinction (Section~4.1) with a measurable dynamical quantity.
+If the gap between strong and weak coherence is large, the required \(f(x)\) is large; if they nearly coincide, \(f(x)\) is negligible. This reframing provides a roadmap for empirical testing: measure the forcing required to achieve near-ideal coherence, and this quantifies the ``cost of striving.'' The master equation thus bridges the conceptual distinction (Section~4.1) with a measurable dynamical quantity. The word ``energy'' is interpretive here: \(f\) is a forcing term, not a quantity derived from a variational functional, and no such structure is asserted for \eqref{eq:V1prime}. Proposition~\ref{prop:strongObstruction} shows that on a compact manifold with zero boundary data the strong ideal is not attained by any nonnegative \(C^1\) field, so the gap it measures is never zero in that setting.
+\end{remark}
+
+\subsection{Exactness of the threshold, the effective potential, and what remains open}\label{sec:exactness}
+
+\begin{proposition}[Exact threshold without a gradient term]\label{prop:exactThreshold}
+Assume the coefficient hypotheses of Definition~\ref{def:V1prime} with \(a\equiv 0\). Then \eqref{eq:V1prime} has a solution that is positive in \(M^\circ\) if and only if \(\lambda_1(-\Delta-b;M)<0\). More precisely, if \(\Phi\ge 0\), \(\Phi\not\equiv 0\), is a classical solution, then \(\lambda_1<0\).
+\end{proposition}
+\begin{proof}
+Sufficiency is Theorem~\ref{thm:nontrivialV1prime}. For necessity let \(\Phi\in C^2(\overline M)\), \(\Phi\ge 0\), \(\Phi\not\equiv 0\), solve \(-\Delta\Phi=b\Phi-c\Phi^p\), \(\Phi|_{\partial M}=0\), and let \(\phi_1>0\) in \(M^\circ\) be the principal eigenfunction. Green's second identity (both functions vanish on \(\partial M\)) gives
+\[
+\int_M(b\Phi-c\Phi^p)\phi_1=\int_M(-\Delta\Phi)\phi_1=\int_M\Phi(-\Delta\phi_1)=\int_M\Phi(b+\lambda_1)\phi_1,
+\]
+hence
+\[
+\lambda_1\int_M\Phi\phi_1=-\int_M c\,\Phi^p\phi_1<0 ,
+\]
+because \(c\ge c_0>0\), \(\phi_1>0\) in \(M^\circ\) and \(\Phi^p\not\equiv 0\). Since \(\int_M\Phi\phi_1>0\), \(\lambda_1<0\).
+\end{proof}
+
+\begin{remark}[The gradient term breaks the converse]\label{rem:converseGradient}
+With \(a\not\equiv 0\) the identity becomes \(\lambda_1\int\Phi\phi_1=\int a|\nabla\Phi|\phi_1-\int c\Phi^p\phi_1\), whose sign is not determined, so the argument does not extend. With \(a>0\) the converse is false in the continuum as well: Proposition~\ref{prop:continuumConverse} exhibits a positive solution on an interval with \(\lambda_1=+\tfrac14\), and Proposition~\ref{prop:graphConverse} does the same for the finite-graph model of Section~\ref{sec:graph}. The spectral condition is therefore exact in the regime \(a\equiv 0\) and a sufficient condition in general; the linear indicator \(\lambda_1\) must not be described as an exact nonlinear threshold outside that regime.
+\end{remark}
+
+\begin{proposition}[A positive continuum solution below the linear threshold]\label{prop:continuumConverse}
+On \(M=[0,\pi]\) with \(a\equiv 1\), \(b\equiv\tfrac34\), \(c\equiv 1\) and \(p=2\) (canonical closure with \(\kappa=\gamma=\mu=1\) and \(\lambda=\tfrac14\)), the problem
+\[
+-u''=|u'|+\tfrac34u-u^2\ \text{ in }(0,\pi),\qquad u(0)=u(\pi)=0,
+\]
+has a solution \(u\in C^{2,\alpha}([0,\pi])\) with \(u>0\) in \((0,\pi)\), although \(\lambda_1\big(-\tfrac{d^2}{dx^2}-\tfrac34;(0,\pi)\big)=1-\tfrac34=\tfrac14>0\).
+\end{proposition}
+\begin{proof}
+\emph{An explicit subsolution.} Let \(t(x):=\min\{x,\pi-x\}\) and
+\[
+\phi(x):=\frac{e^{(\pi/2-t(x))/2}\,\sin\big(t(x)/2\big)}{\sin(\pi/4)} .
+\]
+On \([0,\pi/2]\), where \(t=x\), direct differentiation gives
+\[
+\phi'(x)=\frac{e^{(\pi/2-x)/2}}{2\sin(\pi/4)}\big(\cos\tfrac x2-\sin\tfrac x2\big)\ge 0,\qquad
+\phi''(x)=-\frac{e^{(\pi/2-x)/2}}{2\sin(\pi/4)}\cos\tfrac x2,
+\]
+so that \(-\phi''=|\phi'|+\tfrac12\phi\) there. At \(x=\pi/2\): \(\phi=1\), \(\phi'=0\), \(\phi''=-\tfrac12\). The even reflection about \(\pi/2\) therefore matches value, first and second derivative, and the identity \(-\phi''=|\phi'|+\tfrac12\phi\) is invariant under reflection; hence \(\phi\in C^{2}([0,\pi])\) with \(\phi''\) Lipschitz, \(\phi>0\) in \((0,\pi)\), \(\phi(0)=\phi(\pi)=0\), \(\max\phi=1\), and \(-\phi''=|\phi'|+\tfrac12\phi\) on \([0,\pi]\). Put \(v:=\phi/4\), so \(0\le v\le\tfrac14\). Then
+\[
+-v''-\big(|v'|+\tfrac34v-v^2\big)=\tfrac14\big(|\phi'|+\tfrac12\phi\big)-\tfrac14|\phi'|-\tfrac3{16}\phi+\tfrac1{16}\phi^2
+=v\big(v-\tfrac14\big)\le 0,
+\]
+so \(v\) is a subsolution, \(C^2\), nonnegative, vanishing at the endpoints and positive inside.
+
+\emph{A constant supersolution.} \(w:=\tfrac34\) satisfies \(g(x,w)=\tfrac34w-w^2=0\), i.e.\ \(-w''=0\ge |w'|+g(x,w)\), and \(w\ge\max v\).
+
+\emph{Existence.} The pair \((v,w)\) has every property listed in Step~1 of the proof of Theorem~\ref{thm:nontrivialV1prime} (\emph{What Steps 2--4 use}); those steps apply verbatim with \(K:=1+\max\{0,\,2w-\tfrac34\}=\tfrac74\) and yield a classical solution \(u\) with \(v\le u\le\tfrac34\), hence \(u>0\) in \((0,\pi)\). The eigenvalue is \(\pi^2/\pi^2-\tfrac34=\tfrac14\).
+\end{proof}
+
+\begin{remark}[Status and interpretation]\label{rem:continuumConverseStatus}
+Proposition~\ref{prop:continuumConverse} is a classical construction; it is not part of the Lean development and no novelty in the literature on gradient-dependent semilinear problems is claimed. Its content for the framework is conceptual: the creative drive \(a|\nabla\Phi|\) can sustain a positive equilibrium in a regime where the linear viability operator alone does not cross its threshold, so the indicator \(\lambda_1\) is a sufficient criterion for self-maintained presence, and an exact one only without drive. The numerical companion reproduces the example: the finite-difference solver started from \(v\) converges to a positive branch with maximum \(\approx 0.2727\) between the barriers, in agreement with an independent collocation solve, while the discrete eigenvalue is \(\approx 0.25\).
+\end{remark}
+
+\begin{remark}[Effective potential and the gain \(\beta\)]\label{rem:effectivePotential}
+The numerical companion writes the reaction coefficient as \(q(x):=\beta\,b_{\mathrm{base}}(x)\) with a dimensionless gain \(\beta>0\), because \(\kappa,\gamma,\mu\in[0,1]\) while Dirichlet eigenvalues scale like \(L^{-2}\). All statements in this section apply verbatim with \(b:=q\): the threshold is \(\lambda_1(-\Delta-q;M)<0\), the bound of Lemma~\ref{lem:LinftyBound} uses \(\max q_+\), and \(\beta=1\) recovers the base equation. What is \emph{not} true is that negativity of \(\lambda_1(-\Delta-\beta b;M)\) for some auxiliary \(\beta\) says anything about the equation with coefficient \(b\): on \((0,\pi)\) with \(a=0\), \(c=1\), \(p=2\), \(b=\tfrac12\) and \(\beta=3\), one has \(\lambda_1(-\Delta-\beta b)=-\tfrac12<0\) while \(\lambda_1(-\Delta-b)=\tfrac12>0\), so by Proposition~\ref{prop:exactThreshold} the unscaled equation has no positive solution. The formal interface discussed in Appendix~\ref{app:verification} quantifies over such auxiliary \(\beta\); the correct instantiation is \(b:=q\) with \(\beta=1\).
+\end{remark}
+
+\begin{remark}[Uniqueness and stability]\label{rem:uniquenessStatus}
+The scaling argument formalized in Lean (\path{scaling_uniqueness}) shows that a solution positive at a point where \(c>0\) has no solution multiple \(k\Phi\), \(k>1\); it says nothing about uniqueness among all positive solutions, which remains open (Section~\ref{sec:discussion}). Likewise, an equilibrium solver classifies solutions of the stationary problem; it does not establish dynamical stability or a bifurcation type, for which no evolution law has been specified here.
+\end{remark}
+
+\subsection{The finite-graph model (machine-checked)}\label{sec:graph}
+The continuum theorems above rest on classical elliptic theory. The Lean~4 development (Appendix~\ref{app:verification}) contains a complete, unconditional proof of the analogous positive-existence theorem for a finite-graph version of \eqref{eq:V1prime}, in which every operator is defined from data. We state that model and theorem here, together with an explicit example, a maximum bound proved for it, and a counterexample to the converse. The finite-graph formulation and the proof route through finite-dimensional inverse positivity, positive principal eigendata and the order-theoretic fixed-point core were proposed by Andrew Edmark; the particular discretization, the Jacobi splitting and the edge condition below are choices of the formalization.
+
+\begin{definition}[Finite-graph CD problem]\label{def:graphModel}
+Let \(V\) be a finite set of vertices, \(w:V\times V\to[0,\infty)\) symmetric weights (self weights allowed), \(B\subset V\) a boundary set with interior \(I:=V\setminus B\), and coefficients \(\kappa,\gamma,\mu:V\to[0,1]\), \(a:=\kappa\gamma\mu\), \(b:V\to\R\), \(c:V\to(0,\infty)\), \(p>1\). Define
+\[
+(L_Gu)(x):=\sum_{y\in V}w(x,y)\big(u(x)-u(y)\big),\qquad
+|\nabla_G u|(x):=\Big(\sum_{y\in V}w(x,y)\big(u(y)-u(x)\big)^2\Big)^{1/2}.
+\]
+A function \(u:V\to\R\) \emph{solves the graph problem} if
+\[
+L_Gu(x)=a(x)|\nabla_Gu|(x)+b(x)u(x)-c(x)\max\{u(x),0\}^p\quad(x\in I),\qquad u(x)=0\quad(x\in B).
+\]
+Both sums run over all of \(V\), so edges to \(B\) contribute through the zero boundary values; there is no vertex measure and no degree normalization. The \emph{energy} is \(E(u):=\tfrac12\sum_{x,y}w(x,y)(u(x)-u(y))^2-\sum_xb(x)u(x)^2\), and the \emph{principal eigenvalue} \(\lambda_1^G\) is the minimum of \(E\) over functions vanishing on \(B\) with \(\sum_xu(x)^2=1\); equivalently, the smallest eigenvalue of the interior block of \(\operatorname{diag}(d)-w-\operatorname{diag}(b)\), where \(d(x)=\sum_yw(x,y)\) is the full degree, boundary edges included. The \emph{interior graph} joins distinct interior vertices of positive weight.
+\end{definition}
+
+\begin{theorem}[Positive solution on a finite graph; Lean: \texttt{SemioticGraph.exists\_pos\_graph}]\label{thm:graphExistence}
+Suppose the interior graph is connected, \(\lambda_1^G<0\), and the \emph{edge condition}
+\[
+a(x)\le\sqrt{w(x,y)}\quad\text{and}\quad a(y)\le\sqrt{w(x,y)}\qquad\text{for all distinct }x,y\in I\text{ with }w(x,y)>0
+\]
+holds. Then the graph problem has a solution \(u\) with \(u(x)>0\) for every \(x\in I\).
+\end{theorem}
+\begin{corollary}[Unweighted graphs; Lean: \texttt{exists\_pos\_graph\_of\_unweighted}]\label{cor:graphUnweighted}
+If every weight is \(0\) or \(1\), the edge condition follows from \(0\le a\le 1\), so connectivity of the interior graph and \(\lambda_1^G<0\) suffice.
+\end{corollary}
+
+\begin{proof}[Proof route (formalized in \texttt{CdFormal/Graph})]
+(i)~\emph{Principal eigendata.} The unit sphere of functions vanishing on \(B\) is compact and, since \(I\ne\emptyset\), nonempty, so \(E\) attains its minimum \(\lambda_1^G\) at some \(\varphi\); the first-order condition gives \(L_G\varphi=b\varphi+\lambda_1^G\varphi\) on \(I\). Because \(E(|\varphi|)\le E(\varphi)\), \(|\varphi|\) is also a minimizer, and a zero of a nonnegative eigenvector at an interior vertex propagates to its neighbours; connectivity of the interior graph then forces \(|\varphi|>0\) on \(I\).
+(ii)~\emph{Fixed-point map.} With \(K>0\), the equation at \(x\in I\) is equivalent to \(u(x)=F_K(u)(x)\), where
+\[
+F_K(u)(x):=\frac{\sum_yw(x,y)u(y)+a(x)|\nabla_Gu|(x)+(b(x)+K)u(x)-c(x)\max\{u(x),0\}^p}{d(x)+K},
+\]
+and \(F_K(u):=0\) on \(B\); the identity \((d(x)+K)\big(u(x)-F_K(u)(x)\big)=L_Gu(x)-\big(a|\nabla_Gu|+bu-c\,u_+^p\big)(x)\) makes the residual of the equation visible. On functions with values in \([0,M]\) that vanish on \(B\), \(F_K\) is monotone once \(K\) dominates \(a(x)\sum_y\sqrt{w(x,y)}+c(x)pM^{p-1}-b(x)\): raising \(u\) by \(\delta\) at a neighbour \(y\) of \(x\) lowers \(a(x)|\nabla_Gu|(x)\) by at most \(a(x)\sqrt{w(x,y)}\,\delta\le w(x,y)\delta\), which the term \(w(x,y)u(y)\) recovers---this is where the edge condition is used, and the only place.
+(iii)~\emph{Barriers.} \(\varepsilon\varphi\) is a subsolution once \(c(x)\varepsilon^{p-1}\le-\lambda_1^G\) for all \(x\); the \emph{plateau} equal to \(M\) on \(I\) and \(0\) on \(B\) is a supersolution once \(a(x)^2/4+b(x)\le c(x)M^{p-1}\) for all \(x\). The plateau is not constant: next to the boundary its Laplacian is \(S=M\sum_{y\in B}w(x,y)\) and its gradient norm is \(\sqrt{MS}\), and the completed square \(a\sqrt{MS}\le S+\tfrac{a^2}{4}M\) absorbs the gradient term.
+(iv)~\emph{Fixed point.} \(F_K\) maps the order interval between \(\varepsilon\varphi\) and the plateau, a complete lattice, into itself, so the Knaster--Tarski consequence \texttt{monotone\_fixed\_point\_between} yields a fixed point there; it solves the problem and is at least \(\varepsilon\varphi>0\) on \(I\). All constants are constructed from the data.
+\end{proof}
+
+\begin{remark}[Existence versus iteration]\label{rem:graphIteration}
+In finite dimensions the monotone iterates \(F_K^n(\varepsilon\varphi)\) are nondecreasing and bounded by the plateau, hence convergent, and by continuity of \(F_K\) their limit is a fixed point. This classical remark justifies the iteration used in the numerical companion, but no convergence rate is claimed, and the Lean development proves existence only. A run of the iteration is validated by its residual, never by the theorem.
+\end{remark}
+
+\begin{example}[The triangle; Lean: \texttt{SemioticGraph.triangle}]\label{ex:triangle}
+Let \(V=\{0,1,2\}\) with \(w\equiv 1\) (including self weights), \(B=\{0\}\), \(\kappa=\gamma=\mu=1\) (so \(a=1\)), \(b=2\), \(c=1\), \(p=2\). The interior graph is the single edge \(\{1,2\}\), the weights lie in \(\{0,1\}\), and \(E(0,1,1)=-2<0\), so \(\lambda_1^G<0\) and Corollary~\ref{cor:graphUnweighted} applies (\texttt{exists\_pos\_triangle}). Explicitly, the interior block of \(\operatorname{diag}(d)-w-\operatorname{diag}(b)\) is \(\begin{psmallmatrix}0&-1\\-1&0\end{psmallmatrix}\), so \(\lambda_1^G=-1\). The function \(u=(0,2,2)\) solves the problem: at each interior vertex \(L_Gu=2\) and \(|\nabla_Gu|=2\), and \(2=1\cdot 2+2\cdot 2-1\cdot 2^2\) (\texttt{triangle\_isSolution}, \texttt{triangle\_gradNorm}); the gradient term is active. Here \(b=2\) is a free admissible coefficient, not the canonical closure \(\kappa\gamma-\lambda\mu\) with \(\lambda>0\). The constants of the proof for this example are \(\varepsilon=\tfrac14\), \(M=7.75\) and \(K=62.5\); the numerical companion reproduces \((0,2,2)\) from both barriers.
+\end{example}
+
+\begin{proposition}[Maximum bound on graphs]\label{prop:graphBound}
+Let \(u\ge 0\) solve the graph problem and let \(M:=\max_Vu>0\). Then
+\[
+M\le\max_{x\in I}\Big(\frac{\big(b(x)+a(x)^2/4\big)_+}{c(x)}\Big)^{1/(p-1)} .
+\]
+\end{proposition}
+\begin{proof}
+The maximum is attained at some \(x\in I\) since \(u=0\) on \(B\). Put \(S:=L_Gu(x)=\sum_yw(x,y)(M-u(y))\ge 0\). Since \(0\le M-u(y)\le M\),
+\[
+|\nabla_Gu|(x)^2=\sum_yw(x,y)(M-u(y))^2\le M\sum_yw(x,y)(M-u(y))=MS .
+\]
+The equation at \(x\) and the inequality \(a\sqrt{MS}\le S+\tfrac{a^2}{4}M\) (the arithmetic--geometric mean inequality; Lean: \texttt{mul\_sqrt\_mul\_le}) give
+\[
+S=a(x)|\nabla_Gu|(x)+b(x)M-c(x)M^p\le S+\tfrac{a(x)^2}{4}M+b(x)M-c(x)M^p,
+\]
+hence \(c(x)M^{p-1}\le b(x)+a(x)^2/4\), which implies the claim.
+\end{proof}
+
+\begin{remark}[The graph bound differs from the continuum bound]\label{rem:graphBoundSharp}
+The continuum bound \((B/c_0)^{1/(p-1)}\) of Lemma~\ref{lem:LinftyBound} uses \(\nabla u=0\) at an interior maximum, which has no graph analogue. The graph bound is attained: with \(V=\{0,1\}\), \(B=\{0\}\), \(w(0,1)=\tfrac14\), \(a=b=c=1\), \(p=2\), the function \(u=(0,\tfrac54)\) solves the graph problem (\(L_Gu(1)=\tfrac5{16}\), \(|\nabla_Gu|(1)=\tfrac58\), and \(\tfrac5{16}=\tfrac58+\tfrac54-\tfrac{25}{16}\)), exceeds the continuum value \(b/c=1\), and equals the graph bound \(1+\tfrac14\). Proposition~\ref{prop:graphBound} is proved here classically; it is not a declaration of the Lean development at the pinned revision, although its key inequality is.
+\end{remark}
+
+\begin{proposition}[Negativity of \(\lambda_1^G\) is not necessary]\label{prop:graphConverse}
+Take the triangle of Example~\ref{ex:triangle} but with \(b=\tfrac12\). Then \(u=(0,\tfrac12,\tfrac12)\) solves the graph problem and is positive at both interior vertices, while \(\lambda_1^G=+\tfrac12\).
+\end{proposition}
+\begin{proof}
+At each interior vertex \(L_Gu=\tfrac12\), \(|\nabla_Gu|=\tfrac12\), and \(\tfrac12=1\cdot\tfrac12+\tfrac12\cdot\tfrac12-(\tfrac12)^2\). The interior block of \(\operatorname{diag}(d)-w-\operatorname{diag}(b)\) is \(\begin{psmallmatrix}3/2&-1\\-1&3/2\end{psmallmatrix}\), with smallest eigenvalue \(\tfrac12\).
+\end{proof}
+This does not contradict Theorem~\ref{thm:graphExistence}, whose spectral hypothesis is sufficient; it shows that the converse fails once the gradient term is active, in line with Remark~\ref{rem:converseGradient}.
+
+\begin{remark}[Three models that must not be identified]\label{rem:threeModels}
+The paper now involves three distinct objects: the continuum problem \eqref{eq:V1prime}; the finite-graph problem of Definition~\ref{def:graphModel}, whose theorem is machine-checked; and the centered finite-difference discretization used by the numerical companion, whose gradient in one dimension is \(|(u_{i+1}-u_{i-1})/(2h)|\). The last two differ: on a unit-spaced path with values \((0,1,0)\) the centered derivative at the middle vertex is \(0\) while \(|\nabla_Gu|=\sqrt2\); and on a nearest-neighbour grid with weights \(h^{-2}\), \(|\nabla_Gu|^2=h^{-2}\big((u_{i+1}-u_i)^2+(u_{i-1}-u_i)^2\big)\) has leading term \(2(u')^2\) at smooth nonstationary points, not \((u')^2\). This local expansion is not a convergence theorem, and rescaling the coefficients or normalizing the weights would change the model that was verified. Consequently the finite-difference computations are numerical evidence for the continuum problem, the graph computations reproduce the verified finite model, and neither is a verification of the other.
 \end{remark}
 
 \subsection{Temporal resilience and coherence debt: unpacking contradiction cost}\label{sec:temporal_resilience_debt}
@@ -487,11 +571,11 @@ We distinguish:
 \end{enumerate}
 
 \subsubsection*{Temporal witness function and resilience factor}
-Let $\psi(t)\in[0,1]$ denote a \emph{temporal witness function} measuring instantaneous coherence at time $t$, with higher values indicating greater coherence and temporal integration. Following a temporal-coherence framework developed in companion work, we interpret derivatives as dynamical signatures:
+Let $\psi(t)\in[0,1]$ denote a \emph{temporal witness function} measuring instantaneous coherence at time $t$, with higher values indicating greater coherence and temporal integration. We assume \(\psi\in C^3\) on the time interval considered, or, for sampled data, that \(\psi'\), \(\psi''\) and \(\psi'''\) denote declared finite-difference (or smoothing-spline) estimators at a stated sampling step; the quantities below are not defined otherwise. Following a temporal-coherence framework developed in companion work, we interpret derivatives as dynamical signatures:
 $\psi'(t)$ (volatility), $\psi''(t)$ (stabilizing vs destabilizing acceleration), and $\psi'''(t)$ (jerk/rupture).
 
 \begin{definition}[Base temporal resilience factor]\label{def:Rbase}
-Fix constants $\alpha_1,\alpha_3>0$ and $\beta\ge 0$. Define the \emph{base temporal resilience factor}
+Fix constants $\alpha_1,\alpha_3>0$ and $\beta\ge 0$; since $\psi$ is dimensionless, $\alpha_1$, $\beta$ and $\alpha_3$ carry the units of time, time$^2$ and time$^3$ respectively (or time is nondimensionalized by a stated reference scale). Define the \emph{base temporal resilience factor}
 \begin{equation}\label{eq:Rbase}
 R_{\mathrm{base}}(t)
 :=
@@ -527,7 +611,7 @@ more negative $\lambda_1$ (deeper viability) yields $\psi_s$ closer to $1$, whil
 Other monotone maps $\mathbb{R}\to(0,1)$ are possible; \eqref{eq:psispectral} is chosen for smoothness.
 \end{remark}
 
-We interpret $\psi_s(t)$ as a \emph{capacity envelope}: what the current system can sustain given its current structural conditions. In contrast, $\psi(t)$ is an empirical witness of what the system is actually doing.
+We interpret $\psi_s(t)$ as a \emph{capacity envelope}: what the current system can sustain given its current structural conditions. This is a proposed proxy; the sigmoid score is not shown to be an upper envelope of an independently measured coherence witness $\psi$, and the comparison $\psi>\psi_s$ below is meaningful only under a stated calibration of the two scales. In contrast, $\psi(t)$ is an empirical witness of what the system is actually doing.
 
 \subsubsection*{Coherence debt: chronic operation beyond capacity}
 The central burnout/recovery phenomenon motivating this section is the possibility that a system can temporarily \emph{perform coherence beyond sustainable capacity}. Formally, this corresponds to $\psi(t)>\psi_s(t)$. Acute excursions are not necessarily pathological; the pathological regime is \emph{sustained} overcapacity operation. We encode this temporally via a debt variable.
@@ -540,11 +624,19 @@ Fix parameters $\eta,\rho>0$. Define the \emph{coherence debt} $D(t)\ge 0$ as th
 \end{equation}
 \end{definition}
 
-\begin{remark}[Interpretation: asymmetric cost of mismatch]
+\begin{remark}[Interpretation: asymmetric cost of mismatch]\label{rem:debtInterpretation}
 The positive-part term in \eqref{eq:debtODE} implements a structural asymmetry:
 only the regime $\psi>\psi_s$ (performing above capacity) accumulates debt.
 The decay term $\rho D$ models recovery/repayment when the system is no longer overextended.
-Equation \eqref{eq:debtODE} is equivalent to an exponentially weighted integral of past overcapacity, hence captures the chronicity of burnout (``debt that builds over time'') rather than a pointwise discrepancy.
+Equation \eqref{eq:debtODE} is linear in \(D\) and has the explicit solution
+\[
+D(t)=e^{-\rho t}D(0)+\eta\int_0^t e^{-\rho(t-s)}\,[\psi(s)-\psi_s(s)]^+\,ds ,
+\]
+an exponentially weighted integral of past overcapacity: it captures the chronicity of burnout (``debt that builds over time'') rather than a pointwise discrepancy. Because \(\psi,\psi_s\in[0,1]\), the excess is at most \(1\) and
+\[
+0\le D(t)\le e^{-\rho t}D(0)+\frac{\eta}{\rho}\big(1-e^{-\rho t}\big)\le\max\Big\{D(0),\frac\eta\rho\Big\}.
+\]
+Debt therefore \emph{accumulates} only while the source \(\eta[\psi-\psi_s]^+\) exceeds the repayment \(\rho D\); during overcapacity operation it rises when \(D<(\eta/\rho)[\psi-\psi_s]^+\) and falls otherwise, and it never exceeds \(\eta/\rho\) once below it. These are a priori identities for any solution with the stated witness ranges, including when \(\psi_s\) depends on \(D\) through the closure below; they are not a well-posedness theorem for the coupled system. (The integral formula is a direct consequence of the variation-of-constants formula for \eqref{eq:debtODE}.)
 \end{remark}
 
 \subsubsection*{From temporal resilience to effective contradiction cost}
@@ -564,7 +656,7 @@ and the \emph{effective contradiction cost}
 \begin{remark}[Burnout spiral as feedback]
 When $\psi>\psi_s$ persists, debt $D(t)$ increases, reducing $R(t)$ and therefore increasing $\lambda_{\mathrm{eff}}(t)$.
 Through the viability closure below, this reduces $b(\cdot,t)$, which pushes the spectral indicator $\lambda_1(t)$ upward (toward $0$) and lowers $\psi_s(t)$.
-Thus sustained overcapacity operation creates a self-reinforcing fragility loop: capacity declines as debt accumulates.
+Thus sustained overcapacity operation is a self-reinforcing fragility \emph{tendency}: capacity declines while debt accumulates. By the bound in Remark~\ref{rem:debtInterpretation} the loop is neither automatically monotone nor unbounded; whether it converges, oscillates or saturates depends on the parameters and on the closure, which is not analysed here.
 \end{remark}
 
 \subsubsection*{Dynamical viability closure}
@@ -617,7 +709,7 @@ A \emph{strong coherent configuration} is a field \(\Phi\) satisfying
 A \emph{weak coherent configuration} is a solution \(\Phi\) of an associated PDE model (e.g.\ \eqref{eq:V1prime}) with stated boundary conditions.
 \end{definition}
 
-\begin{remark}[The generative gap]
+\begin{remark}[The generative gap]\label{rem:generativeGap}
 The relationship between weak and strong coherence is not merely an open mathematical problem---it is a \emph{structural feature} of the framework. Strong coherence represents an idealization that real systems approximate but cannot fully achieve. Weak coherence captures the stable configurations that systems actually reach. The \emph{distance} between them measures the cost of striving---the energy required to pull a system from its achievable state toward the ideal.
 
 This perspective transforms an apparent limitation into a research program: Under what conditions is the gap small? When is it irreducible? How does the gap evolve under perturbation? The framework is defined by this necessary tension between the ideal and the messy achievable configurations---a commitment that aligns with enactivist insights about cognition as ongoing sense-making rather than static representation~\cite{Thompson2007}.
@@ -636,21 +728,22 @@ Let \(U\subseteq M\) be open, and assume an \emph{equilibrium ansatz} on \(U\): 
 \[
 \Phi(x)=g(\mu(x))\qquad\text{for all }x\in U.
 \]
-Then \(\omega\) is closed on \(U\), i.e.\ \(d\omega=0\) on \(U\).
-Consequently, for any two homotopic loops \(\Gamma_1,\Gamma_2\subset U\),
+Then \(\omega\) is exact on \(U\): with \(G(m):=2\int_0^m g(s)\,ds-m\,g(m)\),
 \[
-\int_{\Gamma_1}\omega = \int_{\Gamma_2}\omega.
+\omega = d\big(G(\mu)\big)\quad\text{on }U .
 \]
+Consequently \(\int_\Gamma\omega=0\) for every closed piecewise-\(C^1\) loop \(\Gamma\subset U\), and in particular \(\int_{\Gamma_1}\omega=\int_{\Gamma_2}\omega\) for any two loops in \(U\) (homotopic or not).
 \end{proposition}
 
 \begin{proof}
-Compute
+Under the ansatz, \(d\Phi=g'(\mu)\,d\mu\) on \(U\), so
 \[
-d\omega = d(\Phi\,d\mu)-d(\mu\,d\Phi)=d\Phi\wedge d\mu - d\mu\wedge d\Phi = 2\,d\Phi\wedge d\mu.
+\omega=\Phi\,d\mu-\mu\,d\Phi=\big(g(\mu)-\mu\,g'(\mu)\big)\,d\mu .
 \]
-Under the ansatz \(\Phi=g(\mu)\), we have \(d\Phi=g'(\mu)\,d\mu\), hence \(d\Phi\wedge d\mu=0\) and thus \(d\omega=0\) on \(U\).
-Homotopy invariance follows by Stokes' theorem.
+Since \(G'(m)=2g(m)-g(m)-m\,g'(m)=g(m)-m\,g'(m)\), we get \(\omega=G'(\mu)\,d\mu=d(G(\mu))\), where \(G\circ\mu\in C^1(U)\) because \(g\in C^1\) and \(\mu\in C^1\). The integral of an exact \(1\)-form with a \(C^1\) primitive over a closed loop vanishes by the fundamental theorem of calculus; no exterior derivative of \(\omega\) (whose coefficients are only continuous) is needed.
 \end{proof}
+
+\paragraph{Exactness versus closedness.} Exactness is a strengthening of closedness: closedness alone gives equality of integrals over \emph{homotopic} loops, exactness gives vanishing over every loop in \(U\). The ansatz is not inferred from the PDE; it is a hypothesis about a phase, as stated in the next remark.
 
 \begin{remark}[Interpretation]
 The ansatz \(\Phi=g(\mu)\) expresses a local functional dependence of presence on contradiction, i.e.\ a phase where the presence field is slaved to contradiction level sets.
@@ -678,30 +771,55 @@ Let \(\gamma_0:S^1\to M\) be a loop. If every homotopy contracting \(\gamma_0\) 
 \end{proposition}
 
 \begin{proof}
-On \(\{\kappa=0\}\), the metric \(g_\kappa=\kappa^{-1}g\) is undefined (formally infinite). Any homotopy forced to pass through \(\{\kappa=0\}\) cannot be assigned finite \(g_\kappa\)-energy.
+The energy \(E_\kappa\) is defined only for homotopies with image in \(\{\kappa>0\}\) (Definition~4.8). If every contracting homotopy of \(\gamma_0\) meets \(\{\kappa=0\}\), then no contracting homotopy is admissible, so in particular none has finite \(E_\kappa\).
 \end{proof}
 
-\begin{remark}[Status]
-This is a geometric sufficient obstruction statement, not an ``iff'' characterization: we do not claim that finite-energy homotopy exists whenever a loop is null-homotopic in \(\{\kappa>0\}\), since that requires additional geometric hypotheses.
+\begin{remark}[Status: domain exclusion is not energy divergence]\label{rem:careEnergyLimit}
+This is a geometric sufficient obstruction statement, not an ``iff'' characterization: we do not claim that finite-energy homotopy exists whenever a loop is null-homotopic in \(\{\kappa>0\}\), since that requires additional geometric hypotheses. It is also a statement about the admissible class, not a quantitative divergence theorem: it does not say that every extension or regularization of the energy blows up on homotopies that touch \(\{\kappa=0\}\). On the unit disk with \(\kappa(x)=|x|\), the homotopy \(H(s,t)=(1-t)^2(\cos s,\sin s)\) contracts the boundary circle and meets \(\{\kappa=0\}\) only at \(t=1\); with the regularized weight \((\kappa+\epsilon)^{-1}\) its energy is
+\[
+E_\epsilon=\int_0^1\!\!\int_{S^1}\frac{4(1-t)^2}{(1-t)^2+\epsilon}\,ds\,dt=8\pi\Big(1-\sqrt\epsilon\,\arctan\frac1{\sqrt\epsilon}\Big)\longrightarrow 8\pi<\infty .
+\]
+\(H\) is not admissible for \(E_\kappa\), so this is not a counterexample to the proposition; it shows that whether care acts as an \emph{energetic} barrier, rather than a topological one, depends on the rate at which \(\kappa\) vanishes and on the class of homotopies allowed, which the present definition fixes by fiat.
+\end{remark}
+
+\subsection{The strong ideal is unattainable by nonnegative fields}\label{sec:strongObstruction}
+\begin{proposition}[Obstruction to strong coherence]\label{prop:strongObstruction}
+Let \(M\) be compact, \(\Phi\in C^1(\overline M)\), and assume either \(\partial M\ne\emptyset\) and \(\Phi|_{\partial M}=0\), or \(\partial M=\emptyset\). Let \(a:=\kappa\gamma\mu\) be bounded.
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item If \(\Phi(x)=a(x)\,|\nabla\Phi(x)|\) for all \(x\in M\), then \(\Phi\equiv 0\). The zero field satisfies the constraint trivially; no nonzero field, of either sign, does.
+\item For every such \(\Phi\), \(\ \|\Phi-a|\nabla\Phi|\|_{L^\infty(M)}\ \ge\ \|\Phi\|_{L^\infty(M)}\).
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+(b) If \(\Phi\equiv 0\) there is nothing to prove. Otherwise \(|\Phi|\) attains its maximum at some \(x_0\) with \(\Phi(x_0)\ne 0\); \(x_0\) is an interior point (in the first case because \(\Phi=0\) on \(\partial M\), in the second because there is no boundary), and \(\Phi\) has a local extremum there, so \(\nabla\Phi(x_0)=0\). Hence \(\big(\Phi-a|\nabla\Phi|\big)(x_0)=\Phi(x_0)\), whose absolute value is \(\|\Phi\|_\infty\). (a) follows: a strong coherent configuration has residual zero, so \(\|\Phi\|_\infty=0\).
+\end{proof}
+\begin{remark}[Interpretation]\label{rem:strongObstructionInterp}
+On a bounded semiotic manifold with dissipative boundary, or on a closed one, the strong ideal cannot be realized by any nonzero \(C^1\) presence field: strong coherence is not merely unreached but unreachable in this setting except by the empty configuration, and only weak coherent configurations are attainable. Part~(b) makes the gap quantitative in the right units: measured relative to the size of the field, the pointwise residual of the ideal is at least one, \(\|\Phi-a|\nabla\Phi|\|_\infty/\|\Phi\|_\infty\ge 1\). The normalization matters, since scaling a field to \(\epsilon\Phi\) makes the \emph{absolute} residual tend to zero without bringing the field any closer to the ideal. This sharpens the generative gap of Remark~\ref{rem:generativeGap}: the ``work of living'' is not a finite distance to a reachable ideal but a tension that is irreducible relative to the field's own scale. The proposition uses compactness, the \(C^1\) regularity and the vanishing boundary data; it does not extend by itself to noncompact, nonsmooth or driven settings, where the ideal may remain a meaningful limit, and adding a forcing term to the separate equation \eqref{eq:V1prime} does not change this pointwise obstruction.
 \end{remark}
 
 \section{Operational layer}
 This section proposes testable conditions connecting the CD formalism to measurable dynamical systems.
 
 \subsection{The Creative Determinant condition}
-\begin{definition}[Creative Determinant condition \(CD(\alpha,\varepsilon,\delta)\)]
-Let \(F:X\to X\) be a \(C^1\) dynamical system on a smooth manifold \(X\), and let \(\varphi:X\to\R_{>0}\) be a pre-specified coherence observable.
-We say \((F,\varphi)\) satisfies \(CD(\alpha,\varepsilon,\delta)\) if
+\begin{definition}[Creative Determinant condition \(CD(\varepsilon,\delta)\)]\label{def:CDcondition}
+Let \(F:X\to X\) be a \(C^1\) map on a smooth manifold \(X\) equipped with a fixed reference volume form (on \(\R^n\), Lebesgue measure; on a Riemannian manifold, its volume form), and let \(\varphi:X\to\R_{>0}\) be a pre-specified coherence observable. Fix a sampling population \(P\): a finite ensemble of states, or a trajectory window \(\{x,F(x),\dots,F^{m}(x)\}\), specified in advance. On the sample define
 \[
-\mathrm{Corr}\!\left[\log \varphi(F(x)),\ \alpha\log\abs{\det \nabla F(x)}\right]\ge 1-\varepsilon
-\quad\text{and}\quad
-\mathrm{Var}\!\left[\log\abs{\det \nabla F(x)}\right]>\delta,
+Y(x):=\log\abs{\det \nabla F(x)},\qquad Z(x):=\log\varphi(F(x)),
 \]
-where correlation/variance are computed empirically along trajectories or ensembles.
+where \(\det\nabla F\) is the Jacobian determinant with respect to the reference volume form, and require the \emph{validity assumptions}: \(\nabla F(x)\) is invertible at every sampled \(x\) (points with \(\det\nabla F=0\), where \(Y=-\infty\), must be excluded by a pre-registered rule), and neither \(Y\) nor \(Z\) is constant on \(P\), so that both empirical variances are positive and the empirical correlation is defined. We say \((F,\varphi,P)\) satisfies \(CD(\varepsilon,\delta)\) if
+\[
+\mathrm{Corr}_P[Z,\,Y]\ \ge\ 1-\varepsilon
+\quad\text{and}\quad
+\mathrm{Var}_P[Y]\ >\ \delta .
+\]
+The empirical regression slope \(\hat\alpha:=\mathrm{Cov}_P[Z,Y]/\mathrm{Var}_P[Y]\) is a separate, reportable quantity: it is the scale at which \(Z\) tracks \(Y\), whereas the correlation is scale-free.
 \end{definition}
 
+\paragraph{Why the scale is a separate quantity.}\label{rem:alphaNotIdentifiable}
+An earlier formulation wrote \(\mathrm{Corr}[Z,\alpha Y]\) with a parameter \(\alpha\). Since \(\mathrm{Corr}[Z,\alpha Y]=\mathrm{Corr}[Z,Y]\) for every \(\alpha>0\), \(=-\mathrm{Corr}[Z,Y]\) for \(\alpha<0\), and is undefined for \(\alpha=0\), the magnitude of \(\alpha\) is not identifiable from a correlation condition, and no inference about ``\(\alpha\approx 1\)'' can rest on it. The slope \(\hat\alpha\) above carries that information instead, and a claim about its value is a distinct empirical hypothesis to be preregistered separately.
+
 \begin{remark}[Connection to Lyapunov theory]
-By Oseledets' multiplicative ergodic theorem~\cite{Oseledets1968}, time averages of \(\log\abs{\det \nabla F}\) relate to sums of Lyapunov exponents~\cite{Lyapunov1892,Pesin1977}. The CD condition is intended to detect regimes where a coherence observable tracks cumulative phase-space volume deformation. When the CD condition holds with \(\alpha\approx 1\), the correlation suggests the system may exhibit fractal attractor structure, with dimension estimable via the Kaplan--Yorke formula~\cite{KaplanYorke1979}.
+By Oseledets' multiplicative ergodic theorem~\cite{Oseledets1968}, the time average of \(Y=\log\abs{\det \nabla F}\) along a trajectory converges (almost surely, for an ergodic invariant measure) to the sum of the Lyapunov exponents~\cite{Lyapunov1892,Pesin1977}. Three quantities must be kept apart: the one-step statistic \(Y(x)\) used in Definition~\ref{def:CDcondition}; the \emph{accumulated} volume change \(\sum_{k<m}Y(F^k x)=\log\abs{\det\nabla F^m(x)}\), whose average is what Oseledets' theorem controls; and the Lyapunov spectrum itself, which requires a separate dynamical analysis. The CD condition is intended to detect regimes where a coherence observable tracks phase-space volume deformation step by step; a cumulative version replaces \(Y\) by the accumulated sum over a preregistered window. Fractal attractor structure and its Kaplan--Yorke dimension~\cite{KaplanYorke1979} are properties of the Lyapunov spectrum and are not inferred from a correlation between \(Z\) and \(Y\); establishing them is independent dynamical evidence, not a consequence of the CD condition.
 \end{remark}
 
 \subsection{Falsifiability protocols (empirical proposals)}
@@ -710,7 +828,7 @@ We list falsifiability criteria as operational proposals; they are not derived f
 \begin{definition}[Framework falsification (empirical)]
 The CD framework is empirically falsified if any of the following are demonstrated:
 \begin{enumerate}[label=(F\arabic*),leftmargin=2.5em]
-\item Coherence without coupling: stable high coherence with near-zero (or negative) correlation between coherence observables and Jacobian volume dynamics.
+\item Coherence without coupling: stable high coherence with near-zero (or negative) correlation \(\mathrm{Corr}_P[Z,Y]\) between the coherence observable and the Jacobian volume statistic, under the validity assumptions of Definition~\ref{def:CDcondition}.
 \item Conservation violation: statistically significant disagreement of \(\int_\Gamma\omega\) between homotopic paths within a verified equilibrium region.
 \item Hamiltonian coherence: volume-preserving dynamics exhibiting the same coherence--exploration coupling as dissipative systems.
 \item Resolution without care: contradiction resolution along paths confined to low-/zero-care regions (as operationalized).
@@ -721,20 +839,22 @@ The CD framework is empirically falsified if any of the following are demonstrat
 \begin{remark}[Protocols]
 Concrete testing protocols for large language models and other high-dimensional systems can be specified by choosing:
 (i) a coherence observable \(\varphi\) (e.g.\ compressibility/entropy/intrinsic dimension proxies),
-(ii) a feasible estimator for \(\log\abs{\det \nabla F}\) (e.g.\ factorization across steps, trace estimators, or low-rank sketches),
-and (iii) statistical thresholds for correlation and robustness checks.
+(ii) a feasible estimator for \(\log\abs{\det \nabla F}\) (e.g.\ factorization across steps, trace estimators, or low-rank sketches), together with the reference coordinates in which the determinant is taken,
+(iii) the sampling population or time window and the rule for excluding singular Jacobians,
+and (iv) statistical thresholds for correlation and robustness checks. A negative result rejects the specified operational instantiation \((F,\varphi,P)\); it does not bear on the elliptic theorems of Section~\ref{sec:mainPDE}, which are proved independently of any empirical interpretation.
 \end{remark}
 
-\section{Discussion and limitations}
+\section{Discussion and limitations}\label{sec:discussion}
 \subsection*{Mathematical contributions}
 The core mathematical results are:
 \begin{enumerate}
-\item \textbf{Existence (Theorem~\ref{thm:existenceV1prime}):} The autonomous viability model with saturation \eqref{eq:V1prime} admits weak coherent configurations under mild coefficient assumptions.
-\item \textbf{Nontriviality (Theorem~\ref{thm:nontrivialV1prime}):} When the viability threshold is exceeded (\(\lambda_1(-\Delta - b; M) < 0\)), there exists a positive solution. This gives a precise criterion for when coherent presence can be self-maintained.
+\item \textbf{Existence framework (Theorem~\ref{thm:existenceV1prime}):} The autonomous viability model with saturation \eqref{eq:V1prime} has a compact fixed-point formulation with a priori bounds for nonnegative weak coherent configurations; the zero field is always a solution, so this theorem alone does not produce presence.
+\item \textbf{Positive existence (Theorem~\ref{thm:nontrivialV1prime}):} When the viability threshold is exceeded (\(\lambda_1(-\Delta - b; M) < 0\)), there exists a solution positive in the interior, enclosed between \(\varepsilon\phi_1\) and a constant. This gives a sufficient criterion for when coherent presence can be self-maintained, and by Proposition~\ref{prop:exactThreshold} an exact one when \(a\equiv 0\).
+\item \textbf{Finite-graph theorem (Theorem~\ref{thm:graphExistence}):} The analogous statement on finite weighted graphs, proved without analytic hypotheses and machine-checked, together with a maximum bound and a counterexample showing that the spectral condition is not necessary once the gradient term is active.
 \end{enumerate}
 
 \subsection*{Mathematical limitations}
-The saturation term \(-c\Phi^p\) is necessary to break positive homogeneity and enable nontrivial Dirichlet solutions. Without it (the V1 limiting case), the maximum principle forces only the trivial solution. This is a structural constraint, not a proof gap.
+The saturation term \(-c\Phi^p\) is necessary to break positive homogeneity and enable nontrivial Dirichlet solutions. Without it (the V1 limiting case with \(a\equiv 0\)) a nonnegative nontrivial solution exists only when \(\lambda_1(-\Delta-b;M)=0\), and then only as a multiple of \(\phi_1\); generically only the trivial solution remains. This is a structural constraint, not a proof gap. Two questions are open: uniqueness of the positive solution (Remark~\ref{rem:uniquenessStatus}) and the dynamical stability of equilibria, which requires an evolution law not specified here. The converse of the threshold with a gradient term is settled negatively in both the continuum (Proposition~\ref{prop:continuumConverse}) and the finite-graph model (Proposition~\ref{prop:graphConverse}); what remains open there is a characterization of the positive-existence region for \(a>0\). The continuum theorems are classical proofs; their Lean counterparts are conditional on an analytic interface that the concrete operator does not instantiate (Appendix~\ref{app:verification}).
 
 \subsection*{Conceptual limitations}
 The pointwise CD constraint and the PDE proxy are not proven equivalent; this gap is treated as a structural feature (the ``generative tension'') rather than a deficiency. The canonical viability closure \(b = \kappa\gamma - \lambda\mu\) is a modeling choice grounded in observed support-versus-cost dynamics; alternative closures remain open for investigation.
@@ -770,86 +890,99 @@ The author thanks Project Navi LLC for supporting this research. This work build
 \section{Formal Verification Details}\label{app:verification}
 
 \subsection{Verification overview}
+The formalization~\cite{Spence2026Lean} is a Lean~4 project against Mathlib, both at version v4.34.1, and this paper refers to its revision
+\begin{center}\texttt{ad65a646ec050acff52e03bc4bb81fd218eb2510}.\end{center}
+Its continuous integration builds the root module and every tracked module with warnings treated as errors, runs the Mathlib environment linters, and executes \texttt{CdFormal/Verify.lean}, which prints the axioms of 49 selected declarations; each record may use only \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}, and a separate check inspects the compiled environment to confirm that no module declares an \texttt{axiom}. The same steps were replicated locally at that revision for this version of the paper.
 
-The formalization is implemented in Lean~4.28.0 against Mathlib v4.28.0~\cite{deMoura2021,Mathlib2020}. The build command \texttt{lake build -{}-wfail} fails on any warning, including \texttt{sorry} axioms, ensuring zero silent contamination. Continuous integration enforces this on every commit. The verification module (\texttt{CdFormal/Verify.lean}) runs \texttt{\#print axioms} on every proved theorem; all show only the Lean kernel axioms \texttt{[propext, Classical.choice, Quot.sound]} with no \texttt{sorryAx}. The full source is available at~\cite{Spence2026Lean}.
+Three kinds of statement must be distinguished.
+\begin{enumerate}[leftmargin=2em]
+\item \textbf{Proved outright.} Algebraic, real-analytic and order-theoretic lemmas, and the complete finite-graph development of Section~\ref{sec:graph}: operators, principal eigendata, barriers, fixed point, the positive-existence theorem, its unweighted corollary, and the explicit triangle example.
+\item \textbf{Proved conditionally.} The two continuum existence theorems are derived from the hypotheses packaged in the class \texttt{PDEInfra} and the structures \texttt{SolutionOperator} and \texttt{PrincipalEigendata}. These are structure fields, not Lean axioms, so \texttt{\#print axioms} does not list them; they appear in the theorem signatures. They are assumptions about an abstract operator \(T\) on the bare function type \(M\to\R\).
+\item \textbf{Not formalized.} The classical analytic content of Section~\ref{sec:mainPDE} (Schauder and \(L^q\) theory, maximum principles, the eigenfunction of \(-\Delta-b\)), the identification of \((\pi/L)^2-\beta b\) with an eigenvalue, Lemma~\ref{lem:C1alphaBound}, Propositions~\ref{prop:exactThreshold}, \ref{prop:continuumConverse}, \ref{prop:graphBound} and~\ref{prop:strongObstruction}, and everything in Section~\ref{sec:temporal_resilience_debt} and Sections~4--5.
+\end{enumerate}
+
+\subsection{The model and the interface}
+In Lean the manifold is a compact connected space with an analytic atlas modelled on \(\R^n\) (so it has no manifold boundary), the Laplacian and gradient norm are fields of a structure \texttt{SemioticOperators} with a few algebraic properties (not built from a metric), and \texttt{SemioticBVP.boundary} is an arbitrary set with nonempty complement. The default equation is imposed at every point of \(M\), boundary points included, and \texttt{SemioticBVP.equation} and \texttt{SemioticBVP.boundaryCondition} are overridable fields. Table~\ref{tab:axioms} lists the five fields of \texttt{PDEInfra} and the classical result each stands in for.
+
+\begin{table}[H]
+\centering\small
+\caption{The five \texttt{PDEInfra} hypotheses (revision \texttt{ad65a64}).}
+\label{tab:axioms}
+\begin{tabular}{@{}p{3.6cm}p{5.2cm}p{6.1cm}@{}}
+\toprule
+\textbf{Field} & \textbf{Lean statement (paraphrase)} & \textbf{Relation to this paper} \\
+\midrule
+\path{T_compact} & \(T\) maps von Neumann bounded subsets of \(M\to\R\) (product topology) to sets with compact closure. & On \(M\to\R\) both conditions reduce to pointwise boundedness; this is not the \(C^1\) compactness of Lemma~\ref{lem:TcompactV1prime}. \\
+\path{linfty_bound} & For \(B\ge b\) there is \(K>0\) with \(|u|\le K\) for every \(u=\tau T(u)\), \(\tau\in[0,1]\). & Corresponds to Lemma~\ref{lem:LinftyBound} for the truncated operator \(T\); false for the untruncated operator \(\widetilde T\) (Section~\ref{sec:existence}, \emph{What changed}). \\
+\path{schaefer} & The two conditions above yield a fixed point of \(T\). & Schaefer's theorem also needs continuity on a Banach space, which is not assumed there. \\
+\path{fixed_point_nonneg} & Fixed points of \(T\) are nonnegative. & Lemma~\ref{lem:schaeferSign} for the truncated \(T\); false for \(\widetilde T\). \\
+\path{monotone_iteration} & For every \(\beta\) and supplied eigendata with negative eigenvalue there is a fixed point of \(T\) positive at some interior point. & Quantifies over auxiliary \(\beta\) while the equation uses \(b\); overstrong for \(\beta\ne 1\) (Remark~\ref{rem:effectivePotential}). Theorem~\ref{thm:nontrivialV1prime} is its \(\beta=1\) instance, with positivity everywhere in \(M^\circ\). \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Collisions.} The interface is not instantiated by the concrete operators of this paper, for three independent reasons recorded here so that the conditional theorems are not misread. (i)~The field \texttt{T} of \texttt{SolutionOperator} acts on all of \(M\to\R\), and \texttt{T\_compact} uses the product topology; the concrete \(T\) of Section~\ref{sec:mainPDE} is defined and compact only on a \(C^1\) space. (ii)~The default equation is asserted at boundary points too, whereas \eqref{eq:V1prime} imposes the equation in the interior with a separate boundary condition. (iii)~The untruncated operator satisfies neither \texttt{linfty\_bound} nor \texttt{fixed\_point\_nonneg} (Section~\ref{sec:existence}, \emph{What changed}). The Lean implications are correct conditional statements; the discharge of their hypotheses for the concrete problem is the classical analysis of Section~\ref{sec:mainPDE}, which is not formalized.
 
 \subsection{Paper-to-Lean alignment}
+Table~\ref{tab:alignment} maps statements of this paper to declarations at the pinned revision (file paths relative to \texttt{CdFormal/}). ``Proved'' means the kernel checked the proof with no hypothesis beyond the stated signature; ``conditional'' means proved from \texttt{PDEInfra} and \texttt{SolutionOperator}; ``definition'' means the declaration type-checks; ``ingredient'' means the declaration proves one step of the cited result.
 
-Table~\ref{tab:alignment} maps every numbered formal statement in this paper to its Lean~4 counterpart. ``Proved'' means the Lean kernel has verified the proof with no \texttt{sorry}. ``Proved (PDEInfra)'' means the proof is verified but depends on the \texttt{PDEInfra} typeclass axioms described in Section~\ref{sec:axiom_boundary}. ``Definition'' means the declaration type-checks against Mathlib with no proof obligations. ``Not formalized'' means the result is not represented in the Lean codebase (typically interpretive remarks, temporal dynamics, or geometric/operational results outside the PDE core).
-
-\begin{table}[ht]
-\centering
-\small
-\caption{Paper-to-Lean alignment. File paths are relative to \texttt{CdFormal/}.}
+\begin{table}[H]
+\centering\scriptsize
+\caption{Paper-to-Lean alignment at revision \texttt{ad65a64}.}
 \label{tab:alignment}
-\scriptsize
-\begin{tabular}{@{}llll@{}}
+\begin{tabular}{@{}p{3.1cm}p{6.5cm}p{2.3cm}p{2.9cm}@{}}
 \toprule
-\textbf{Paper Ref} & \textbf{Lean Declaration} & \textbf{File} & \textbf{Status} \\
+\textbf{Paper} & \textbf{Lean declaration} & \textbf{File} & \textbf{Status} \\
 \midrule
-Def.\ 2.1 (Semiotic manifold) & \texttt{SemioticManifold} & \texttt{Basic} & Definition \\
-Def.\ 2.3 (Characteristic fields) & \texttt{SemioticContext}, \texttt{.a} & \texttt{Basic} & Definition \\
-Def.\ 3.1 (V1\('\)) & \texttt{SemioticBVP} & \texttt{Basic} & Definition \\
-Def.\ 3.3 (Canonical closure) & \texttt{.canonicalViability} & \texttt{Basic} & Definition \\
-Def.\ 3.1 (Weak coherent config.) & \texttt{IsWeakCoherentConfiguration} & \texttt{Basic} & Definition \\
-Def.\ 3.13 (Principal eigenvalue) & \texttt{PrincipalEigendata} & \texttt{Axioms} & Definition \\
-\midrule
-Lemma 3.7 (Compactness of $T$) & \texttt{PDEInfra.T\_compact} & \texttt{Axioms} & Axiom \\
-Assumption 3.8 (Coercivity) & Hypothesis \texttt{hB} in Thm.\ 3.12 & \texttt{Theorems} & Proved \\
-Lemma 3.10 ($L^\infty$ bound) & \texttt{PDEInfra.linfty\_bound} & \texttt{Axioms} & Axiom \\
-Lem.\ 3.10 (algebraic core) & \texttt{rpow\_le\_of\_mul\_rpow\_le} & \texttt{LinftyAlgebraic} & Proved \\
-Lem.\ 3.10 (algebraic bound) & \texttt{linfty\_bound\_algebraic} & \texttt{LinftyAlgebraic} & Proved \\
-Lemma 3.11 ($C^{1,\alpha}$ bound) & (subsumed by \texttt{linfty\_bound}) & --- & Not formalized \\
-Thm.\ 3.12 (Existence) & \texttt{.exists\_isWeakCoherentConfiguration} & \texttt{Theorems} & Proved (PDEInfra) \\
-Thm.\ 3.16 (Nontriviality) & \texttt{.exists\_pos\_isWeakCoherentConfiguration} & \texttt{Theorems} & Proved (PDEInfra) \\
-\midrule
---- (Viability threshold) & \texttt{viabilityThreshold} & \texttt{Theorems} & Definition \\
---- (Solution operator) & \texttt{SolutionOperator} & \texttt{Axioms} & Definition \\
---- (Abstract operators) & \texttt{SemioticOperators} & \texttt{Basic} & Definition \\
---- (Spectral, 1D) & \texttt{spectral\_characterization\_1d} & \texttt{Theorems} & Proved \\
---- (Scaling algebra) & \texttt{scaling\_algebraic\_contradiction} & \texttt{Theorems} & Proved \\
---- (Scaling uniqueness) & \texttt{scaling\_uniqueness} & \texttt{ScalingUniqueness} & Proved \\
---- (Operator: $\Delta(0)=0$) & \texttt{laplacian\_zero} & \texttt{OperatorLemmas} & Proved \\
---- (Operator: linearity) & \texttt{laplacian\_linear} & \texttt{OperatorLemmas} & Proved \\
---- (Operator: $|\nabla 0|=0$) & \texttt{gradNorm\_zero} & \texttt{OperatorLemmas} & Proved \\
---- ($a(x) \geq 0$) & \texttt{SemioticContext.a\_nonneg} & \texttt{CoefficientLemmas} & Proved \\
---- ($a(x) \leq 1$) & \texttt{SemioticContext.a\_le\_one} & \texttt{CoefficientLemmas} & Proved \\
---- ($p - 1 > 0$) & \texttt{SemioticContext.p\_sub\_one\_pos} & \texttt{CoefficientLemmas} & Proved \\
---- (Knaster--Tarski) & \texttt{OrderHom.nextFixed\_le\_of\_le} & \texttt{MonotoneFixedPoint} & Proved \\
---- (Monotone fixed point) & \texttt{monotone\_fixed\_point\_between} & \texttt{MonotoneFixedPoint} & Proved \\
-\midrule
-Defs.\ 3.19--3.27 (Temporal) & --- & --- & Not formalized \\
-Defs.\ 4.1--4.8, Props.\ 4.5, 4.9 & --- & --- & Not formalized \\
-Defs.\ 5.1, 5.3 (Operational) & --- & --- & Not formalized \\
+Def.~\ref{def:semioticManifold} (semiotic manifold) & \path{SemioticManifold} & \path{Basic} & definition (abstract model) \\
+Def.~\ref{def:fields}, Def.~\ref{def:V1prime} (fields, \(a=\kappa\gamma\mu\)) & \path{SemioticContext}, \path{SemioticContext.a} & \path{Basic} & definition \\
+Def.~\ref{def:canonicalClosure} (canonical closure) & \path{SemioticContext.canonicalViability} & \path{Basic} & definition \\
+Def.~\ref{def:V1prime} (V1\('\), weak coherent configuration) & \path{SemioticBVP}, \path{IsWeakCoherentConfiguration} & \path{Basic} & definition (overridable fields) \\
+\(a\in[0,1]\), \(p-1>0\) & \path{SemioticContext.a_nonneg}, \path{a_le_one}, \path{p_sub_one_pos} & \path{CoefficientLemmas} & proved \\
+Operator algebra & \path{laplacian_zero}, \path{laplacian_linear}, \path{gradNorm_zero} & \path{OperatorLemmas} & proved \\
+Zero solution (Section~\ref{sec:existence}) & \path{zero_solves_equation} & \path{OperatorLemmas} & proved \\
+Lem.~\ref{lem:TcompactV1prime} & \path{PDEInfra.T_compact} & \path{Axioms} & hypothesis (different topology) \\
+Lem.~\ref{lem:schaeferSign} & \path{PDEInfra.fixed_point_nonneg} & \path{Axioms} & hypothesis \\
+Lem.~\ref{lem:LinftyBound} & \path{PDEInfra.linfty_bound}; \path{linfty_bound_algebraic}, \path{rpow_le_of_mul_rpow_le} & \path{Axioms}; \path{LinftyAlgebraic} & hypothesis; algebraic step proved \\
+Lem.~\ref{lem:C1alphaBound} & --- & --- & not formalized \\
+Thm.~\ref{thm:existenceV1prime} & \path{SemioticBVP.exists_isWeakCoherentConfiguration} & \path{Theorems} & conditional \\
+Def.~\ref{def:lambda1} & \path{PrincipalEigendata} & \path{Axioms} & supplied data, not constructed \\
+Thm.~\ref{thm:nontrivialV1prime} & \path{SemioticBVP.exists_pos_isWeakCoherentConfiguration} & \path{Theorems} & conditional; positive at one interior point \\
+1D threshold, \(b>0\) & \path{viabilityThreshold}, \path{spectral_characterization_1d}, \path{viabilityThreshold_lt_iff} & \path{Theorems} & proved (arithmetic; eigenvalue identification classical) \\
+Rem.~\ref{rem:uniquenessStatus} (proportional solutions) & \path{scaling_uniqueness}, \path{scaling_algebraic_contradiction} & \path{ScalingUniqueness}, \path{Theorems} & proved \\
+Order-theoretic core & \path{monotone_fixed_point_between}, \path{OrderHom.nextFixed_le_of_le} & \path{MonotoneFixedPoint} & proved \\
+Prop.~\ref{prop:exactThreshold}, Prop.~\ref{prop:continuumConverse}, Rem.~\ref{rem:effectivePotential} & --- & --- & not formalized (classical) \\
+Def.~\ref{def:graphModel} & \path{SemioticGraph}, \path{SemioticGraph.laplacian}, \path{gradNorm}, \path{IsSolution}, \path{energy}, \path{unitSphere}, \path{principalEigenvalue}, \path{interiorGraph} & \path{Graph/Basic} & definition \\
+Thm.~\ref{thm:graphExistence} (i) & \path{exists_pos_eigenvector}, \path{principalEigenvalue_neg}, \path{principalEigenvalue_mul_le}, \path{principalEigenvalue_le_of_laplacian_eq} & \path{Graph/Spectral} & proved \\
+Thm.~\ref{thm:graphExistence} (ii) & \path{fixedPointMap}, \path{mul_sub_numer}, \path{fixedPointMap_eq_iff_isSolution}, \path{fixedPointMap_mono} & \path{Graph/FixedPoint} & proved \\
+Thm.~\ref{thm:graphExistence} (iii) & \path{smul_subsolution}, \path{plateau_supersolution}, \path{mul_sqrt_mul_le} & \path{Graph/FixedPoint} & proved \\
+Thm.~\ref{thm:graphExistence} (iv) & \path{exists_isSolution_between}, \path{exists_pos_graph} & \path{Graph/FixedPoint}, \path{Graph/Existence} & proved \\
+Cor.~\ref{cor:graphUnweighted} & \path{exists_pos_graph_of_unweighted} & \path{Graph/Existence} & proved \\
+Ex.~\ref{ex:triangle} & \path{triangle}, \path{exists_pos_triangle}, \path{triangle_isSolution}, \path{triangle_gradNorm} & \path{Graph/Example} & proved \\
+Prop.~\ref{prop:graphBound} & \path{mul_sqrt_mul_le} & \path{Graph/FixedPoint} & ingredient; the bound itself is not formalized \\
+Prop.~\ref{prop:graphConverse}, Rem.~\ref{rem:threeModels} & --- & --- & not formalized \\
+Prop.~\ref{prop:strongObstruction}; Section~\ref{sec:temporal_resilience_debt}; Sections~4--5 & --- & --- & not formalized \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Axiom boundary: the PDEInfra typeclass}\label{sec:axiom_boundary}
+As Mathlib's elliptic theory grows, the fields of \texttt{PDEInfra} could be replaced by proofs; doing so would also require constructing the operators from the metric and representing a manifold with boundary. Until then, the continuum existence theorems are verified as implications, and their analytic content is the classical proof given in Section~\ref{sec:mainPDE}.
 
-The \texttt{PDEInfra} typeclass packages five assumptions from classical elliptic PDE theory that are not yet available in Mathlib for abstract Riemannian manifolds. Downstream theorems declare their dependence explicitly via \texttt{[PDEInfra bvp solOp]}. Table~\ref{tab:axioms} itemizes each axiom.
+\section{Transfer of the cited Euclidean results to the manifold}\label{app:transfer}
+The theorems cited from Gilbarg--Trudinger~\cite{GilbargTrudinger2001} in Section~\ref{sec:existence} are Euclidean statements. This appendix records how each is used on the compact, connected manifold \(M\) with smooth boundary of Definition~\ref{def:semioticManifold}; nothing here is new, but the passage from a bounded domain to \(M\) is not a single localization step, and we separate the parts that transfer by patching from the parts that do not.
 
-\begin{table}[ht]
-\centering
-\small
-\caption{The five \texttt{PDEInfra} axioms and their classical sources.}
-\label{tab:axioms}
-\begin{tabular}{@{}lll@{}}
-\toprule
-\textbf{Axiom} & \textbf{Classical Source} & \textbf{Mathlib Status} \\
-\midrule
-\texttt{T\_compact} & Schauder estimates + Arzel\`a--Ascoli & No H\"older spaces on manifolds \\
-\texttt{linfty\_bound} & Maximum principle (Gilbarg--Trudinger) & No max.\ principle for manifolds \\
-\texttt{schaefer} & Schaefer 1955~\cite{Schaefer1955} & Not in Mathlib \\
-\texttt{fixed\_point\_nonneg} & Strong maximum principle & No max.\ principle for manifolds \\
-\texttt{monotone\_iteration} & Amann 1976~\cite{Amann1976} & No sub-/super-solution theory \\
-\bottomrule
-\end{tabular}
-\end{table}
+Fix a finite atlas \((U_i,x_i)\) whose charts map interior patches onto balls and boundary patches onto half-balls with \(\partial M\) flattened, and a subordinate partition of unity \((\chi_i)\). In each chart \(\Delta_g=g^{jk}\partial_{jk}+(\text{smooth})\,\partial_j\) is uniformly elliptic with coefficients in \(C^\infty(\overline{x_i(U_i)})\), and \(\Delta_g-K\) has zero-order coefficient \(-K\le 0\).
 
-The \texttt{T\_compact} field uses Mathlib's bornological vocabulary: it asserts that $T$ maps von Neumann bounded sets to relatively compact sets (\texttt{IsVonNBounded} $\to$ \texttt{IsCompact}), following the compact-operator characterization suggested on the Lean Zulip. The Schaefer axiom takes this as an explicit hypothesis, making the dependency structurally visible. The algebraic core of the $L^\infty$ bound (Lemma~\ref{lem:LinftyBound})---that $bv \geq cv^p$ implies $v \leq (B/c_0)^{1/(p-1)}$---is proved in the main formalization (\texttt{LinftyAlgebraic.lean}); the maximum-principle step (that $\nabla u = 0$ and $\Delta u \leq 0$ at an interior maximum) remains an axiom.
+\begin{enumerate}[label=(\alph*)]
+\item \emph{Function spaces.} \(W^{k,q}(M)\) and \(C^{k,\beta}(\overline M)\) are defined through the charts; different finite atlases give equivalent norms.
+\item \emph{Embeddings and interpolation} (Theorems~7.26 and~7.28 of~\cite{GilbargTrudinger2001}) hold on \(M\) by applying the Euclidean statements to \(\chi_i u\) and summing over the finitely many charts; the H\"older quotient for points in different charts is bounded by \(2\|u\|_\infty/\delta^\beta\) with \(\delta\) a Lebesgue number of the cover. These steps are routine.
+\item \emph{A priori estimates.} Applying the interior and boundary \(W^{2,q}\) estimates of~\cite[Ch.~9]{GilbargTrudinger2001} to \(\chi_i u\), using that \([\Delta_g,\chi_i]\) is a first-order operator, and absorbing \(\|u\|_{W^{1,q}}\) by (b), gives \(\|u\|_{W^{2,q}(M)}\le C\big(\|Lu\|_{L^q(M)}+\|u\|_{L^q(M)}\big)\) for \(u\in W^{2,q}(M)\cap W^{1,q}_0(M)\), \(L=\Delta_g-K\), \(K\ge 0\); the same patching of the interior and boundary Schauder estimates of~\cite[Ch.~6]{GilbargTrudinger2001} gives the \(C^{2,\beta}\) bound. The \(\|u\|_{L^q}\) term is removed exactly as in the proof of Lemma~9.17 of~\cite{GilbargTrudinger2001}, by contradiction and compactness, once uniqueness is known: for \(q>n\), \(u\in W^{2,q}\cap W^{1,q}_0\subset C^1(\overline M)\), and \(Lu=0\) gives \(\int_M|\nabla u|^2+Ku^2=0\) by Green's formula (valid for such \(u\) by approximation), hence \(u=0\) because \(M\) is connected and \(u=0\) on \(\partial M\neq\emptyset\).
+\item \emph{Existence for the linear Dirichlet problem} is not an estimate and is obtained separately. Let \(K\ge 0\). For \(f\in L^2(M)\) the Lax--Milgram theorem gives a unique weak solution \(u\in H^1_0(M)\) of \(-\Delta_g u+Ku=f\) (the form is coercive because \(\partial M\neq\emptyset\) gives a Poincar\'e inequality), and the difference-quotient method in charts (interior, and at a flattened boundary) gives \(u\in H^2(M)\). If \(f\in L^q(M)\) with \(q\ge 2\), then \(f\in L^2(M)\) and the \(L^q\) regularity theory of~\cite[Ch.~9]{GilbargTrudinger2001} (Lemma~9.16, from which Theorem~9.15 is derived), applied to \(\chi_i u\) on chart images chosen as \(C^{1,1}\) domains, raises the exponent to \(q\) in finitely many Sobolev steps, because the commutator \([\Delta_g,\chi_i]u\) involves only \(u\) and \(\nabla u\); hence \(u\in W^{2,q}(M)\). If \(1<q<2\), which can occur only when \(n=1\), then \(L^q(M)\not\subset L^2(M)\) and the \(H^2\) step is not available for \(f\) itself: approximate \(f\) in \(L^q(M)\) by \(f_k\in L^2(M)\), solve for \(u_k\in H^2(M)\cap H^1_0(M)\subset W^{2,q}(M)\cap W^{1,q}_0(M)\) (\(M\) is compact and \(q<2\)), and apply the estimate of (c) to the differences, \(\|u_k-u_l\|_{W^{2,q}}\le C\|f_k-f_l\|_{L^q}\); the sequence is Cauchy in \(W^{2,q}(M)\), and its limit \(u\in W^{2,q}(M)\cap W^{1,q}_0(M)\) solves \(-\Delta_g u+Ku=f\). In both cases this is the manifold form of Theorem~9.15, and with (c) it yields \(\|u\|_{W^{2,q}}\le C\|f\|_{L^q}\), the manifold form of Lemma~9.17. For \(f\in C^{0,\beta}(\overline M)\) the same \(u\) lies in \(C^{1,\gamma}(\overline M)\) by (b), and the H\"older regularity of strong solutions with H\"older data, interior (\cite[Ch.~9]{GilbargTrudinger2001}) and at a flattened boundary (\cite[Ch.~6]{GilbargTrudinger2001}), applied in charts, gives \(u\in C^{2,\beta}(\overline M)\), the manifold form of Theorem~6.14; uniqueness in that class is again (c).
+\item \emph{Maximum principles.} The proofs of Theorem~3.1 and Corollary~3.2 of~\cite{GilbargTrudinger2001} use a global auxiliary function \(e^{\gamma x_1}\) and do not localize. On an open set \(U\subset M^\circ\) we use instead the strong maximum principle, Theorem~3.5 of~\cite{GilbargTrudinger2001}, which is local (it is proved in balls) and requires only ellipticity, a bound on \(|\beta|/\lambda\) and, when \(c\le 0\), on \(|c|/\lambda\), with no continuity of the coefficients: if \(w\in C^2(U)\cap C^0(\overline U)\) satisfies \(\Delta_g w+\beta\cdot\nabla w+cw\ge 0\) with \(c\le 0\) bounded, \(w\le 0\) on \(\partial U\), and \(\sup_U w>0\), then the positive maximum is attained at an interior point \(x_0\) (\(\overline U\) is compact); Theorem~3.5 on the connected component \(V\) of \(U\) containing \(x_0\) makes \(w\) constant on \(V\), and since \(\partial V\subset\partial U\) is nonempty (\(M\) is connected and \(\partial M\neq\emptyset\)) and \(w\le 0\) there, this is a contradiction. Hence \(\sup_U w\le\sup_{\partial U}w^+\), which is the form of Theorem~3.1 (\(c=0\)) and Corollary~3.2 (\(c\le 0\)) used in Lemma~\ref{lem:schaeferSign} and in Step~3 of the proof of Theorem~\ref{thm:nontrivialV1prime}. The point requiring care is the gradient coefficient \(\beta=a\nabla z/|\nabla z|\), which is only bounded and measurable; this is admissible in Theorem~3.5, whose proof uses only the bounds.
+\item \emph{The principal eigenvalue} of \(-\Delta_g-b\), \(b\in C^{0,\alpha}(M)\). The Rayleigh-quotient argument is chart-free once the compact embedding \(H^1_0(M)\hookrightarrow L^2(M)\) from (b) is available; the minimizer \(\phi_1\in H^1_0(M)\) is a weak solution of \(-\Delta_g\phi_1+K\phi_1=(b+\lambda_1+K)\phi_1\) with right-hand side in \(L^2(M)\), so (d) with its exponent bootstrap gives \(\phi_1\in W^{2,q}(M)\subset C^{1,\gamma}(\overline M)\), the right-hand side is then in \(C^{0,\alpha}(\overline M)\), and \(\phi_1\in C^{2,\alpha}(\overline M)\); \(|\phi_1|\) is also a minimizer, and the strong maximum principle (Theorem~3.5 of~\cite{GilbargTrudinger2001} on \(M^\circ\), in its minimum form: \(c\le 0\) and a nonpositive interior minimum force a constant) applied to \(|\phi_1|\) with \(c=-(b+\lambda_1)^-\) shows \(\phi_1>0\) in \(M^\circ\); two positive eigenfunctions cannot be \(L^2\)-orthogonal, so \(\lambda_1\) is simple. This is Theorem~8.38 of~\cite{GilbargTrudinger2001}, whose hypotheses (self-adjoint divergence form, bounded measurable coefficients) are met, transferred to \(M\).
+\end{enumerate}
 
-As Mathlib's PDE infrastructure grows, these axioms can be replaced one by one with real proofs. The logical structure of the existence and nontriviality theorems is already verified; only the analytic plumbing remains.
+Routine steps: (a), (b), the patching in (c), and the Rayleigh-quotient part of (f). Steps that need care: removing \(\|u\|_{L^q}\) in (c), which needs uniqueness (the Green's-formula argument uses \(q>n\) so that \(u\in C^1(\overline M)\)); existence in (d), which glues three separate theories (Hilbert space, \(H^2\) regularity, \(L^q\) bootstrap) and needs the approximation argument when \(1<q<2\), since \(L^q(M)\not\subset L^2(M)\) there; the weak maximum principle on an arbitrary open \(U\subset M^\circ\) in (e), which must go through the strong one and argue on components; and the comparison with the gradient term in Step~3, which uses \(c=-K\le 0\), a sign condition that is essential.
 
 \bibliographystyle{unsrt}
 \bibliography{cd_refs}
