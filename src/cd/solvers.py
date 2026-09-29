@@ -188,8 +188,6 @@ def _picard_loop(
     termination = "max_iter"
     it = 0
     err = float("nan")
-    res_inf = float("nan")
-    scale = float("nan")
     clipped_iterations = 0
     clipped_last = False
     min_step = float("inf")
@@ -209,8 +207,11 @@ def _picard_loop(
     if not np.isfinite(res_inf):
         termination = "nonfinite"
     elif res_inf <= residual_atol + residual_rtol * scale:
+        # The (nonnegative) initial field already solves the discrete equation: zero
+        # iterations and a zero update, so the accepted result carries finite diagnostics.
         converged = True
         termination = "converged"
+        err = 0.0
     else:
         for it in range(1, max_iter + 1):
             with np.errstate(over="ignore", invalid="ignore"):
@@ -284,6 +285,16 @@ def _attach_bound(info: dict[str, Any], beta_b, c, p: float, a_is_zero: bool) ->
         )
 
 
+def _require_nonnegative_initial(arr: np.ndarray) -> None:
+    """Policy: the solvers seek nonnegative solutions and project iterates onto Phi >= 0, so
+    negative initial data is rejected rather than silently accepted or clipped."""
+    if np.any(arr < 0.0):
+        raise ValueError(
+            "initial_guess must be nonnegative: the solver seeks nonnegative solutions "
+            f"(min = {float(np.min(arr))})"
+        )
+
+
 def _initial_1d(
     initial_guess, N: int, L: float, x: np.ndarray, q, c, p: float, initial_amplitude: float
 ) -> np.ndarray:
@@ -297,10 +308,11 @@ def _initial_1d(
         return (bar["sub"] if initial_guess == "subsolution" else bar["sup"])[1:-1].copy()
     arr = check_finite_array("initial_guess", initial_guess)
     if arr.shape == (N + 2,):
-        return arr[1:-1].copy()
-    if arr.shape == (N,):
-        return arr.copy()
-    raise ValueError(f"initial_guess must have length {N} or {N + 2}, got shape {arr.shape}")
+        arr = arr[1:-1]
+    elif arr.shape != (N,):
+        raise ValueError(f"initial_guess must have length {N} or {N + 2}, got shape {arr.shape}")
+    _require_nonnegative_initial(arr)
+    return arr.copy()
 
 
 def solve_1d_picard(
@@ -542,6 +554,8 @@ def solve_2d_picard(
             raise ValueError(
                 f"initial_guess must have shape ({Ny}, {Nx}) or ({Ny + 2}, {Nx + 2}), got {arr.shape}"
             )
+
+    _require_nonnegative_initial(Phi_int)
 
     def reaction(v: np.ndarray) -> np.ndarray:
         full = np.zeros((Ny + 2, Nx + 2))

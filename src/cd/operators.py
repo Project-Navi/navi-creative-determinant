@@ -130,6 +130,55 @@ def laplacian_2d_dirichlet(
     return A, hx, hy
 
 
+def laplacian_3d_dirichlet(
+    Nx: int, Ny: int, Nz: int, Lx: float, Ly: float, Lz: float
+) -> tuple[csr_matrix, float, float, float]:
+    """
+    Construct sparse matrix for -Δ on (0,Lx) × (0,Ly) × (0,Lz) with Dirichlet BC.
+
+    Parameters
+    ----------
+    Nx, Ny, Nz : int
+        Number of interior grid points in each direction.
+    Lx, Ly, Lz : float
+        Domain lengths.
+
+    Returns
+    -------
+    A : scipy.sparse.csr_matrix
+        Sparse (Nx*Ny*Nz) × (Nx*Ny*Nz) matrix representing -Δ.
+    hx, hy, hz : float
+        Grid spacings.
+
+    Notes
+    -----
+    **Array convention.** The flat unknown index is ``(iz * Ny + iy) * Nx + ix``: x varies
+    fastest, then y, then z. Interior arrays therefore have shape ``(Nz, Ny, Nx)`` and full
+    grids ``(Nz+2, Ny+2, Nx+2)``; ``grid_3d`` returns coordinate arrays in that layout, and
+    ``field[1:-1, 1:-1, 1:-1].reshape(-1)`` is the matching flattening. A ``(Ny, Nx, Nz)``
+    array (the layout of ``np.meshgrid(x, y, z, indexing="xy")``) is *not* compatible; for
+    unequal sizes it is rejected by shape, for equal sizes it silently permutes the axes,
+    so build fields from ``grid_3d``.
+
+    Kronecker structure with x fastest:
+        -Δ = Iz ⊗ Iy ⊗ Ax + Iz ⊗ Ay ⊗ Ix + Az ⊗ Iy ⊗ Ix
+    """
+    Nx = check_positive_int("Nx", Nx)
+    Ny = check_positive_int("Ny", Ny)
+    Nz = check_positive_int("Nz", Nz)
+    Lx = check_positive_scalar("Lx", Lx)
+    Ly = check_positive_scalar("Ly", Ly)
+    Lz = check_positive_scalar("Lz", Lz)
+    Ax, hx = laplacian_1d_dirichlet(Nx, Lx)
+    Ay, hy = laplacian_1d_dirichlet(Ny, Ly)
+    Az, hz = laplacian_1d_dirichlet(Nz, Lz)
+    Ix = eye(Nx, format="csr")
+    Iy = eye(Ny, format="csr")
+    Iz = eye(Nz, format="csr")
+    A = (kron(kron(Iz, Iy), Ax) + kron(kron(Iz, Ay), Ix) + kron(kron(Az, Iy), Ix)).tocsr()
+    return A, hx, hy, hz
+
+
 def grid_1d(N: int, L: float) -> np.ndarray:
     """
     Generate 1D grid including boundary points.
@@ -170,3 +219,23 @@ def grid_2d(Nx: int, Ny: int, Lx: float, Ly: float) -> tuple[np.ndarray, np.ndar
     x = grid_1d(Nx, Lx)
     y = grid_1d(Ny, Ly)
     return np.meshgrid(x, y)
+
+
+def grid_3d(
+    Nx: int, Ny: int, Nz: int, Lx: float, Ly: float, Lz: float
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Generate 3D coordinate arrays including boundary points, in the ``(z, y, x)`` layout of
+    ``laplacian_3d_dirichlet``.
+
+    Returns
+    -------
+    Z, Y, X : ndarray
+        Arrays of shape ``(Nz+2, Ny+2, Nx+2)`` with ``X[k, j, i] = x_i``, ``Y[k, j, i] = y_j``,
+        ``Z[k, j, i] = z_k``.
+    """
+    x = grid_1d(Nx, Lx)
+    y = grid_1d(Ny, Ly)
+    z = grid_1d(Nz, Lz)
+    Z, Y, X = np.meshgrid(z, y, x, indexing="ij")
+    return Z, Y, X

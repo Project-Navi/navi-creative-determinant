@@ -1,4 +1,4 @@
-"""Meaning of numerical success (MATH-REPAIR M05).
+"""Meaning of numerical success.
 
 Convergence means: a finite field satisfying the declared discrete equation to a documented
 residual tolerance, with the boundary condition met. Update size alone is not convergence.

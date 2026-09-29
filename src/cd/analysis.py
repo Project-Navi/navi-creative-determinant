@@ -162,19 +162,41 @@ def _finite(value: Any) -> bool:
         return False
 
 
+_REQUIRED_DIAGNOSTICS = (
+    "converged",
+    "termination",
+    "iters",
+    "inf_err",
+    "residual_inf",
+    "residual_scale",
+    "residual_atol",
+    "residual_rtol",
+    "boundary_err",
+    "maxPhi",
+)
+
+
 def check_convergence(info: dict) -> tuple[bool, str]:
     """
     Fail-closed convergence check on a solver ``info`` dictionary.
 
-    A run is acceptable only if the solver reports ``converged`` (residual and update criteria
-    met) and every reported diagnostic is finite. Iteration exhaustion, stagnation, nonfinite
-    iterates and missing residual information are never accepted. There is no "nearly
-    converged" category.
+    A run is accepted only when the report is complete and internally consistent:
+
+    * every key in ``_REQUIRED_DIAGNOSTICS`` is present and finite (``termination`` a string);
+    * ``converged`` is ``True`` and ``termination == "converged"``;
+    * the recorded residual satisfies the recorded criterion,
+      ``residual_inf <= residual_atol + residual_rtol * residual_scale``;
+    * ``boundary_err <= residual_atol`` (the solvers return exactly zero boundary values).
+
+    The boolean flag is therefore re-validated against the numbers that justify it; a report
+    with ``converged=True`` but a residual above its own tolerance, a nonzero boundary error,
+    or nonfinite diagnostics is rejected. Iteration exhaustion, stagnation and nonfinite
+    iterates are never accepted. There is no "nearly converged" category.
 
     Parameters
     ----------
     info : dict
-        Solver info with at least ``converged``, ``iters``, ``inf_err`` and ``residual_inf``.
+        Solver info as returned by ``solve_1d_picard`` / ``solve_2d_picard``.
 
     Returns
     -------
@@ -184,18 +206,44 @@ def check_convergence(info: dict) -> tuple[bool, str]:
         Diagnostic message including the termination reason.
     """
     iters = info.get("iters", "?")
-    inf_err = info.get("inf_err", float("nan"))
-    res = info.get("residual_inf")
     term = info.get("termination", "unknown")
-    if res is None:
-        return False, f"Not accepted: no residual diagnostic (iters={iters}, termination={term})"
-    if not (_finite(inf_err) and _finite(res)):
+    missing = [k for k in _REQUIRED_DIAGNOSTICS if k not in info]
+    if missing:
+        return (
+            False,
+            f"Not accepted: incomplete diagnostics (missing {missing}; termination={term})",
+        )
+    numeric = (
+        "inf_err",
+        "residual_inf",
+        "residual_scale",
+        "residual_atol",
+        "residual_rtol",
+        "boundary_err",
+        "maxPhi",
+    )
+    if not all(_finite(info[k]) for k in numeric):
         return False, f"Not accepted: nonfinite diagnostics (iters={iters}, termination={term})"
-    if info.get("converged", False) is True and term in ("converged", "unknown"):
-        return True, f"Converged in {iters} iterations (update={inf_err:.2e}, residual={res:.2e})"
+    inf_err = float(info["inf_err"])
+    res = float(info["residual_inf"])
+    bound = float(info["residual_atol"]) + float(info["residual_rtol"]) * float(
+        info["residual_scale"]
+    )
+    if info["converged"] is not True or term != "converged":
+        return (
+            False,
+            f"Did not converge after {iters} iterations (termination={term}, update={inf_err:.2e}, residual={res:.2e})",
+        )
+    if res > bound:
+        return False, f"Not accepted: residual {res:.2e} exceeds its recorded tolerance {bound:.2e}"
+    if float(info["boundary_err"]) > float(info["residual_atol"]):
+        return (
+            False,
+            f"Not accepted: boundary error {float(info['boundary_err']):.2e} (Dirichlet data violated)",
+        )
     return (
-        False,
-        f"Did not converge after {iters} iterations (termination={term}, update={inf_err:.2e}, residual={res:.2e})",
+        True,
+        f"Converged in {iters} iterations (update={inf_err:.2e}, residual={res:.2e} <= {bound:.2e})",
     )
 
 
@@ -213,15 +261,17 @@ def solution_type(info: dict, threshold: float = _ZERO_BRANCH_TOL) -> str:
 
     Notes
     -----
-    This keeps the historical labels. ``classify_branch`` gives the finer classification used
-    by the notebook (``zero`` / ``positive`` / ``nonnegative`` / ``unresolved`` / ``invalid``).
+    This keeps the historical amplitude labels. It is not a validated solution
+    classification: a missing ``converged`` flag is treated as not converged, and
+    ``classify_branch`` gives the finer, sign-checked classification used by the notebook
+    (``zero`` / ``positive`` / ``nonnegative`` / ``unresolved`` / ``invalid``).
     """
     max_phi = info.get("maxPhi", float("nan"))
     if not _finite(max_phi) or info.get("termination") == "nonfinite":
         return "invalid"
     if "residual_inf" in info and not _finite(info["residual_inf"]):
         return "invalid"
-    if not info.get("converged", True):
+    if info.get("converged", False) is not True:
         return "unresolved"
     return "trivial" if float(max_phi) < threshold else "nontrivial"
 
@@ -233,10 +283,12 @@ def classify_branch(Phi: np.ndarray, info: dict, zero_tol: float = _ZERO_BRANCH_
     Returns
     -------
     str
-        ``'invalid'`` if the field or diagnostics are nonfinite;
+        ``'invalid'`` if the field or diagnostics are nonfinite, or if the field has a
+        negative entry (the solvers only return nonnegative fields; a negative or
+        sign-changing field is never a ``zero`` or ``nonnegative`` branch);
         ``'unresolved'`` if the solver did not converge (near-threshold failure is not
         evidence of nonexistence);
-        ``'zero'`` if converged and ``max Phi <= zero_tol`` (the zero solution is exact on
+        ``'zero'`` if converged and ``max |Phi| <= zero_tol`` (the zero solution is exact on
         both sides of the threshold);
         ``'positive'`` if converged and strictly positive at every interior node;
         ``'nonnegative'`` if converged, not zero, but vanishing somewhere in the interior.
@@ -251,9 +303,11 @@ def classify_branch(Phi: np.ndarray, info: dict, zero_tol: float = _ZERO_BRANCH_
         return "invalid"
     if "residual_inf" in info and not _finite(info["residual_inf"]):
         return "invalid"
+    if float(np.min(Phi)) < 0.0:
+        return "invalid"
     if not info.get("converged", False):
         return "unresolved"
-    if float(np.max(Phi)) <= zero_tol:
+    if float(np.max(np.abs(Phi))) <= zero_tol:
         return "zero"
     interior = Phi[1:-1] if Phi.ndim == 1 else Phi[1:-1, 1:-1]
     if interior.size and float(np.min(interior)) > 0.0:

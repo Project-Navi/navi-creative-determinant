@@ -37,16 +37,23 @@ from .analysis import (
 from .eigenvalues import (
     principal_eigenpair_1d,
     principal_eigenpair_2d,
+    principal_eigenpair_3d,
     principal_eigenvalue_1d,
     principal_eigenvalue_1d_spatial,
     principal_eigenvalue_2d,
     principal_eigenvalue_2d_spatial,
+    principal_eigenvalue_3d,
     viability_threshold_1d,
     viability_threshold_2d,
 )
 from .fields import creative_drive, gaussian_bump_1d, gaussian_bump_2d, viability_canonical
 from .graph import SemioticGraph, linfty_bound_graph, solve_graph, triangle
-from .operators import laplacian_1d_dirichlet, laplacian_2d_dirichlet
+from .operators import (
+    grid_3d,
+    laplacian_1d_dirichlet,
+    laplacian_2d_dirichlet,
+    laplacian_3d_dirichlet,
+)
 from .solvers import barriers_1d, solve_1d_picard, solve_2d_picard
 
 __version__ = "0.1.0"
@@ -57,6 +64,8 @@ __all__ = [
     # Operators
     "laplacian_1d_dirichlet",
     "laplacian_2d_dirichlet",
+    "laplacian_3d_dirichlet",
+    "grid_3d",
     # Eigenvalues
     "principal_eigenvalue_1d",
     "principal_eigenvalue_1d_spatial",
@@ -64,6 +73,8 @@ __all__ = [
     "principal_eigenvalue_2d_spatial",
     "principal_eigenpair_1d",
     "principal_eigenpair_2d",
+    "principal_eigenpair_3d",
+    "principal_eigenvalue_3d",
     "viability_threshold_1d",
     "viability_threshold_2d",
     # Solvers

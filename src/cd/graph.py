@@ -63,6 +63,7 @@ __all__ = [
     "energy",
     "existence_theorem_applies",
     "grad_norm",
+    "spectral_report",
     "interior_connected",
     "jacobi_map",
     "laplacian",
@@ -120,8 +121,11 @@ class SemioticGraph:
             raise ValueError("the graph needs at least one vertex")
         if np.any(w < 0.0):
             raise ValueError("weights must be nonnegative")
-        if not np.allclose(w, w.T, rtol=1e-12, atol=1e-14):
-            raise ValueError("weights must be symmetric")
+        if not np.array_equal(w, w.T):
+            raise ValueError(
+                "weights must be exactly symmetric (the Lean model has w x y = w y x); "
+                "symmetrize explicitly with 0.5 * (w + w.T) if that is the intended model"
+            )
         boundary = np.asarray(self.boundary)
         if boundary.shape != (n,):
             raise ValueError(f"boundary must have shape ({n},), got {boundary.shape}")
@@ -233,31 +237,93 @@ def interior_connected(G: SemioticGraph) -> bool:
     return len(seen) == len(interior)
 
 
+def _dirichlet_block(G: SemioticGraph) -> tuple[np.ndarray, np.ndarray]:
+    """Interior block of ``diag(d') - w' - diag(b)`` where ``w'`` is ``w`` with the diagonal
+    removed and ``d'`` its row sums (boundary edges included).
+
+    Self weights contribute nothing to ``L_G`` (the pair difference vanishes), so they are
+    removed *before* summation. Forming ``diag(d) - w`` with the diagonal included would
+    cancel ``w(x,x)`` against itself only in exact arithmetic; a large self weight would
+    swamp the off-diagonal contributions in floating point and corrupt the operator.
+    """
+    interior = np.flatnonzero(G.interior)
+    off = G.w.copy()
+    np.fill_diagonal(off, 0.0)
+    full = np.diag(off.sum(axis=1)) - off - np.diag(G.b)
+    return interior, full[np.ix_(interior, interior)]
+
+
 def principal_eigenpair(G: SemioticGraph) -> tuple[float, np.ndarray]:
     """Principal Dirichlet eigenvalue of ``L_G - diag(b)`` and a unit eigenvector.
 
     The eigenvalue is the smallest eigenvalue of the interior block of the full-degree
-    Laplacian ``diag(d) - w - diag(b)`` (degrees include boundary edges; nothing is recomputed
-    after removing boundary vertices). The returned vector vanishes on the boundary, has unit
+    Laplacian ``diag(d') - w' - diag(b)`` (degrees include boundary edges; self weights are
+    removed before summation because they do not enter ``L_G``; nothing is recomputed after
+    removing boundary vertices). The returned vector vanishes on the boundary, has unit
     Euclidean norm, is nonnegative, and is positive at every interior vertex when the interior
     graph is connected (Lean ``SemioticGraph.exists_pos_eigenvector``).
+
+    Use ``spectral_report`` for the independent verification of the pair against the direct
+    operator and the Rayleigh quotient.
 
     Raises
     ------
     ValueError
         If the interior is empty (the infimum over the empty unit sphere is not defined).
     """
-    interior = np.flatnonzero(G.interior)
+    interior, block = _dirichlet_block(G)
     if interior.size == 0:
         raise ValueError("the principal eigenvalue requires a nonempty interior")
-    full = np.diag(G.degree) - G.w - np.diag(G.b)
-    block = full[np.ix_(interior, interior)]
     vals, vecs = np.linalg.eigh(block)
     v = np.abs(vecs[:, 0])
     v /= np.linalg.norm(v)
     phi = np.zeros(G.n)
     phi[interior] = v
     return float(vals[0]), phi
+
+
+def spectral_report(G: SemioticGraph) -> dict[str, Any]:
+    """Principal eigendata checked against independently evaluated quantities.
+
+    Returns ``lam1`` (from the assembled block), ``phi``, ``rayleigh`` (the energy of ``phi``
+    evaluated directly from pair differences divided by ``sum phi^2``; an upper bound for the
+    exact ``lambda_1``), ``defect`` (``max |L_G phi - b phi - lam1 phi|`` on the interior, with
+    ``L_G`` evaluated from pair differences), ``margin`` (a floating-point margin, see below)
+    and ``status``:
+
+    * ``"negative"``: both ``lam1`` and the Rayleigh quotient lie below ``-margin`` and the
+      defect is small; the hypothesis ``lambda_1 < 0`` of the Lean theorem holds up to
+      floating-point rounding of the reported quantities.
+    * ``"nonnegative"``: ``lam1 > margin``.
+    * ``"indeterminate"``: ``|lam1| <= margin`` or the defect is not small; no sign claim.
+
+    The margin ``1e3 * n * eps * (max degree + max |b|)`` is a rounding allowance, not a
+    proof. An exact certificate is a function ``u`` with rational entries and ``E(u) < 0``
+    evaluated exactly (Lean ``principalEigenvalue_neg``).
+    """
+    lam1, phi = principal_eigenpair(G)
+    interior = G.interior
+    off = G.w.copy()
+    np.fill_diagonal(off, 0.0)
+    scale = float(off.sum(axis=1).max() + np.abs(G.b).max())
+    margin = 1e3 * G.n * np.finfo(float).eps * max(1.0, scale)
+    rayleigh = energy(G, phi) / float(np.sum(phi**2))
+    defect = float(np.max(np.abs((laplacian(G, phi) - G.b * phi - lam1 * phi)[interior])))
+    small_defect = defect <= 1e3 * margin * max(1.0, abs(lam1))
+    if lam1 < -margin and rayleigh < -margin and small_defect:
+        status = "negative"
+    elif lam1 > margin and small_defect:
+        status = "nonnegative"
+    else:
+        status = "indeterminate"
+    return {
+        "lam1": lam1,
+        "phi": phi,
+        "rayleigh": float(rayleigh),
+        "defect": defect,
+        "margin": float(margin),
+        "status": status,
+    }
 
 
 def edge_condition(G: SemioticGraph) -> np.ndarray:
@@ -269,7 +335,9 @@ def edge_condition(G: SemioticGraph) -> np.ndarray:
     positive = G.w > 0.0
     distinct = ~np.eye(G.n, dtype=bool)
     relevant = positive & distinct & interior[:, None] & interior[None, :]
-    violated = G.a[:, None] > np.sqrt(G.w) + 1e-12
+    # The exact hypothesis, evaluated in floating point with no slack: a numerical tolerance
+    # would silently weaken the theorem's assumption.
+    violated = G.a[:, None] > np.sqrt(G.w)
     return relevant & violated
 
 
@@ -284,20 +352,29 @@ def existence_theorem_applies(G: SemioticGraph) -> dict[str, Any]:
     """Check the hypotheses of ``SemioticGraph.exists_pos_graph`` and report each one.
 
     ``applies`` is ``True`` iff the interior is nonempty and connected, the edge condition
-    holds and the principal eigenvalue is negative. When it is ``False`` the theorem does not
-    apply; that is not evidence that no positive solution exists.
+    holds exactly, and the spectral status is ``"negative"`` (see ``spectral_report``: the
+    assembled eigenvalue and the directly evaluated Rayleigh quotient both lie below a stated
+    floating-point margin). An eigenvalue within the margin of zero is ``"indeterminate"`` and
+    does not certify the theorem. When ``applies`` is ``False`` the theorem does not apply;
+    that is not evidence that no positive solution exists.
     """
     report: dict[str, Any] = {
         "interior_nonempty": bool(G.interior.any()),
         "interior_connected": interior_connected(G),
         "edge_condition": edge_condition_holds(G),
         "principal_eigenvalue": None,
+        "rayleigh_upper_bound": None,
+        "spectral_margin": None,
+        "spectral_status": "undefined",
         "negative_eigenvalue": False,
     }
     if report["interior_nonempty"]:
-        lam, _ = principal_eigenpair(G)
-        report["principal_eigenvalue"] = lam
-        report["negative_eigenvalue"] = bool(lam < 0.0)
+        spec = spectral_report(G)
+        report["principal_eigenvalue"] = spec["lam1"]
+        report["rayleigh_upper_bound"] = spec["rayleigh"]
+        report["spectral_margin"] = spec["margin"]
+        report["spectral_status"] = spec["status"]
+        report["negative_eigenvalue"] = spec["status"] == "negative"
     keys = ("interior_nonempty", "interior_connected", "edge_condition", "negative_eigenvalue")
     report["failed"] = [k for k in keys if not report[k]]
     report["applies"] = not report["failed"]
@@ -462,8 +539,6 @@ def solve_graph(
     update_inf = float("nan")
     min_step = float("inf")
     max_step = float("-inf")
-    res_inf = float("nan")
-    scale = float("nan")
 
     def _residual_state(v: np.ndarray) -> tuple[float, float]:
         lap = laplacian(G, v)
@@ -476,8 +551,10 @@ def solve_graph(
     if not np.isfinite(res_inf):
         termination = "nonfinite"
     elif res_inf <= atol + rtol * scale:
+        # The initial function already solves the problem: zero iterations, zero update.
         converged = True
         termination = "converged"
+        update_inf = 0.0
     else:
         for iters in range(1, max_iter + 1):
             v = jacobi_map(G, u, K)

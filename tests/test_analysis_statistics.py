@@ -1,4 +1,4 @@
-"""Spatial statistics with explicit population, coordinates and quadrature (MATH-REPAIR M06)."""
+"""Spatial statistics with explicit population, coordinates and quadrature."""
 
 import numpy as np
 import pytest

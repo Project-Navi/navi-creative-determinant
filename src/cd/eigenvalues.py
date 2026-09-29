@@ -24,7 +24,7 @@ from scipy.sparse import csr_matrix, diags
 from scipy.sparse.linalg import ArpackNoConvergence, eigsh
 
 from ._validation import check_finite_array, check_finite_scalar, check_positive_scalar
-from .operators import laplacian_1d_dirichlet, laplacian_2d_dirichlet
+from .operators import laplacian_1d_dirichlet, laplacian_2d_dirichlet, laplacian_3d_dirichlet
 
 _DENSE_LIMIT = 256  # use a dense symmetric eigensolver at or below this size
 _DENSE_FALLBACK_LIMIT = 4096  # fall back to dense if ARPACK fails at or below this size
@@ -218,6 +218,70 @@ def principal_eigenvalue_2d(
         Principal (smallest) eigenvalue.
     """
     lam, _ = principal_eigenpair_2d(Nx, Ny, Lx, Ly, beta_b)
+    return lam
+
+
+def principal_eigenpair_3d(
+    Nx: int, Ny: int, Nz: int, Lx: float, Ly: float, Lz: float, beta_b: float | np.ndarray
+) -> tuple[float, np.ndarray]:
+    """
+    Principal eigenvalue and positive eigenvector of (-Δ - q) on a box, Dirichlet.
+
+    Parameters
+    ----------
+    Nx, Ny, Nz : int
+        Interior grid points per direction.
+    Lx, Ly, Lz : float
+        Domain lengths.
+    beta_b : float or ndarray
+        Effective potential: scalar, interior ``(Nz, Ny, Nx)`` array, or full
+        ``(Nz+2, Ny+2, Nx+2)`` array in the ``(z, y, x)`` layout of ``grid_3d`` /
+        ``laplacian_3d_dirichlet``. Arrays in another layout are rejected by shape when the
+        sizes differ; with equal sizes the layout cannot be detected, so build the field from
+        ``grid_3d``.
+
+    Returns
+    -------
+    lam1 : float
+    Phi : ndarray
+        Eigenvector on the full grid, shape ``(Nz+2, Ny+2, Nx+2)``, zero on the boundary,
+        nonnegative, normalized to ``max = 1``.
+
+    Notes
+    -----
+    This is the *discrete* eigenvalue of the finite-difference operator. Its sign is numerical
+    evidence about the continuum operator, not a certificate: near the threshold the discrete
+    and continuum signs can differ (the discrete value converges at second order), and the
+    paper's continuum theorem assumes a smooth boundary, which a box does not have.
+    """
+    A, _, _, _ = laplacian_3d_dirichlet(Nx, Ny, Nz, Lx, Ly, Lz)
+    n = Nx * Ny * Nz
+    if not np.isscalar(beta_b):
+        arr = check_finite_array("beta_b", beta_b)
+        if arr.shape == (Nz + 2, Ny + 2, Nx + 2):
+            beta_b = arr[1:-1, 1:-1, 1:-1].reshape(-1)
+        elif arr.shape == (Nz, Ny, Nx):
+            beta_b = arr.reshape(-1)
+        else:
+            raise ValueError(
+                f"beta_b must be a scalar, shape ({Nz}, {Ny}, {Nx}) or ({Nz + 2}, {Ny + 2}, {Nx + 2}) "
+                f"in (z, y, x) layout; got {arr.shape}"
+            )
+    q = _potential("beta_b", beta_b, n)
+    M = (A - diags([q * np.ones(n)], [0], format="csr")).tocsr()
+    lam, v = _smallest_eigenpair(M)
+    Phi = np.zeros((Nz + 2, Ny + 2, Nx + 2))
+    Phi[1:-1, 1:-1, 1:-1] = _positive_unit_vector(v).reshape(Nz, Ny, Nx)
+    return lam, Phi
+
+
+def principal_eigenvalue_3d(
+    Nx: int, Ny: int, Nz: int, Lx: float, Ly: float, Lz: float, beta_b: float | np.ndarray
+) -> float:
+    """Principal eigenvalue of (-Δ - q) on a box with Dirichlet BC; see ``principal_eigenpair_3d``
+    for the array convention. For constant q the value is the sum of the three 1D discrete
+    eigenvalues minus q, i.e. ``Σ (4/h²) sin²(πh/(2L)) - q``."""
+    lam, _ = principal_eigenpair_3d(Nx, Ny, Nz, Lx, Ly, Lz, beta_b)
     return lam
 
 
