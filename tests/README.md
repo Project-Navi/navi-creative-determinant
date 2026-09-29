@@ -19,9 +19,9 @@ uv run coverage run -m pytest tests/
 uv run coverage report --show-missing
 ```
 
-## Test Coverage — 208 test functions across 17 files (parametrized cases expand to more collected tests)
+## Test Coverage — 218 test functions across 18 files (parametrized cases expand to more collected tests)
 
-Two populations: **183 package tests in 14 files directly under `tests/`** (shipped in the sdist and runnable against the installed `cd` package alone) and **25 repository-artefact tests in 3 files under `tests/repo/`** (need `scripts/`, `notebooks/` and `paper/`; excluded from the sdist). `uv run pytest tests/` collects both.
+Two populations: **183 package tests in 14 files directly under `tests/`** (shipped in the sdist and runnable against the installed `cd` package alone) and **35 repository-artefact tests in 4 files under `tests/repo/`** (need `scripts/`, `notebooks/` and `paper/`; excluded from the sdist). `uv run pytest tests/` collects both.
 
 Shared fixtures live in `tests/conftest.py` (factory fixtures for the three-vertex Lean graphs, the closed-form discrete 1D eigenvalue, and one real converged solver report) and `tests/repo/conftest.py` (the repository root, a fresh loader for the scripts under `scripts/`, and a synthetic-notebook writer).
 
@@ -44,12 +44,13 @@ Shared fixtures live in `tests/conftest.py` (factory fixtures for the three-vert
 | **repo/test_paper_gate.py** | 10 | The paper artifact gate: byte identity between the committed PDF and its pinned-image rebuild; the diagnostics locate a changed sign, reversed inequality operands, swapped numerator/denominator, moved minus, changed digit, moved decimal point, changed multiplication glyph, altered exponent and dropped sentence (order-preserving text comparison) and a changed pixel (page renders) |
 | **repo/test_validate_notebook_required.py** | 7 | The notebook validator requires each essential claim exactly once and the completion marker after the last check (negative fixtures: missing, duplicated, misplaced marker); the committed notebook satisfies it, and the required list is complete, duplicate-free and in notebook order |
 | **repo/test_validate_notebook.py** | 8 | The notebook validator fails closed on error outputs, unexecuted cells, missing markers, failed or too few checks (negative fixtures), and its CLI exit codes |
+| **repo/test_stack_diagram.py** | 10 | The stack diagram has one source: both rendered SVGs carry the SHA-256 of `paper/cd_stack.dot`, the figure PDFs exist, the source parses into its five clusters with well-formed edges, the figure subsets keep only internal edges, and `scripts/check_stack_citations.py` rejects a stale statement number |
 
 Verify the total count locally:
 
 ```bash
 grep -R '^[[:space:]]*def test_' tests/ --include='test_*.py' | wc -l
-# expected: 208 (183 in tests/*.py, 25 in tests/repo/*.py); the --include keeps the example below out of the count
+# expected: 218 (183 in tests/*.py, 35 in tests/repo/*.py); the --include keeps the example below out of the count
 ```
 
 The per-file counts are also visible via `grep -c "def test_" tests/test_*.py`.

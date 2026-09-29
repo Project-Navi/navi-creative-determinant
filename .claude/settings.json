@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "path=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty'); case \"$path\" in figures/*.png|figures/*.pdf|./figures/*.png|./figures/*.pdf|*/figures/*.png|*/figures/*.pdf) echo \"Blocked: $path is a generated figure. Regenerate via 'uv run python figures/generate_figures.py' instead of editing in place.\" >&2; exit 2 ;; paper/creative_determinant.pdf|./paper/creative_determinant.pdf|*/paper/creative_determinant.pdf) echo \"Blocked: $path is a build output. Rebuild it with paper/build_paper.sh (pinned TeX Live image), copy paper/build/creative_determinant.pdf into paper/, and confirm with scripts/check_paper_artifact.py; CI requires byte identity.\" >&2; exit 2 ;; esac"
+            "command": "path=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty'); case \"$path\" in figures/*.png|figures/*.pdf|./figures/*.png|./figures/*.pdf|*/figures/*.png|*/figures/*.pdf) echo \"Blocked: $path is a generated figure. Regenerate via 'uv run python figures/generate_figures.py' instead of editing in place.\" >&2; exit 2 ;; paper/creative_determinant.pdf|./paper/creative_determinant.pdf|*/paper/creative_determinant.pdf) echo \"Blocked: $path is a build output. Rebuild it with paper/build_paper.sh (pinned TeX Live image), copy paper/build/creative_determinant.pdf into paper/, and confirm with scripts/check_paper_artifact.py; CI requires byte identity.\" >&2; exit 2 ;; *paper/cd_stack.svg|*paper/cd_stack_core.pdf|*paper/cd_stack_loop.pdf|*docs/assets/cd-stack.svg) echo \"Blocked: $path is rendered from paper/cd_stack.dot. Edit the source and run 'make -C paper', then rebuild the paper.\" >&2; exit 2 ;; esac"
           }
         ]
       }

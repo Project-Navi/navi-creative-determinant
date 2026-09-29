@@ -19,12 +19,14 @@ on:
     paths:
       - 'paper/**'
       - 'scripts/check_paper_artifact.py'
+      - 'scripts/check_stack_citations.py'
       - '.github/workflows/paper.yml'
   pull_request:
     branches: [main]
     paths:
       - 'paper/**'
       - 'scripts/check_paper_artifact.py'
+      - 'scripts/check_stack_citations.py'
       - '.github/workflows/paper.yml'
   workflow_dispatch:
 
@@ -63,6 +65,13 @@ jobs:
             echo "::error::paper/creative_determinant.pdf is not the build of the source in the pinned image; run paper/build_paper.sh and commit build/creative_determinant.pdf"
             exit 1
           }
+
+      # The stack diagram (paper/cd_stack.dot, Figures 1 and 2) names paper statements by
+      # number; the numbers must exist in the rebuilt PDF.
+      - name: Check the statement numbers cited by the stack diagram
+        run: |
+          pdftotext build/creative_determinant.pdf rebuilt.txt
+          python3 scripts/check_stack_citations.py paper/cd_stack.dot rebuilt.txt
 
       - name: Upload rebuilt PDF
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
