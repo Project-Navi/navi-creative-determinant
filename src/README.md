@@ -10,7 +10,7 @@ This project uses **uv**. From the repository root:
 uv sync --locked   # creates venv, installs the `cd` package (editable) + dev deps
 ```
 
-CI pins everything through `uv.lock`; contributors should do the same.
+`--locked` installs exactly the versions pinned in `uv.lock`.
 
 ## Structure
 
@@ -119,7 +119,7 @@ Every name exported from `cd` (the `__all__` list in `src/cd/__init__.py`), grou
 
 3. **Dimension-agnostic interface**: Same patterns for the 1D, 2D and 3D operators; the nonlinear solvers cover 1D and 2D.
 
-4. **Sparse linear algebra**: All operators use SciPy sparse matrices for efficiency.
+4. **Sparse linear algebra**: All operators are SciPy sparse matrices.
 
 ## Contributing
 

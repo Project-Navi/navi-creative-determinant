@@ -1,6 +1,6 @@
 # Open Problems in Creative Determinant Theory
 
-This document lists explicit theoretical gaps, unresolved questions, and conjectures in the Creative Determinant (CD) framework. These are **honest admissions of what is not yet known**, not weaknesses to hide. Contributions addressing any of these are highly valuable.
+Theoretical gaps, unresolved questions and conjectures in the Creative Determinant (CD) framework.
 
 ---
 
@@ -10,7 +10,7 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 **Problem**: The paper distinguishes "weak coherent configurations" (solutions to the PDE) from "strong coherent configurations" (fields satisfying the pointwise CD constraint \(\Phi(x) = \Phi(\kappa(x), \gamma(x), \mu(x))\)). Under what conditions are these equivalent? When does strong coherence imply weak, and vice versa?
 
-**Why it matters**: This gap determines whether the PDE is a faithful representation of the underlying semiotic/enactivist intuition or merely an analytically tractable approximation.
+**Why it matters**: This gap decides whether the PDE represents the semiotic and enactivist intuition or only a tractable approximation of it.
 
 **Starting point**: Assume a specific functional form for the pointwise constraint and derive the resulting PDE. Check consistency with the V1′ model.
 
@@ -42,11 +42,11 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 ## 4. Master Equation with Exogenous Forcing
 
-**Status**: Defined (Remark 3.17), not analyzed.
+**Status**: Defined (Remark 3.17), not analysed.
 
 **Problem**: The driven case \(-\Delta u = a(x)|\nabla u| + b(x)u - c(x)u^p + f(x)\) (Remark 3.17) encodes external input or environmental significance. How does nonzero \(f\) affect existence, stability, and multiplicity of equilibria?
 
-**Why it matters**: Real cognitive systems are open, not closed. Understanding the driven case is essential for applications.
+**Why it matters**: Real cognitive systems are open, not closed. Applications need the driven case.
 
 **Starting point**: Analyze perturbative effects of small \(f\) on known equilibria; numerical experiments with localized forcing.
 
@@ -82,7 +82,7 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 **Problem**: How do you map a trained neural network (discrete layers, finite weights) onto a continuous semiotic manifold \((M, g)\)? How do you extract \(\kappa\), \(\gamma\), \(\mu\) from activations or gradients?
 
-**Why it matters**: Without a concrete mapping, the framework remains abstract. A worked example on even a toy network would be a major advance.
+**Why it matters**: Without a concrete mapping, the framework remains abstract. A worked example on a toy network would be the first instantiation.
 
 **Starting point**: Apply manifold learning to a 2-layer MLP; hand-label regions as high/low coherence and fit simple \(\gamma\) fields.
 
@@ -114,9 +114,9 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 ## 10. Time-Dependent Dynamics
 
-**Status**: Not addressed.
+**Status**: Defined (Section 3.7), not analysed.
 
-**Problem**: The current framework studies equilibria (time-independent solutions). What about transient dynamics, approach to equilibrium, or oscillatory/chaotic regimes?
+**Problem**: Section 3.7 of the paper defines a time-dependent closure: coherence debt \(D(t)\) evolves by the ODE of Definition 3.38 and raises the effective contradiction cost \(\lambda_{\mathrm{eff}}(t)\) (Definition 3.40), which enters the dynamical viability closure \(b(x,t) = \kappa(x,t)\gamma(x,t) - \lambda_{\mathrm{eff}}(t)\mu(x,t)\) (Definition 3.42) and so moves \(\lambda_1(t)\). The well-posedness and dynamics of this loop are not analysed, and the existence theorems concern equilibria (time-independent solutions). Is the closed loop well posed? What are its transient dynamics, its approach to equilibrium, and its oscillatory or chaotic regimes?
 
 **Why it matters**: Real cognitive processes are temporal. A dynamical (not just static) CD theory would be more realistic.
 
@@ -144,7 +144,7 @@ If you make progress on any of these, please:
 2. Share your results (even partial, even negative).
 3. If you resolve a problem, open a PR adding your result to the appropriate section of the repo or a linked document.
 
-**Negative results count.** If you show a problem is harder than expected, or a proposed approach doesn't work, that is valuable information.
+**Negative results count.** A proof that a problem is harder than expected, or that an approach fails, is a contribution.
 
 ---
 

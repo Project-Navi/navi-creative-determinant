@@ -29,7 +29,7 @@ uv sync
 uv run pytest tests/ -v
 ```
 
-The suite validates the exact discrete eigenvalues, residual-validated nonlinear solves, viability threshold crossings, convergence rates, the finite-graph model of the Lean development, and the notebook and paper gates (under `tests/repo/`). [`tests/README.md`](https://github.com/Project-Navi/navi-creative-determinant/blob/main/tests/README.md) gives the current count and the command that reproduces it.
+The suite checks the exact discrete eigenvalues, residual-validated nonlinear solves, threshold crossings, convergence rates and the finite-graph model; `tests/repo/` checks the notebook, the scripts and the paper build. [`tests/README.md`](https://github.com/Project-Navi/navi-creative-determinant/blob/main/tests/README.md) lists every file.
 
 ---
 
@@ -51,7 +51,7 @@ notebooks/                 # Jupyter notebook with numerical demonstrations
 src/cd/                    # Python library (solvers, eigenvalue tools, closures)
 tests/                     # pytest suite (package tests; tests/repo/ covers scripts, notebook and paper)
 cd_formalization/          # Lean 4 formalization (finite-graph theorem proved; continuum theorems conditional)
-figures/                   # Publication-quality visualizations
+figures/                   # Figure script and its seven figures
 ```
 
 ---

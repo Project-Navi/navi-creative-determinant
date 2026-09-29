@@ -35,11 +35,11 @@ A field theory of coherence and meaning, with a machine-checked finite-graph exi
 
 **PDE / analysis** --- Start with Sections 2--3 of the paper (existence and positive-existence theorems) and the eigenvalue verification in the notebook (Part 1). Treat Sections 4--5 as motivation and proposed applications.
 
-**AI / interpretability** --- Start with Section 5 (the CD condition and falsifiability criteria) and skim the notebook plots showing the zero and positive branches on either side of the viability threshold (the solver classifies equilibria; it does not establish a bifurcation type, Remark 3.24). Then read Section 3 for the spectral foundation.
+**AI / interpretability** --- Start with Section 5 (the CD condition and falsifiability criteria) and skim the notebook plots showing the zero and positive branches on either side of the viability threshold. Then read Section 3 for the spectral foundation.
 
 **Lean / formal verification** --- Start with the [`cd_formalization`](https://github.com/Project-Navi/navi-creative-determinant/tree/main/cd_formalization) directory for the assumption boundary and what is proved. `CdFormal/Graph/Existence.lean` holds the unconditional finite-graph theorem (`exists_pos_graph`); `CdFormal/Theorems.lean` holds the continuum theorems, which are conditional on the `PDEInfra` hypotheses.
 
-**Cognitive science / philosophy** --- Start with Sections 1 and 4 (introduction and interpretive layer), which connect the framework to enactivism, semiotics, and phenomenology. Then see Theorem 3.16 (positive existence) to see how "viability exceeds dissipation" is made mathematically precise.
+**Cognitive science / philosophy** --- Start with Sections 1 and 4 (introduction and interpretive layer), which connect the framework to enactivism, semiotics, and phenomenology. Then read Theorem 3.16 (positive existence), which makes "viability exceeds dissipation" precise.
 
 ---
 
@@ -51,7 +51,7 @@ A field theory of coherence and meaning, with a machine-checked finite-graph exi
 | [Conceptual Primer](explanation/conceptual-primer.md) | Gentle introduction without math |
 | [The CD Stack](explanation/cd-stack.md) | One diagram of how the pieces fit, with what is proved, defined, heuristic or deferred |
 | [Author's Note](explanation/authors-note.md) | Origin story and motivation |
-| [Open Problems](explanation/open-problems.md) | Eleven explicit theoretical gaps |
+| [Open Problems](explanation/open-problems.md) | Eleven open theoretical questions |
 | [Ethical Covenant](explanation/ethical-covenant.md) | Voluntary ethical commitments |
 | [Contributing](how-to/contributing.md) | How to participate, extend, or challenge |
 | [FAQ](reference/faq.md) | Quick answers to common questions |

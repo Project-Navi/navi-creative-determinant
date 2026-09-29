@@ -1,6 +1,6 @@
 # Creative Determinant Research Roadmap
 
-This document outlines open research directions stemming from the Creative Determinant (CD) framework. **These are not private plans — they are invitations.** If you pick up any of these, you are doing canonical CD work. Open an issue or PR to coordinate, or just run with it and share results.
+Open research directions in the Creative Determinant (CD) framework. Anyone may take one up. Open an issue or PR to coordinate, or work independently and share results.
 
 ---
 
@@ -31,7 +31,7 @@ This document outlines open research directions stemming from the Creative Deter
 
 **Technical prerequisites**: Basic dynamical systems theory, Python (NumPy/SciPy).
 
-**Starting point**: Logistic map, Hénon map, or Lorenz system with hand-chosen coherence metrics. A concrete first setup: iterate the Hénon map \(x_{n+1} = 1 - a x_n^2 + y_n\), \(y_{n+1} = b x_n\), take the coherence observable to be the inverse distance to the attractor or the sign stability of the local Lyapunov exponent, record \(\log|\det J|\) at each step, and measure the correlation along a long trajectory. The expectation is low correlation in chaotic regimes and higher correlation in periodic or quasi-periodic regimes when the observable is well chosen.
+**Starting point**: Logistic map, Hénon map, or Lorenz system with hand-chosen coherence metrics. A concrete first setup: iterate the Hénon map \(x_{n+1} = 1 - A x_n^2 + y_n\), \(y_{n+1} = B x_n\), take the coherence observable to be the inverse distance to the attractor or the sign stability of the local Lyapunov exponent, record \(\log|\det J|\) at each step, and measure the correlation along a long trajectory. **Conjecture**: for a well-chosen observable, the correlation is low in chaotic regimes and higher in periodic or quasi-periodic regimes.
 
 ---
 
@@ -82,7 +82,7 @@ This document outlines open research directions stemming from the Creative Deter
 
 ## 6. CD Condition on Small Neural Networks
 
-**Motivation**: Can we actually measure the CD condition on a real (if small) neural network?
+**Motivation**: Can the CD condition be measured on a small trained neural network?
 
 **What this involves**:
 - Train or fine-tune a small transformer or RNN.
@@ -117,7 +117,7 @@ This document outlines open research directions stemming from the Creative Deter
 
 **What this involves**:
 - Design experiments targeting F1–F5 (e.g., look for coherence without coupling, Hamiltonian systems with CD signatures, contradiction resolution without care).
-- Document results honestly: null results or violations are valuable.
+- Document every result, including null results and violations.
 
 **Technical prerequisites**: Depends on the criterion chosen.
 
@@ -162,8 +162,6 @@ This document outlines open research directions stemming from the Creative Deter
 1. Open an issue tagged `roadmap` describing which direction you want to pursue (or propose a new one).
 2. Or just start working and open a PR when you have something to share.
 3. Collaboration is encouraged --- tag others if you want co-investigators.
-
-**These directions are intentionally open.** There is no central authority. If you make progress on any of these, you are extending the CD research program.
 
 ---
 

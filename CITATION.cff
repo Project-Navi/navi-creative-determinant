@@ -15,10 +15,10 @@ abstract: >-
   A finite-graph positive-existence theorem with an explicit example, and the
   algebraic and order-theoretic lemmas, are machine-checked in Lean 4 against
   Mathlib; the continuum existence theorems are formalized conditionally on an
-  explicit analytic interface and proved classically in the paper. The
+  analytic interface (`PDEInfra`) and proved classically in the paper. The
   framework combines the mathematics (elliptic PDEs, fixed-point theorems)
   with enactivist and semiotic foundations and an empirical layer (the CD
-  condition with explicit falsifiability criteria).
+  condition and its falsifiability criteria).
 keywords:
   - autopoiesis
   - elliptic PDE

@@ -6,7 +6,7 @@ Short answers to common questions about the Creative Determinant (CD) framework.
 
 ## Is this supposed to be a full theory of mind?
 
-**No.** CD is a framework for certain aspects of coherence, viability, and meaning-making in cognitive and computational systems. It has explicit limitations (see Section 6 of the paper and [Open Problems](../explanation/open-problems.md)). It is not intended as a complete theory of consciousness, phenomenology, or intelligence.
+**No.** CD is a framework for certain aspects of coherence, viability, and meaning-making in cognitive and computational systems. It has stated limitations (Section 6 of the paper, [Open Problems](../explanation/open-problems.md)) and is not a complete theory of consciousness, phenomenology or intelligence.
 
 ---
 
@@ -30,19 +30,19 @@ Short answers to common questions about the Creative Determinant (CD) framework.
 
 ## What is the "semiotic manifold" M in a real neural network?
 
-**Open question.** \(M\) is an abstract space of meanings or interpretations. Extracting it from a trained network requires manifold learning, dimensionality reduction, or other techniques. This is an active research direction. See [Open Problems](../explanation/open-problems.md) #7 and [Research Roadmap](roadmap.md) #1.
+**Open question.** \(M\) is an abstract space of meanings or interpretations. Extracting it from a trained network requires manifold learning, dimensionality reduction, or other techniques. See [Open Problems](../explanation/open-problems.md) #7 and [Research Roadmap](roadmap.md) #1.
 
 ---
 
 ## How do I extract the fields κ, γ, μ from data?
 
-**No general method yet.** The canonical closure \(b = \kappa\gamma - \lambda\mu\) provides a structure, but inferring \(\kappa\) (care), \(\gamma\) (coherence), and \(\mu\) (contradiction) from observables is system-dependent and currently requires hand-crafted proxies. Developing principled extraction methods is a key open problem.
+**No general method yet.** The canonical closure \(b = \kappa\gamma - \lambda\mu\) provides a structure, but inferring \(\kappa\) (care), \(\gamma\) (coherence), and \(\mu\) (contradiction) from observables is system-dependent and currently requires hand-crafted proxies. Principled extraction is open ([Open Problems](../explanation/open-problems.md) #7).
 
 ---
 
 ## Is there existing code I can run?
 
-**Yes.** The Jupyter notebook [`cd_pde_demo.ipynb`](https://github.com/Project-Navi/navi-creative-determinant/blob/main/notebooks/cd_pde_demo.ipynb) demonstrates the PDE framework numerically in 1D and 2D, reproduces the verified finite-graph example, and includes a 3D eigenvalue illustration: eigenvalue verification, residual-validated nonlinear solves, viability threshold crossings, and canonical closure sweeps, each asserted in the notebook. You can run it locally with Python, NumPy, SciPy, and Matplotlib.
+**Yes.** The Jupyter notebook [`cd_pde_demo.ipynb`](https://github.com/Project-Navi/navi-creative-determinant/blob/main/notebooks/cd_pde_demo.ipynb) covers eigenvalue checks, residual-validated nonlinear solves in 1D and 2D, threshold crossings, canonical closure sweeps, the verified finite-graph example and a 3D eigenvalue illustration. The [Quickstart](../getting-started/quickstart.md) shows how to run it.
 
 ---
 
@@ -65,7 +65,7 @@ All contributions are licensed under the same terms. If you contribute substanti
 CD is intended for:
 - **Researchers** in PDE theory, dynamical systems, AI interpretability, cognitive science, or philosophy of mind looking for cross-disciplinary synthesis.
 - **Practitioners** wanting to operationalize "coherence" or "viability" in computational systems.
-- **Students** seeking a worked example of how to bridge rigorous mathematics and conceptual interpretation.
+- **Students** seeking a worked example that connects mathematics and conceptual interpretation.
 
 ---
 
@@ -91,7 +91,3 @@ Open an issue tagged `question` or contact:
 
 Nelson Spence
 nelson@projectnavi.ai
-
----
-
-**These are starting answers. As the community engages with the framework, this FAQ will evolve.**

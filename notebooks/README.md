@@ -4,7 +4,7 @@ Numerical demonstrations of the Creative Determinant PDE framework.
 
 ## Contents
 
-**cd_pde_demo.ipynb** — Numerical validation of the discrete claims behind the mathematical results (the notebook checks discrete statements; it cannot validate the continuum theorems themselves), with references to the Lean4 formal proofs.
+**cd_pde_demo.ipynb** — Numerical checks of the discrete claims behind the paper's results, with references to the Lean 4 declarations.
 
 ## Running the Notebook
 
@@ -14,8 +14,6 @@ uv sync                           # install dependencies + cd package
 uv run jupyter lab notebooks/     # launch Jupyter
 ```
 
-The notebook imports from `src/cd/` — make sure you've run `uv sync` first.
-
 Or run all cells from command line:
 
 ```bash
@@ -24,7 +22,7 @@ uv run jupyter nbconvert --to notebook --execute notebooks/cd_pde_demo.ipynb
 
 ## What the Notebook Demonstrates
 
-Every numerical claim is asserted in the notebook through a `check(condition, name)` helper that prints `CHECK PASSED: name`; the notebook ends with `ALL_NOTEBOOK_CHECKS_PASSED`, and `scripts/validate_notebook.py` (run by CI) rejects any error, unexecuted cell, or missing check.
+Each numerical claim is asserted with a `check(condition, name)` helper that prints `CHECK PASSED: name`.
 
 | § | Topic | Paper reference | Formal status |
 |---|-------|-----------------|---------------|
@@ -37,12 +35,12 @@ Every numerical claim is asserted in the notebook through a `check(condition, na
 | 7 | Finite graph: verified triangle, Jacobi iteration from both barriers, converse and bound counterexamples | Section 3.6 | `SemioticGraph.exists_pos_graph`, `triangle_isSolution` proved |
 | 8 | 3D eigenvalue illustration (linear, unformalized) | Spectral theory | extension |
 
-## Relationship to Paper and Lean4 Proofs
+## Relationship to Paper and Lean 4 Proofs
 
-The notebook provides computational evidence for the core claims in the paper. Each part includes interpretive markdown linking the numerical result to the corresponding paper theorem and Lean4 formal proof.
+Each part links its numerical result to the paper statement and, where one exists, the Lean declaration.
 
 - **Numerical code**: imported from `src/cd/` (operators, solvers, eigenvalues, fields, analysis, graph), including the 3D operators; the inline definitions are the `check` helper, `converse_barrier`, the `solve_bvp` cross-check (`solve_bvp_V1prime`), `history` and the dense reference assembly `independent_3d_matrix`
-- **Lean4 proofs**: in `cd_formalization/CdFormal/` (Theorems.lean, Basic.lean, Axioms.lean, Graph/*.lean)
+- **Lean 4 proofs**: in `cd_formalization/CdFormal/` (Theorems.lean, Basic.lean, Axioms.lean, Graph/*.lean)
 - **Paper**: `paper/creative_determinant.pdf`
 
 ## Extending the Notebook

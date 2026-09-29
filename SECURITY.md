@@ -2,13 +2,11 @@
 
 ## Scope
 
-The Creative Determinant framework is a **research tool** for studying mathematical models of coherence. It is not designed for:
+The Creative Determinant framework is a **research tool** for studying mathematical models of coherence. Do not use it in:
 
 - Production systems handling sensitive data
 - Security-critical applications
 - Real-time control systems
-
-That said, we take security seriously because this code may be integrated into larger systems.
 
 ## Supported Versions
 
@@ -19,7 +17,7 @@ That said, we take security seriously because this code may be integrated into l
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please report it responsibly:
+Report a vulnerability by email:
 
 **Email:** nelson@projectnavi.ai
 
@@ -52,7 +50,7 @@ The framework performs numerical linear algebra. Potential concerns:
 - **Denial of service:** Very large grid sizes could exhaust memory
 - **Numerical instability:** Extreme parameter values might cause NaN/Inf
 
-These are not security vulnerabilities per se, but users should validate inputs.
+Neither is treated as a vulnerability; bound grid sizes and parameters in calling code.
 
 ### Dependencies
 
@@ -61,7 +59,7 @@ We depend on:
 - SciPy
 - Matplotlib
 
-These are widely-used, well-maintained libraries. We recommend keeping them updated.
+Keep them up to date.
 
 ### No Network Access
 
@@ -69,6 +67,6 @@ The core library (`src/cd`) makes no network requests and does no file I/O; it c
 
 ## Responsible Use
 
-This framework models aspects of cognition and meaning. While it's purely mathematical, we ask users to consider the ethical implications of any applications they build on top of it.
+This framework models aspects of cognition and meaning. Consider the ethical implications of applications built on it.
 
 See the [Ethical Covenant](https://docs.projectnavi.ai/navi-creative-determinant/explanation/ethical-covenant/) for our voluntary ethical commitments.
