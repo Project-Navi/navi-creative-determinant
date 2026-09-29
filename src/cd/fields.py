@@ -53,6 +53,7 @@ def viability_canonical(
 
     Notes
     -----
+    Heuristic (a modelling choice, paper Definition of the canonical closure; not a theorem).
     The canonical closure encodes:
     - κγ: baseline support from care × coherence
     - λμ: cost imposed by contradiction
@@ -99,6 +100,7 @@ def creative_drive(
 
     Notes
     -----
+    Heuristic (a modelling choice; the interpretation below is not a theorem).
     The gradient term a|∇Φ| contributes to presence
     where all three fields jointly support activity.
     Creative drive requires contradiction to be present

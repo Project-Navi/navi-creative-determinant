@@ -1,6 +1,6 @@
-"""A positive continuum solution below the linear spectral threshold (paper Proposition on the
-converse with an active gradient term). The barrier identities are analytic; the library solve
-and the collocation solve are corroboration, not the proof.
+"""A positive continuum solution below the linear spectral threshold (paper Proposition 3.21:
+the converse of Theorem 3.16 fails with an active gradient term). The barrier identities are
+analytic; the library solve and the collocation solve are corroboration, not the proof.
 
 Model: -u'' = |u'| + (3/4) u - u^2 on (0, pi), u(0) = u(pi) = 0; lambda_1(-d^2/dx^2 - 3/4) = 1/4.
 """

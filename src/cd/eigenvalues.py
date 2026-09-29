@@ -13,8 +13,9 @@ Mathematical status
   (``β > β*`` iff ``(π/L)² - βb < 0``); the identification of that expression with the principal
   eigenvalue is classical and not formalized.
 * ``λ₁ < 0`` is sufficient for a positive solution (paper Theorem 3.16). It is also necessary
-  when ``a ≡ 0`` (paper Proposition on the exact threshold); with a gradient term it is not
-  necessary in general (a finite-graph counterexample is in ``cd.graph``).
+  when ``a ≡ 0`` (Proposition 3.19, the exact threshold); with a gradient term it is not
+  necessary in general: Proposition 3.21 gives a positive continuum solution below the linear
+  threshold, and Proposition 3.32 the finite-graph counterexample implemented in ``cd.graph``.
 """
 
 from __future__ import annotations
@@ -121,8 +122,9 @@ def principal_eigenvalue_1d(
     """
     Compute principal eigenvalue of (-Δ - βb) on (0, L) with Dirichlet BC.
 
-    For constant b, the discrete value is exactly ``(4/h²) sin²(πh/(2L)) - βb`` with
-    ``h = L/(N+1)``, and the continuum value is ``λ₁ = (π/L)² - βb``.
+    Theorem (closed form for the tridiagonal matrix): for constant b the discrete value is
+    exactly ``(4/h²) sin²(πh/(2L)) - βb`` with ``h = L/(N+1)``. The continuum value is
+    ``λ₁ = (π/L)² - βb`` (Definition 3.13), approached at second order in ``h``.
 
     Parameters
     ----------
@@ -143,7 +145,7 @@ def principal_eigenvalue_1d(
     The viability threshold occurs at β* where λ₁ = 0:
         β* = (π/L)² / b   (for b > 0)
 
-    - λ₁ > 0: below threshold; for a ≡ 0 only the zero solution exists
+    - λ₁ > 0: below threshold; for a ≡ 0 only the zero solution exists (Proposition 3.19)
     - λ₁ < 0: above threshold; a positive solution exists (Theorem 3.16)
 
     Example
@@ -205,9 +207,10 @@ def principal_eigenvalue_2d(
     """
     Compute principal eigenvalue of (-Δ - βb) on rectangle with Dirichlet BC.
 
-    For constant b on [0,Lx] × [0,Ly], the continuum value is
+    For constant b on [0,Lx] × [0,Ly], the continuum value (Definition 3.13) is
         λ₁ = π²(1/Lx² + 1/Ly²) - βb,
-    and the discrete value is the sum of the two one-dimensional discrete eigenvalues minus βb.
+    and, by the Kronecker structure of the operator (Theorem: separable eigenvectors), the
+    discrete value is the sum of the two one-dimensional discrete eigenvalues minus βb.
 
     Parameters
     ----------
@@ -284,8 +287,10 @@ def principal_eigenvalue_3d(
     Nx: int, Ny: int, Nz: int, Lx: float, Ly: float, Lz: float, beta_b: float | np.ndarray
 ) -> float:
     """Principal eigenvalue of (-Δ - q) on a box with Dirichlet BC; see ``principal_eigenpair_3d``
-    for the array convention. For constant q the value is the sum of the three 1D discrete
-    eigenvalues minus q, i.e. ``Σ (4/h²) sin²(πh/(2L)) - q``."""
+    for the array convention. Theorem (Kronecker structure, separable eigenvectors): for
+    constant q the value is the sum of the three 1D discrete eigenvalues minus q, i.e.
+    ``Σ (4/h²) sin²(πh/(2L)) - q``. This is the 3D eigenvalue illustration, a model distinct
+    from the 1D/2D continuum solvers and from the finite-graph model."""
     lam, _ = principal_eigenpair_3d(Nx, Ny, Nz, Lx, Ly, Lz, beta_b)
     return lam
 
@@ -310,7 +315,8 @@ def viability_threshold_1d(L: float, b: float) -> float:
     ------
     ValueError
         If ``L <= 0`` or ``b <= 0``. For ``b <= 0`` the operator ``-Δ - βb`` has
-        ``λ₁ >= (π/L)² > 0`` for every ``β >= 0``: there is no threshold to cross.
+        ``λ₁ >= (π/L)² > 0`` for every ``β >= 0`` (Theorem: ``λ₁`` is nonincreasing in the
+        potential, so ``λ₁(-Δ - βb) >= λ₁(-Δ)``): there is no threshold to cross.
 
     Notes
     -----
@@ -319,8 +325,8 @@ def viability_threshold_1d(L: float, b: float) -> float:
     computed eigenvalue (``principal_eigenvalue_1d`` with the field); the constant-coefficient
     threshold of a reference level such as ``κγ`` is then only a scale for choosing β.
 
-    For β < β*: λ₁ > 0 (for a ≡ 0 only the zero solution)
-    For β > β*: λ₁ < 0 (a positive solution exists)
+    For β < β*: λ₁ > 0 (for a ≡ 0 only the zero solution, Proposition 3.19)
+    For β > β*: λ₁ < 0 (a positive solution exists, Theorem 3.16)
     """
     L = check_positive_scalar("L", L)
     b = check_finite_scalar("b", b)
