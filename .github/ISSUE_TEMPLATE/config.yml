@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: FAQ
-    url: https://github.com/Project-Navi/navi-creative-determinant/blob/main/docs/FAQ.md
+    url: https://docs.projectnavi.ai/navi-creative-determinant/reference/faq/
     about: Check the FAQ before opening an issue
   - name: Open Problems
-    url: https://github.com/Project-Navi/navi-creative-determinant/blob/main/docs/OPEN_PROBLEMS.md
+    url: https://docs.projectnavi.ai/navi-creative-determinant/explanation/open-problems/
     about: Known limitations and open research questions
   - name: Conceptual Primer
-    url: https://github.com/Project-Navi/navi-creative-determinant/blob/main/docs/CONCEPTUAL_PRIMER.md
+    url: https://docs.projectnavi.ai/navi-creative-determinant/explanation/conceptual-primer/
     about: Gentle introduction for non-technical readers

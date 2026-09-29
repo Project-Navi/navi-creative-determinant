@@ -16,10 +16,10 @@ permissions:
   contents: read
 
 jobs:
-  # CONTRACT: the org 'CI: Python Tier' ruleset requires a check named 'codeql'
-  # — i.e. the GitHub Actions job key below. Do NOT rename this job or add a
-  # 'name:' override; either would change the emitted check name and break the
-  # ruleset. The job key was chosen (over 'Analyze (python)' from the analyze
+  # CONTRACT: this job emits the check named 'codeql' (the GitHub Actions job key
+  # below). It is not in the org ruleset's required list today, but the name is
+  # what a ruleset would reference, so do NOT rename this job or add a 'name:'
+  # override; either would change the emitted check name. The job key was chosen (over 'Analyze (python)' from the analyze
   # step) because the SARIF-upload check that produces 'Analyze (python)' does
   # not fire on Dependabot pull requests — Dependabot's GITHUB_TOKEN is forced
   # read-only on pull_request events, so the upload silently no-ops and the

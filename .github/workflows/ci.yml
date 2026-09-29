@@ -1,8 +1,9 @@
 # CI — Creative Determinant
 #
-# Holds four of the six org-required checks; job keys ARE the check names.
+# Holds four of the five checks the org ruleset requires on main; job keys ARE the check names.
 # CONTRACT (this file): lint, typecheck, security, quality-gate
-# Other required checks live in codeql.yml ('codeql') and semgrep.yml ('semgrep').
+# The fifth required check is 'semgrep' (semgrep.yml); 'codeql' (codeql.yml) runs on every PR
+# but is not in the required list.
 # The 'test' aggregator job below is NOT in the required list, but is preserved
 # as a fail-fast signal for the test-run matrix.
 

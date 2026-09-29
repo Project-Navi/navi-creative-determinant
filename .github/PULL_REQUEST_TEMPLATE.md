@@ -18,7 +18,7 @@
 
 <!-- For changes to src/cd/ or mathematical claims -->
 
-- [ ] All existing tests pass (`pytest tests/test_core.py -v`)
+- [ ] All existing tests pass (`uv run pytest tests/ -v`)
 - [ ] New mathematical claims have corresponding tests
 - [ ] Numerical results match analytic solutions where applicable
 - [ ] Grid refinement shows expected convergence order
@@ -27,7 +27,7 @@
 
 - [ ] I have read the [CONTRIBUTING.md](CONTRIBUTING.md) guidelines
 - [ ] I have read and agree to the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
-- [ ] My code follows the project's style (run `ruff check src/`)
+- [ ] My code follows the project's style (`uv run ruff check src/ tests/` and `uv run ruff format src/ tests/ --check`)
 - [ ] I have added docstrings to new functions
 - [ ] I have updated documentation if needed
 - [ ] My changes generate no new warnings
