@@ -2,7 +2,7 @@
 
 The full release history, with release notes, is on [GitHub Releases](https://github.com/Project-Navi/navi-creative-determinant/releases). Versions follow the git tags; the package version and `CITATION.cff` are updated with each release.
 
-## Stage B editorial cleanup (this pull request, 2026-09-29)
+## Stage B editorial cleanup (PR #98, 2026-09-29)
 
 Editorial and maintenance pass, no changes to the mathematics: the package version moves to 1.1.0 to match the tag, the README is consolidated with the docs landing page, the contributing guide has one canonical copy, the per-directory READMEs match the code and the paper, sign errors and stale labels are corrected in the open problems and roadmap pages, the empirical experiments scaffold is folded into the roadmap, and the repository metadata (security policy, notice, citation) is brought up to date.
 
