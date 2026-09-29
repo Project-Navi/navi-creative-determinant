@@ -126,13 +126,13 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 ## 11. Exactness of the Threshold With a Gradient Term
 
-**Status**: Settled for \(a \equiv 0\); open for \(a > 0\) in the continuum; false on finite graphs.
+**Status**: Settled: exact for \(a \equiv 0\); sufficient only for \(a > 0\), in the continuum and on finite graphs.
 
-**Problem**: For \(a \equiv 0\), a positive solution exists if and only if \(\lambda_1(-\Delta - b; M) < 0\) (paper Proposition 3.19). With a gradient term the spectral condition is sufficient (Theorem 3.16) but the necessity argument fails, and the finite-graph model has an explicit counterexample (Proposition 3.30: a positive solution with \(\lambda_1 = +1/2\)). Can a positive solution of the continuum problem exist with \(\lambda_1 \ge 0\) when \(a > 0\)? What is the correct nonlinear spectral problem?
+**Problem**: For \(a \equiv 0\), a positive solution exists if and only if \(\lambda_1(-\Delta - b; M) < 0\) (paper Proposition 3.19). With a gradient term the spectral condition is sufficient (Theorem 3.16) but not necessary: Proposition 3.21 gives an explicit positive solution on an interval with \(\lambda_1 = +1/4\) (a classical barrier construction, not Lean-verified), and the finite-graph model has its own counterexample (Proposition 3.32, \(\lambda_1 = +1/2\)). What remains open is a characterization of the positive-existence region for \(a > 0\): what is the correct nonlinear spectral problem?
 
 **Why it matters**: The linear indicator is used throughout the numerics; knowing where it is exact tells us when a zero result is a proof of collapse and when it is only an observation.
 
-**Starting point**: Adapt the graph counterexample to a thin continuum domain, or bound \(\int a|\nabla\Phi|\phi_1\) against \(\int c\Phi^p\phi_1\).
+**Starting point**: Bound \(\int a|\nabla\Phi|\phi_1\) against \(\int c\Phi^p\phi_1\), or study the barrier construction of Proposition 3.21 as a function of \(a\) and \(b\).
 
 ---
 

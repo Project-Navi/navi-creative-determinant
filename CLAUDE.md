@@ -22,7 +22,7 @@ This project uses **uv**, not pip. Do not suggest `pip install …` in session.
 # Install (creates venv, installs cd package editable + dev extras)
 uv sync
 
-# Tests (140 total across 12 files)
+# Tests (180 test functions across 17 files; parametrized cases expand when collected)
 uv run pytest tests/ -v
 uv run pytest tests/test_core.py -v               # eigenvalue / threshold suite
 uv run pytest tests/test_2d.py -v                 # 2D solver
@@ -60,7 +60,7 @@ uv run pre-commit run --all-files
 ```
 src/cd/                  # Python library (SciPy sparse matrices throughout)
 ├── __init__.py          # Public API — edit __all__ when adding exports
-├── operators.py         # laplacian_1d_dirichlet, laplacian_2d_dirichlet
+├── operators.py         # laplacian_1d/2d/3d_dirichlet, grid_3d ((z, y, x) layout)
 ├── solvers.py           # solve_1d_picard, solve_2d_picard (Picard iteration)
 ├── eigenvalues.py       # principal_eigenvalue_*, viability_threshold_*
 ├── fields.py            # viability_canonical, creative_drive, gaussian_bump_*
@@ -68,7 +68,7 @@ src/cd/                  # Python library (SciPy sparse matrices throughout)
 ├── _validation.py       # input validation shared by the numerical modules
 └── analysis.py          # residual_*, check_convergence, classify_branch, presence_statistics, linfty_bound
 
-tests/                   # pytest suite — validates theorems, not implementation (140 tests)
+tests/                   # pytest suite — validates theorems, not implementation (180 test functions)
 ├── test_core.py         # eigenvalues, convergence, residuals, thresholds
 ├── test_spectra.py      # exact discrete eigenvalues, anisotropy, smallest grids
 ├── test_solver_diagnostics.py  # meaning of convergence, validation, termination reasons
@@ -77,6 +77,11 @@ tests/                   # pytest suite — validates theorems, not implementati
 ├── test_graph.py        # Lean finite-graph model: triangle crosswalk, counterexamples
 ├── test_analysis_statistics.py # explicit quadrature and interior statistics
 ├── test_validate_notebook.py   # notebook validator negative fixtures
+├── test_validate_notebook_required.py  # required-claim coverage of the notebook
+├── test_review_regressions.py  # review regressions: spectral assembly, solver contract
+├── test_operators_3d.py        # 3D operators, (z, y, x) convention, independent assembly
+├── test_continuum_counterexample.py  # positive branch below the linear threshold (a = 1)
+├── test_paper_guard.py         # paper text guard negative fixtures
 └── test_2d.py, test_eigenvalues.py, test_fields.py, test_spatial_solver.py
 
 notebooks/
@@ -84,7 +89,8 @@ notebooks/
 └── alternates/          # Local experimental variants (untracked workspace)
 
 scripts/
-└── validate_notebook.py # Fail-closed validator for the executed notebook (used by CI)
+├── validate_notebook.py # Fail-closed validator for the executed notebook (used by CI; REQUIRED_CHECKS)
+└── compare_paper_text.py # Token-multiset guard between the committed and rebuilt PDF text (used by CI)
 
 figures/
 ├── generate_figures.py  # Regenerates all paper figures
@@ -106,7 +112,7 @@ experiments/             # Scaffolding for empirical instantiations
 - **Ruff runs `--no-fix --check` in pre-commit.** It won't auto-repair; formatting violations reject the commit. Run `uv run ruff format src/ tests/` locally before committing.
 - **Gitleaks pre-commit hook is enabled.** Files matching secret patterns (API keys, tokens, private keys) block the commit. Do not `--no-verify` to bypass — rotate the secret and commit a redacted version.
 - **Large files cap: 1024 KB** (`check-added-large-files`). Existing figures (>200 KB) are tracked because generation is scripted. New binaries ≥1 MB will be rejected.
-- **Notebook CI validates claims, not output counts.** `notebooks.yml` executes `cd_pde_demo.ipynb` and runs `scripts/validate_notebook.py`, which rejects any error output, any unexecuted code cell, any `CHECK FAILED` text, fewer than 30 `CHECK PASSED` lines, or a missing `ALL_NOTEBOOK_CHECKS_PASSED` marker. New numerical claims in the notebook go through the `check(condition, name)` helper. The notebook is also linted fail-closed (`nbqa ruff`, ignoring E501/E402).
+- **Notebook CI validates claims, not output counts.** `notebooks.yml` executes `cd_pde_demo.ipynb` and runs `scripts/validate_notebook.py`, which rejects any error output, any unexecuted code cell, any `CHECK FAILED` text, fewer than 30 `CHECK PASSED` lines, a missing or misplaced `ALL_NOTEBOOK_CHECKS_PASSED` marker, or any essential claim (`REQUIRED_CHECKS` in the script) that is missing or duplicated. New numerical claims in the notebook go through the `check(condition, name)` helper; renaming an essential claim requires updating `REQUIRED_CHECKS`. The notebook is also linted fail-closed (`nbqa ruff`, ignoring E501/E402).
 - **CI triggers are path-filtered.** `notebooks.yml` only runs on `notebooks/**` or `src/**`; `figures.yml` only on `figures/**` or `src/**`. `ci.yml` runs on every push/PR.
 - **CodeQL is advanced setup, not default.** Required check name is `codeql` (the job key in `codeql.yml`), not `Analyze (python)` (the SARIF-upload-side check). The job-level check was chosen because Dependabot's `GITHUB_TOKEN` is forced read-only on `pull_request` events, so the SARIF upload no-ops on Dependabot PRs and `Analyze (python)` never fires — freezing every Dependabot PR. If someone toggles GitHub's default CodeQL setup on, it will silently disable `codeql.yml` and break the required-checks contract — restore advanced via the Actions UI or API.
 
@@ -133,7 +139,8 @@ experiments/             # Scaffolding for empirical instantiations
 - Label results as **Theorem**, **Conjecture**, or **Heuristic** in code comments and docstrings (same rule as `CONTRIBUTING.md`).
 - The continuum existence theorems in Lean are conditional on the `PDEInfra` hypotheses (structure fields, not Lean axioms); the finite-graph theorem is proved outright. Don't claim the continuum operator instantiates that interface (it does not: see paper Appendix A), and don't describe the framework as axiom-free.
 - Three numerical models are distinct: the continuum problem (centered finite differences), the Lean finite-graph model (`cd.graph`, unnormalized weights, square-root gradient), and the 3D eigenvalue illustration. Never relabel one as another.
-- A solver run is accepted only by the residual of the discrete equation (`info["converged"]`, `info["termination"]`, `info["branch"]`); a run that returns zero is not evidence that no positive branch exists.
+- A solver run is accepted only by the residual of the discrete equation (`info["converged"]`, `info["termination"]`, `info["branch"]`); `check_convergence` re-validates the recorded numbers rather than trusting the flag; initial data must be nonnegative; a run that returns zero is not evidence that no positive branch exists.
+- The spectral condition λ₁ < 0 is sufficient in general and exact only for a ≡ 0 (Propositions 3.19 and 3.21). Graph eigenvalues are assembled from off-diagonal weights and verified against the direct operator; a value within the floating-point margin of zero is `indeterminate`, never a certificate.
 
 ## Testing philosophy
 
@@ -162,7 +169,7 @@ Eight workflows. The unified `ci.yml` holds four of the six required checks (`li
 | OpenSSF Scorecard | `scorecard.yml` | Scheduled + on-push to main. Calls the org-shared workflow. |
 | Notebook Validation | `notebooks.yml` | Executes `cd_pde_demo.ipynb` from a fresh kernel, validates it with `scripts/validate_notebook.py` (fail-closed), lints via nbqa (fail-closed). |
 | Figure Validation | `figures.yml` | Runs `generate_figures.py` (library-backed), requires the `ALL_FIGURES_OK` marker (every solve converged), verifies all 14 PNG+PDF files exist. |
-| Paper | `paper.yml` | Rebuilds the PDF from source with bibliography, fails on unresolved references, compares the committed PDF text with the rebuilt one. |
+| Paper | `paper.yml` | Rebuilds the PDF from source with bibliography, fails on unresolved references, and requires the committed PDF's text to match the rebuilt one token for token (`scripts/compare_paper_text.py`). |
 | Docs | `docs.yml` | Builds zensical site. |
 
 **Org ruleset contract (`CI: Python Tier`)** requires: `lint`, `typecheck`, `security`, `codeql`, `semgrep`, `quality-gate`. Job keys in the workflow files map 1-to-1 to these check names — don't rename jobs without updating the ruleset, and don't add `name:` overrides that would change the emitted check name. (`test` is the aggregator job in `ci.yml` and runs on every PR, but is not in the ruleset's required list.)

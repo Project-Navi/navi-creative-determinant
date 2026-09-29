@@ -87,7 +87,7 @@ Start with **Sections 1 and 4** (introduction and interpretive layer), which con
 - **Characteristic fields**: care $κ$, coherence $γ$, contradiction $μ$ — dimensionless fields in $[0,1]$.
 - **Creative drive** $a(x) = κγμ$: gradient activity contributes to presence where all three fields jointly support it.
 - **Viability potential** $b(x) = κγ - λμ$: where care-coherence support dominates contradiction cost.
-- **Viability threshold**: when the principal eigenvalue $λ_1(-Δ - b; M) < 0$, a coherent configuration positive throughout the interior exists (Theorem 3.16); the condition is exact when the creative drive vanishes (Proposition 3.19) and sufficient in general.
+- **Viability threshold**: when the principal eigenvalue $λ_1(-Δ - b; M) < 0$, a coherent configuration positive throughout the interior exists (Theorem 3.16); the condition is exact when the creative drive vanishes (Proposition 3.19) and sufficient in general (Proposition 3.21 gives a positive solution with λ₁ > 0 when the drive is active).
 - **CD condition**: coherence observables correlate with Jacobian volume dynamics in structured regimes.
 
 The paper is grounded in PDE theory (Gilbarg–Trudinger, Evans, Schaefer, Leray–Schauder), dynamical systems (Oseledets, Lyapunov, Pesin), and conceptual foundations (Maturana–Varela, Friston, Thompson, Prigogine).
@@ -131,7 +131,7 @@ test infrastructure, notebook pedagogy, documentation, and Lean 4 formalization
 strategy) is human-originated. AI helped transcribe those ideas into Python and
 Lean 4. The results are independently verifiable:
 - **Lean proofs**: `lake build --wfail` — type-checks or it doesn't. Zero `sorry`; the continuum theorems are conditional on explicit hypotheses, the finite-graph theorem is not.
-- **Numerical code**: 140 tests against analytic and exact discrete solutions, O(h²) convergence, independent `solve_bvp` cross-checks, and the verified finite-graph example.
+- **Numerical code**: 180 test functions against analytic and exact discrete solutions, O(h²) convergence, independent `solve_bvp` cross-checks, and the verified finite-graph example.
 - **Axiom surface**: Every assumption is explicit in `PdeInfra` — nothing is hidden.
 
 The math doesn't care who typed it. Clone the repo and verify.

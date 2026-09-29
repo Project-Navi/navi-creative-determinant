@@ -19,7 +19,7 @@ uv run coverage run -m pytest tests/
 uv run coverage report --show-missing
 ```
 
-## Test Coverage — 140 tests across 12 files
+## Test Coverage — 180 test functions across 17 files (parametrized cases expand to more collected tests)
 
 | File | Tests | What They Validate |
 |------|-------|--------------------|
@@ -28,19 +28,24 @@ uv run coverage report --show-missing
 | **test_solver_diagnostics.py** | 27 | Meaning of numerical success: tiny damping is not convergence, input validation, termination reasons (max_iter / nonfinite / stagnation), clipping is not nonexistence evidence, smallest and anisotropic grids, fail-closed diagnostics, 2D coefficient shapes |
 | **test_barriers.py** | 9 | Discrete ordered barriers εφ₁ and plateau M (a = 0), monotone shifted iteration from below and above, exact discrete threshold for a = 0 (Proposition 3.19), unresolved near-threshold runs |
 | **test_independent_checks.py** | 6 | Manufactured residual at second order, independent solve_bvp comparison (a = 0 and a = 0.5) including a zero-start control, mesh refinement, algebraic vs discretization error |
-| **test_graph.py** | 37 | Finite-graph lane (Lean model): verified triangle crosswalk, Jacobi residual identity, proof constants, monotone iteration from both barriers, diagonal-weight and permutation invariances, edge condition at both ends, disconnected interiors, converse counterexample (Proposition 3.30), graph bound counterexample (Proposition 3.28), graph vs centered gradient |
+| **test_graph.py** | 37 | Finite-graph lane (Lean model): verified triangle crosswalk, Jacobi residual identity, proof constants, monotone iteration from both barriers, diagonal-weight and permutation invariances, edge condition at both ends, disconnected interiors, converse counterexample (Proposition 3.32), graph bound counterexample (Proposition 3.30), graph vs centered gradient |
 | **test_analysis_statistics.py** | 14 | Spatial statistics: interior mean including zeros, tensor trapezoid quadrature (area measure), nonuniform grids, explicit coordinates, rejections |
 | **test_spatial_solver.py** | 3 | Spatially-varying coefficients (1D): scalar/array equivalence, spatially-varying solves, residual parity |
 | **test_eigenvalues.py** | 3 | Spatial eigenvalue solver (1D and 2D): constant-field parity with scalar solver, monotone response to potential |
 | **test_2d.py** | 2 | 2D solver with array coefficients; residual on converged 2D solution |
 | **test_fields.py** | 4 | 1D Gaussian bump constructor: peak location, amplitude, shape, range |
+| **test_review_regressions.py** | 19 | Regressions from the mathematical review: spectral assembly is independent of self weights and verified against the direct operator and Rayleigh quotient, exact edge condition without slack, indeterminate status near λ₁ = 0, zero-step accepted roots with defined diagnostics, negative initial data rejected, sign-checked branch labels, a convergence checker that re-validates its own numbers |
+| **test_operators_3d.py** | 5 | 3D Dirichlet Laplacian and eigenvalues with an explicit (z, y, x) convention: constant-potential closed form on an anisotropic box, an asymmetric potential against an independent dense assembly, wrong layouts rejected by shape, discrete-vs-continuum sign near threshold |
+| **test_continuum_counterexample.py** | 6 | Positive continuum solution below the linear threshold (Proposition 3.21): analytic barrier identities, library solve enclosed between the barriers with λ₁ = +1/4, independent collocation agreement |
+| **test_paper_guard.py** | 5 | The paper text guard rejects a changed theorem line or a dropped sentence and accepts re-wrapped or re-hyphenated text (negative fixtures) |
+| **test_validate_notebook_required.py** | 5 | The notebook validator requires each essential claim exactly once, in order before the completion marker (negative fixtures: missing, duplicated, misplaced marker); the committed notebook satisfies it |
 | **test_validate_notebook.py** | 9 | The notebook validator fails closed on error outputs, unexecuted cells, missing markers, failed or too few checks (negative fixtures); the committed notebook passes |
 
 Verify the total count locally:
 
 ```bash
 grep -R '^[[:space:]]*def test_' tests/ | wc -l
-# expected: 140
+# expected: 180
 ```
 
 The per-file counts are also visible via `grep -c "def test_" tests/test_*.py`.
@@ -53,7 +58,7 @@ These tests validate **mathematical correctness**, not implementation details:
 2. **Threshold and barrier tests** verify branch classification against the exact discrete criterion for a = 0 (Proposition 3.19) and the monotone iteration between ordered barriers
 3. **Residual tests** verify that a run is accepted only when the discrete equation holds; a small update is never enough
 4. **Independent checks** compare the finite-difference solver with a collocation solver and a manufactured residual
-5. **Graph tests** reproduce the Lean finite-graph model exactly, including its verified example and two counterexamples
+5. **Graph tests** reproduce the Lean finite-graph model exactly, including its verified example and two counterexamples, with the spectral assembly checked against the operator evaluated from pair differences
 6. **Field and statistics tests** verify coefficient constructors and the quadrature measure
 
 A failing test after a change to `src/cd/` means the math is wrong. Fix the solver/operator, not the test assertion. Any contribution that touches `src/cd/` must keep these tests green.
