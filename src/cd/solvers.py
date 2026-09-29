@@ -495,7 +495,7 @@ def solve_2d_picard(
     Nx: int,
     Ny: int,
     a: float | np.ndarray,
-    beta_b: float,
+    beta_b: float | np.ndarray,
     c: float | np.ndarray,
     p: float = 2.0,
     max_iter: int = 8000,

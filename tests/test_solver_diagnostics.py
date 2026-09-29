@@ -320,6 +320,14 @@ class TestResidualValidation:
         with pytest.raises(ValueError):
             residual_1d(np.linspace(0, 1, 5), np.zeros(4), 0.0, 1.0, 1.0, 2.0)
 
+    @pytest.mark.parametrize("bad", ["0.1", True, np.nan, 0.0, -0.1])
+    def test_residual_2d_spacings_must_be_positive_numbers(self, bad):
+        Phi = np.zeros((4, 5))
+        with pytest.raises(ValueError):
+            residual_2d(Phi, 0.0, 1.0, 1.0, p=2.0, hx=bad, hy=0.1)
+        with pytest.raises(ValueError):
+            residual_2d(Phi, 0.0, 1.0, 1.0, p=2.0, hx=0.1, hy=bad)
+
 
 class TestTwoDimensionalCoefficientShapes:
     def test_2d_effective_potential_may_be_an_array(self):

@@ -183,6 +183,15 @@ class TestGraphSolver:
         with pytest.raises(ValueError):
             solve_graph(triangle(), K=0.0)
 
+    @pytest.mark.parametrize("bad", ["1e-12", True, np.bool_(True), np.nan, -1e-12])
+    def test_solver_tolerances_must_be_nonnegative_numbers(self, bad):
+        """A tolerance is a nonnegative finite real number; strings and bools that ``float``
+        would silently convert are rejected like any other non-number."""
+        with pytest.raises(ValueError):
+            solve_graph(triangle(), atol=bad)
+        with pytest.raises(ValueError):
+            solve_graph(triangle(), rtol=bad)
+
     def test_nonfinite_start_terminates_as_nonfinite(self):
         u0 = np.array([0.0, np.nan, 1.0])
         with pytest.raises(ValueError):

@@ -1,9 +1,10 @@
-"""Spatial statistics with explicit population, coordinates and quadrature."""
+"""Spatial statistics with explicit population, coordinates and quadrature, and the input
+domain of the L-infinity reference bound."""
 
 import numpy as np
 import pytest
 
-from cd.analysis import presence_statistics
+from cd.analysis import linfty_bound, presence_statistics
 
 
 class TestInteriorMean:
@@ -90,3 +91,33 @@ class TestRejections:
     def test_nonfinite_field_rejected(self):
         with pytest.raises(ValueError):
             presence_statistics(np.array([0.0, np.nan, 0.0]), x=np.linspace(0.0, 1.0, 3))
+
+
+class TestLinftyBoundValidation:
+    """Lemma 3.10 bound ``(max(q)_+ / min(c))^{1/(p-1)}``: the inputs are finite scalars or
+    fields, ``c`` positive everywhere; non-numbers are rejected, not coerced."""
+
+    @pytest.mark.parametrize("bad", ["15", True, np.bool_(True), np.nan])
+    def test_potential_must_be_a_finite_number_or_field(self, bad):
+        with pytest.raises(ValueError):
+            linfty_bound(bad, 10.0, 2.0)
+
+    @pytest.mark.parametrize("bad", ["10", True, np.bool_(True), np.nan, 0.0, -1.0])
+    def test_saturation_must_be_a_positive_number_or_field(self, bad):
+        with pytest.raises(ValueError):
+            linfty_bound(15.0, bad, 2.0)
+
+    def test_nonfinite_field_entries_are_rejected(self):
+        with pytest.raises(ValueError):
+            linfty_bound(np.array([1.0, np.nan]), 1.0, 2.0)
+        with pytest.raises(ValueError):
+            linfty_bound(1.0, np.array([1.0, np.inf]), 2.0)
+        with pytest.raises(ValueError):
+            linfty_bound(1.0, np.array([1.0, 0.0]), 2.0)
+
+    def test_closed_form_on_scalars_and_fields(self):
+        assert linfty_bound(15.0, 10.0, 2.0) == pytest.approx(1.5)
+        assert linfty_bound(np.array([-1.0, 15.0]), np.array([10.0, 40.0]), 2.0) == pytest.approx(
+            1.5
+        )
+        assert linfty_bound(-3.0, 1.0, 2.0) == 0.0

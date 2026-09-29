@@ -18,6 +18,8 @@ import numpy as np
 from ._validation import (
     check_exponent,
     check_finite_array,
+    check_finite_field,
+    check_positive_scalar,
     coefficient_1d,
     coefficient_2d,
     require_positive_coefficient,
@@ -102,9 +104,9 @@ def _interior_2d(name: str, value: object, Ny: int, Nx: int) -> float | np.ndarr
 
 def residual_2d(
     Phi: np.ndarray,
-    a_full: np.ndarray,
-    beta_b_full: np.ndarray,
-    c_full: np.ndarray,
+    a_full: float | np.ndarray,
+    beta_b_full: float | np.ndarray,
+    c_full: float | np.ndarray,
     p: float,
     hx: float,
     hy: float,
@@ -139,8 +141,8 @@ def residual_2d(
     bb_int = _interior_2d("beta_b_full", beta_b_full, Ny, Nx)
     c_int = _interior_2d("c_full", c_full, Ny, Nx)
     p = check_exponent("p", p)
-    if not (np.isfinite(hx) and np.isfinite(hy) and hx > 0 and hy > 0):
-        raise ValueError("hx and hy must be positive")
+    hx = check_positive_scalar("hx", hx)
+    hy = check_positive_scalar("hy", hy)
     require_positive_coefficient("c_full", c_int)
 
     Phi_xx = (Phi[1:-1, 2:] - 2 * Phi[1:-1, 1:-1] + Phi[1:-1, :-2]) / hx**2
@@ -527,13 +529,17 @@ def linfty_bound(beta_b: float | np.ndarray, c: float | np.ndarray, p: float) ->
     -------
     K : float
         Upper bound on max(Phi); ``0.0`` when ``beta_b <= 0`` everywhere.
+
+    Raises
+    ------
+    ValueError
+        If ``beta_b`` or ``c`` is not a finite number or finite array, ``c`` is not positive
+        everywhere, or ``p <= 1``.
     """
-    B = float(np.max(beta_b))
-    c0 = float(np.min(c))
-    if not np.isfinite(B) or not np.isfinite(c0):
-        raise ValueError("beta_b and c must be finite")
-    if c0 <= 0:
-        raise ValueError(f"Saturation c must be positive, got min(c)={c0}")
+    B = float(np.max(check_finite_field("beta_b", beta_b)))
+    c_field = check_finite_field("c", c)
+    require_positive_coefficient("c", c_field)
+    c0 = float(np.min(c_field))
     p = check_exponent("p", p)
     if B <= 0:
         return 0.0

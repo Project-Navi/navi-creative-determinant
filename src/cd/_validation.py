@@ -47,6 +47,14 @@ def check_nonnegative_scalar(name: str, value: object) -> float:
     return fvalue
 
 
+def check_unit_interval_scalar(name: str, value: object) -> float:
+    """Return ``value`` as a finite ``float`` in ``[0, 1]`` (the care / coherence intensities)."""
+    fvalue = check_finite_scalar(name, value)
+    if not 0.0 <= fvalue <= 1.0:
+        raise ValueError(f"{name} must lie in [0, 1], got {value!r}")
+    return fvalue
+
+
 def check_exponent(name: str, value: object) -> float:
     """Return the saturation exponent as a finite ``float`` with ``p > 1``."""
     fvalue = check_finite_scalar(name, value)
@@ -73,6 +81,17 @@ def check_finite_array(
     if shape is not None and arr.shape != shape:
         raise ValueError(f"{name} must have shape {shape}, got {arr.shape}")
     return arr
+
+
+def check_finite_field(name: str, value: object) -> float | np.ndarray:
+    """A finite real scalar (never a ``bool`` or a string) or a finite float array of any shape.
+
+    The shape-free counterpart of ``coefficient_1d`` / ``coefficient_2d`` for quantities that
+    are reduced by ``max`` / ``min`` rather than placed on a grid.
+    """
+    if np.isscalar(value):
+        return check_finite_scalar(name, value)
+    return check_finite_array(name, value)
 
 
 def coefficient_1d(name: str, value: object, N: int) -> float | np.ndarray:

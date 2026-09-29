@@ -52,8 +52,10 @@ import numpy as np
 from ._validation import (
     check_exponent,
     check_finite_array,
+    check_nonnegative_scalar,
     check_positive_int,
     check_positive_scalar,
+    require_positive_coefficient,
 )
 from .analysis import _monotone_label
 
@@ -134,8 +136,7 @@ class SemioticGraph:
         a = _unit_interval_field("a", self.a, n)
         b = check_finite_array("b", self.b, shape=(n,))
         c = check_finite_array("c", self.c, shape=(n,))
-        if np.any(c <= 0.0):
-            raise ValueError("carrying capacity c must be positive at every vertex")
+        require_positive_coefficient("c", c)
         p = check_exponent("p", self.p)
         for name, value in (
             ("w", w),
@@ -503,10 +504,8 @@ def solve_graph(
     failure, never an accepted solution.
     """
     max_iter = check_positive_int("max_iter", max_iter)
-    atol = float(atol)
-    rtol = float(rtol)
-    if not (np.isfinite(atol) and np.isfinite(rtol) and atol >= 0.0 and rtol >= 0.0):
-        raise ValueError("atol and rtol must be finite and nonnegative")
+    atol = check_nonnegative_scalar("atol", atol)
+    rtol = check_nonnegative_scalar("rtol", rtol)
     consts: dict[str, Any] | None = None
     if isinstance(start, str):
         if start not in ("subsolution", "plateau"):
