@@ -72,7 +72,7 @@ jobs:
       # eigenvalues, the verified finite-graph example) and prints CHECK PASSED for each one.
       # The validator rejects any error output, any unexecuted code cell, any CHECK FAILED text,
       # fewer than 30 passed checks, or a missing ALL_NOTEBOOK_CHECKS_PASSED marker. Its own
-      # negative fixtures are exercised in tests/test_validate_notebook.py.
+      # negative fixtures are exercised in tests/repo/test_validate_notebook.py.
       - name: Validate executed notebook (fails closed)
         run: uv run python scripts/validate_notebook.py notebooks/executed_demo.ipynb --min-checks 30
 

@@ -64,6 +64,8 @@ packages = ["src/cd"]
 # cache (over 100 MB), figures, notebooks, the paper and local tool state.
 [tool.hatch.build.targets.sdist]
 only-include = ["src/cd", "tests", "README.md", "LICENSE.md", "NOTICE.md", "CITATION.cff"]
+# tests/repo holds repository-artefact tests (scripts/, notebooks/, paper/); they need a full checkout.
+exclude = ["tests/repo"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

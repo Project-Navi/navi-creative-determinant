@@ -10,7 +10,7 @@ import nbformat
 import pytest
 from nbformat.v4 import new_code_cell, new_markdown_cell, new_notebook, new_output
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = pathlib.Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "validate_notebook.py"
 
 
