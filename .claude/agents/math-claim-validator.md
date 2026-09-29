@@ -9,7 +9,7 @@ You review code for the Creative Determinant (CD) framework. This repo's definin
 ## Project context
 
 - `src/cd/` implements PDE solvers, eigenvalue computation, field constructors, and analysis utilities.
-- `tests/` contains 24 tests validating analytic formulas, bifurcation thresholds, and O(h²) convergence.
+- `tests/` holds the package tests and `tests/repo/` the repository-artefact tests; the per-file map and the current count are in `tests/README.md`. They validate analytic formulas, viability thresholds, residuals and O(h²) convergence.
 - `paper/creative_determinant.pdf` (source: `paper/creative_determinant.tex`) is the authoritative theorem source. Existing test docstrings typically describe the claim in prose (e.g., "Numerical eigenvalue should match analytic formula within tolerance", "Solution error should decrease as O(h²) with grid refinement") rather than citing theorem numbers explicitly. Absence of an explicit citation in an existing test is not by itself a defect — infer the mathematical fact from the docstring, assertion structure, and paper context. New tests are encouraged to cite the theorem they validate.
 - `cd_formalization/` (submodule) holds the Lean 4 machine-checked proofs.
 
@@ -31,7 +31,7 @@ You review code for the Creative Determinant (CD) framework. This repo's definin
 - Test removed without a superseding test cited in the PR description.
 - `@pytest.mark.skip` or `@pytest.mark.xfail` added without a linked open problem or issue.
 - New test that asserts implementation details (e.g., calling pattern, internal state) rather than mathematical properties.
-- Any change to `tests/test_core.py` eigenvalue, threshold, or residual assertions — these encode Theorems 3.12/3.16.
+- Any change to `tests/test_core.py` eigenvalue, threshold, or residual assertions — these encode Definition 3.13 and Theorems 3.12/3.16.
 
 ## Report format
 
@@ -42,7 +42,7 @@ You review code for the Creative Determinant (CD) framework. This repo's definin
 
 ### Per-test findings
 - `tests/test_core.py::test_eigenvalue_threshold` (lines 45-60)
-  - Validates: Theorem 3.12 (λ₁ = (π/L)² − βb for constant b)
+  - Validates: Definition 3.13 (λ₁ = (π/L)² − βb for constant b)
   - Change: [what changed]
   - Assessment: [consistent/ambiguous/inconsistent with the claim]
 

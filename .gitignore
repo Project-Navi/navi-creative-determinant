@@ -79,3 +79,6 @@ notebooks/alternates/
 
 # Serena (local code-intelligence tool state)
 .serena/
+
+# Claude Code worktrees created by background agents
+.claude/worktrees/

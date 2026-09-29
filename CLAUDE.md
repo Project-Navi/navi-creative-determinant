@@ -6,26 +6,25 @@ Guidance for Claude Code when working in this repository.
 
 **Creative Determinant (CD)** — a research framework treating "coherent presence" as the solution to a nonlinear elliptic boundary-value problem on a semiotic manifold. The repo ships three coupled artefacts:
 
-1. **Mathematics** — `paper/creative_determinant.pdf` (+ `.tex`, `.bib`, `Makefile`) holds the theorems and proofs, including the finite-graph model of the Lean development.
+1. **Mathematics** — `paper/creative_determinant.pdf` (+ `.tex`, `.bib`) holds the theorems and proofs, including the finite-graph model of the Lean development.
 2. **Numerics** — `src/cd/` Python library, `notebooks/cd_pde_demo.ipynb`, and `figures/`.
 3. **Formalization** — `cd_formalization/` Lean 4 project (machine-checked proofs, git submodule).
 
-Tests validate **mathematical claims** (eigenvalue formulas, bifurcation thresholds, O(h²) grid convergence) — not implementation behaviour.
+Tests validate **mathematical claims** (eigenvalue formulas, viability thresholds, O(h²) grid convergence) — not implementation behaviour.
 
-Status: v0.1.0 Alpha. Research seed, intentionally small and auditable.
+Status: version 1.1.0 (package and repository release). Research seed, intentionally small and auditable.
 
 ## Commands
 
 This project uses **uv**, not pip. Do not suggest `pip install …` in session.
 
 ```bash
-# Install (creates venv, installs cd package editable + dev extras)
+# Install (creates the venv, installs cd editable plus the dev dependency group)
 uv sync
 
-# Tests (191 test functions across 17 files: 167 package tests in tests/, 24 repository-artefact tests in tests/repo/)
+# Tests (package tests in tests/, repository-artefact tests in tests/repo/; counts in tests/README.md)
 uv run pytest tests/ -v
-uv run pytest tests/test_core.py -v               # eigenvalue / threshold suite
-uv run pytest tests/test_2d.py -v                 # 2D solver
+grep -R '^[[:space:]]*def test_' tests/*.py tests/repo/*.py | wc -l   # current test-function count
 
 # Coverage (mirrors CI's coverage job)
 uv run coverage run -m pytest tests/
@@ -39,17 +38,20 @@ uv run ruff format src/ tests/ --check            # CI equivalent
 # Type check (required in CI; fails on any error)
 uv run mypy src/cd --ignore-missing-imports
 
-# Notebook
+# Notebook — execute in place from a fresh kernel, then validate (CI executes on Python 3.12)
 uv run jupyter lab notebooks/
-uv run jupyter nbconvert --to notebook --execute notebooks/cd_pde_demo.ipynb
+uv run jupyter nbconvert --to notebook --execute --inplace \
+  --ExecutePreprocessor.timeout=1200 --ExecutePreprocessor.record_timing=False \
+  notebooks/cd_pde_demo.ipynb
+uv run python scripts/validate_notebook.py notebooks/cd_pde_demo.ipynb --min-checks 30
+uv run nbqa ruff notebooks/cd_pde_demo.ipynb --ignore E501,E402
 
-# Figures (regenerates all 7 figures as PNG+PDF — 14 files total — into figures/)
+# Figures (regenerates all 7 figures as PNG+PDF — 14 files — and prints ALL_FIGURES_OK)
 uv run python figures/generate_figures.py
 
 # Paper — reproducible build in the pinned TeX Live image (needs docker); commit the result
 paper/build_paper.sh && cp paper/build/creative_determinant.pdf paper/
 python3 scripts/check_paper_artifact.py paper/creative_determinant.pdf paper/build/creative_determinant.pdf
-make -C paper                                     # graphviz diagrams (cd_stack.svg/pdf/png)
 latexmk -pdf -cd paper/creative_determinant.tex   # quick local preview only; not the committed artifact
 
 # Pre-commit (install once per clone; runs on every commit)
@@ -57,67 +59,53 @@ uv run pre-commit install
 uv run pre-commit run --all-files
 ```
 
+### Regenerating scientific artefacts after a numerics change
+
+After any edit under `src/cd/`, run the figure and notebook commands above. Figures must end with `ALL_FIGURES_OK` and all 14 files must exist; PDF figures that differ only in metadata need not be committed. The notebook is committed **with** its executed outputs (the repository tests validate them), so execute it in place, validate, lint, and commit `notebooks/cd_pde_demo.ipynb` together with the source change. Any `.tex` edit is committed together with the rebuilt PDF.
+
+### Bumping the Lean submodule
+
+`git -C cd_formalization fetch`, inspect `git -C cd_formalization log --oneline HEAD..origin/main`, look for new `sorry`, changes to the `PDEInfra` hypotheses (structure fields in `CdFormal/Axioms.lean`) or renamed declarations cited from this repository, then `git -C cd_formalization checkout <sha>` and `git add cd_formalization` in a single-purpose `chore:` commit. Never bump to a commit that is not on upstream `main`; never force anything in the submodule.
+
 ## Layout
 
 ```
 src/cd/                  # Python library (SciPy sparse matrices throughout)
 ├── __init__.py          # Public API — edit __all__ when adding exports
 ├── operators.py         # laplacian_1d/2d/3d_dirichlet, grid_3d ((z, y, x) layout)
-├── solvers.py           # solve_1d_picard, solve_2d_picard (Picard iteration)
-├── eigenvalues.py       # principal_eigenvalue_*, viability_threshold_*
+├── solvers.py           # solve_1d_picard, solve_2d_picard (Picard iteration), barriers_1d
+├── eigenvalues.py       # principal_eigenvalue_*, principal_eigenpair_*, viability_threshold_*
 ├── fields.py            # viability_canonical, creative_drive, gaussian_bump_*
 ├── graph.py             # Lean finite-graph model: SemioticGraph, solve_graph, triangle
 ├── _validation.py       # input validation shared by the numerical modules
 └── analysis.py          # residual_*, check_convergence, classify_branch, presence_statistics, linfty_bound
 
-tests/                   # pytest suite — validates theorems, not implementation (167 package test functions, shipped in the sdist)
-├── test_core.py         # eigenvalues, convergence, residuals, thresholds
-├── test_spectra.py      # exact discrete eigenvalues, anisotropy, smallest grids
-├── test_solver_diagnostics.py  # meaning of convergence, validation, termination reasons
-├── test_barriers.py     # ordered barriers, monotone iteration, exact a = 0 threshold
-├── test_independent_checks.py  # manufactured residual, solve_bvp, mesh refinement
-├── test_graph.py        # Lean finite-graph model: triangle crosswalk, counterexamples
-├── test_analysis_statistics.py # explicit quadrature and interior statistics
-├── test_review_regressions.py  # review regressions: spectral assembly, solver contract
-├── test_operators_3d.py        # 3D operators, (z, y, x) convention, independent assembly
-├── test_continuum_counterexample.py  # positive branch below the linear threshold (a = 1)
-├── test_2d.py, test_eigenvalues.py, test_fields.py, test_spatial_solver.py
-└── repo/                # 24 repository-artefact tests (need scripts/, notebooks/, paper/; excluded from the sdist)
-    ├── test_validate_notebook.py           # notebook validator negative fixtures
-    ├── test_validate_notebook_required.py  # required-claim coverage of the notebook
-    └── test_paper_gate.py                  # paper artifact gate: byte identity and mutation-locating diagnostics
+tests/                   # package tests (ship in the sdist); per-file map in tests/README.md
+└── repo/                # repository-artefact tests (scripts/, notebooks/, paper/; excluded from the sdist)
 
-notebooks/
-├── cd_pde_demo.ipynb    # Primary pedagogical artefact; CI executes and validates it
-└── alternates/          # Local experimental variants (untracked workspace)
-
+notebooks/cd_pde_demo.ipynb   # the one working companion; CI executes and validates it
 scripts/
-├── validate_notebook.py # Fail-closed validator for the executed notebook (used by CI; REQUIRED_CHECKS)
-└── check_paper_artifact.py # Byte-identity gate between the committed PDF and its pinned-image rebuild (used by CI)
-
-figures/
-├── generate_figures.py  # Regenerates all paper figures
-├── fig1…fig7_*.png/pdf  # Publication-quality outputs
-
-cd_formalization/        # Git SUBMODULE → Project-Navi/cd-formalization (Lean 4)
-paper/                   # creative_determinant.pdf + .tex + bib + Makefile + svg
-docs/                    # Diataxis structure, rendered via zensical
-experiments/             # Scaffolding for empirical instantiations
-.github/workflows/       # ci / codeql / docs / figures / notebooks / semgrep
+├── validate_notebook.py      # fail-closed notebook validator (REQUIRED_CHECKS)
+└── check_paper_artifact.py   # byte-identity gate between the committed PDF and its rebuild
+figures/                 # generate_figures.py and the 7 PNG+PDF pairs it writes
+paper/                   # .tex, .bib, .bbl, the committed PDF, build_paper.sh, README
+cd_formalization/        # git SUBMODULE → Project-Navi/cd-formalization (Lean 4)
+docs/                    # Diataxis structure, rendered via zensical (zensical.toml)
+.github/workflows/       # ci / codeql / docs / figures / notebooks / paper / semgrep
 ```
 
 ## Gotchas
 
 - **`cd_formalization/` is a git submodule.** A bare `git clone` leaves it empty — `ls` shows nothing and it looks like missing code. Run `git submodule update --init --recursive` (or clone with `--recursive`) before touching Lean files.
-- **`tests/README.md` may drift from reality.** If the documented test count disagrees with the code (verify with `grep -c "def test_" tests/test_*.py`), treat the code as source of truth **and update `tests/README.md` in the same PR** so the docs stay aligned.
-- **Tests are mathematical proofs, not regressions.** If a test fails after editing `src/cd/`, the math is wrong, not the test. Do not "fix" tests to pass — fix the solver/operator.
+- **`tests/README.md` may drift from reality.** If the documented test count disagrees with the code (verify with the grep command under Commands), treat the code as source of truth **and update `tests/README.md` in the same PR** so the docs stay aligned.
+- **Tests are mathematical proofs, not regressions.** If a test fails after editing `src/cd/`, the math is usually wrong, not the test. Do not "fix" tests to pass — fix the solver/operator.
 - **Docs use `zensical`, not MkDocs.** Config is `zensical.toml`. Don't suggest `mkdocs build`.
 - **Ruff runs `--no-fix --check` in pre-commit.** It won't auto-repair; formatting violations reject the commit. Run `uv run ruff format src/ tests/` locally before committing.
 - **Gitleaks pre-commit hook is enabled.** Files matching secret patterns (API keys, tokens, private keys) block the commit. Do not `--no-verify` to bypass — rotate the secret and commit a redacted version.
-- **Large files cap: 1024 KB** (`check-added-large-files`). Existing figures (>200 KB) are tracked because generation is scripted. New binaries ≥1 MB will be rejected.
-- **Notebook CI validates claims, not output counts.** `notebooks.yml` executes `cd_pde_demo.ipynb` and runs `scripts/validate_notebook.py`, which rejects any error output, any unexecuted code cell, any `CHECK FAILED` text, fewer than 30 `CHECK PASSED` lines, a missing or misplaced `ALL_NOTEBOOK_CHECKS_PASSED` marker, or any essential claim (`REQUIRED_CHECKS` in the script) that is missing or duplicated. New numerical claims in the notebook go through the `check(condition, name)` helper; renaming an essential claim requires updating `REQUIRED_CHECKS`. The notebook is also linted fail-closed (`nbqa ruff`, ignoring E501/E402).
-- **CI triggers are path-filtered.** `notebooks.yml` only runs on `notebooks/**` or `src/**`; `figures.yml` only on `figures/**` or `src/**`. `ci.yml` runs on every push/PR.
-- **CodeQL is advanced setup, not default.** Required check name is `codeql` (the job key in `codeql.yml`), not `Analyze (python)` (the SARIF-upload-side check). The job-level check was chosen because Dependabot's `GITHUB_TOKEN` is forced read-only on `pull_request` events, so the SARIF upload no-ops on Dependabot PRs and `Analyze (python)` never fires — freezing every Dependabot PR. If someone toggles GitHub's default CodeQL setup on, it will silently disable `codeql.yml` and break the required-checks contract — restore advanced via the Actions UI or API.
+- **Large files cap: 1024 KB** (`check-added-large-files`). Figures and the executed notebook are tracked because their generation is scripted; the notebook is close to 0.9 MB, so keep its outputs lean. New binaries ≥1 MB are rejected.
+- **Notebook CI validates claims, not output counts.** `notebooks.yml` executes `cd_pde_demo.ipynb` on Python 3.12 and runs `scripts/validate_notebook.py`, which rejects any error output, any unexecuted code cell, any `CHECK FAILED` text, fewer than 30 `CHECK PASSED` lines, a missing or misplaced `ALL_NOTEBOOK_CHECKS_PASSED` marker, or any essential claim (`REQUIRED_CHECKS` in the script) that is missing or duplicated. New numerical claims in the notebook go through the `check(condition, name)` helper; renaming an essential claim requires updating `REQUIRED_CHECKS` and `tests/repo/test_validate_notebook_required.py`. The notebook is also linted fail-closed (`nbqa ruff`, ignoring E501/E402).
+- **CI triggers are path-filtered.** `ci.yml` runs on pushes and pull requests to `main`. `notebooks.yml` runs on `notebooks/**`, `src/**`, `scripts/validate_notebook.py`, `pyproject.toml`, `uv.lock`; `figures.yml` on `figures/**`, `src/**`, `pyproject.toml`, `uv.lock`; `paper.yml` on `paper/**`, `scripts/check_paper_artifact.py` and itself; `docs.yml` on `docs/**`, `zensical.toml` and itself.
+- **CodeQL is advanced setup, not default.** `codeql.yml` emits the check `codeql` (the job key), not `Analyze (python)` (the SARIF-upload-side check, which never fires on Dependabot PRs because their `GITHUB_TOKEN` is read-only). The check is not currently in the ruleset's required list, but keep the job key stable, and if someone toggles GitHub's default CodeQL setup on, it silently disables `codeql.yml` — restore advanced setup via the Actions UI or API.
 
 ## Conventions
 
@@ -129,17 +117,17 @@ experiments/             # Scaffolding for empirical instantiations
 - Python 3.10+ (CI matrix: 3.10 / 3.11 / 3.12).
 
 ### Public API
-- Exports live in `src/cd/__init__.py` via explicit `__all__`. When adding a symbol, export it there so `from cd import X` works in notebooks and tests.
+- Exports live in `src/cd/__init__.py` via explicit `__all__`. When adding a symbol, export it there so `from cd import X` works in notebooks and tests, and list it in `src/README.md`.
 - Notebook and tests import from `cd`, not relative paths.
 
 ### Commits / branches
 - Conventional commits: `feat:`, `fix:`, `refactor:`, `test:`, `chore:`, `docs:`, `ci:`, `perf:`.
 - Branches: `<type>/<slug>` (e.g. `fix/notebook-section-refs`).
-- Stage specific files (`git add src/cd/solvers.py`) — not `git add -A`, to avoid catching `.claude-flow/`, `notebooks/alternates/`, `__pycache__/`, etc.
+- Stage specific files (`git add src/cd/solvers.py`) — not `git add -A`, so local tool state and caches never land in a commit.
 - Signed commits are required on main (org ruleset).
 
 ### Mathematical honesty
-- Label results as **Theorem**, **Conjecture**, or **Heuristic** in code comments and docstrings (same rule as `CONTRIBUTING.md`).
+- Label results in docstrings and comments as **Theorem / Proposition / Lemma** (with the paper number), **Conjecture**, **Heuristic**, or **Observation (numerical)** for facts established only by computation (same rule as the contributing guide).
 - The continuum existence theorems in Lean are conditional on the `PDEInfra` hypotheses (structure fields, not Lean axioms); the finite-graph theorem is proved outright. Don't claim the continuum operator instantiates that interface (it does not: see paper Appendix A), and don't describe the framework as axiom-free.
 - Three numerical models are distinct: the continuum problem (centered finite differences), the Lean finite-graph model (`cd.graph`, unnormalized weights, square-root gradient), and the 3D eigenvalue illustration. Never relabel one as another.
 - A solver run is accepted only by the residual of the discrete equation (`info["converged"]`, `info["termination"]`, `info["branch"]`); `check_convergence` re-validates the recorded numbers rather than trusting the flag (residual criterion, the update criterion against the recorded `tol`, boundary data, and the type, finiteness and sign of every field; a report missing `tol` is unvalidated, never accepted); initial data must be nonnegative; a run that returns zero is not evidence that no positive branch exists.
@@ -147,45 +135,32 @@ experiments/             # Scaffolding for empirical instantiations
 
 ## Testing philosophy
 
-Each test documents the theorem or claim it validates. Reference pattern:
-
-```python
-def test_2d_eigenvalue_formula(self):
-    """Verify λ₁ = π²(1/Lx² + 1/Ly²) - βb for 2D rectangle (Theorem 3.12)."""
-```
-
-Before adding a test:
-1. Identify the mathematical claim.
-2. Write an assertion that fails iff the claim is false.
-3. Prefer analytic validation (compare to closed-form) over regression (compare to a stored number).
-4. Cite the paper theorem and, if relevant, the Lean lemma.
+Each test documents the theorem or claim it validates and prefers analytic validation (compare to a closed form) over regression against a stored number; the reference pattern, the per-file map and the count live in `tests/README.md`. Cite the paper statement (for example Definition 3.13 for the eigenvalue formula, Theorem 3.16 for positive existence) and, if relevant, the Lean declaration.
 
 ## CI
 
-Seven workflows. The unified `ci.yml` holds four of the six required checks (`lint`, `typecheck`, `security`, `quality-gate`); `codeql.yml` emits `codeql` and `semgrep.yml` emits `semgrep`.
+Seven workflows. The org ruleset on `main` requires five checks — `lint`, `typecheck`, `security`, `quality-gate` (all in `ci.yml`) and `semgrep` (`semgrep.yml`) — plus signed commits and a code-owner review. Job keys map 1-to-1 to the check names: don't rename these jobs or add `name:` overrides that would change the emitted check name.
 
 | Workflow | File | Notes |
 |---|---|---|
-| CI | `ci.yml` | Job keys mapped to ruleset checks: **`lint`, `typecheck`, `security`, `quality-gate`**. `typecheck` (mypy) and `security` (bandit, pip-audit on the locked environment) fail closed. `test-run` is the per-Python matrix; `test` is the aggregator (runs on every PR but is not in the ruleset's required list). Non-required: `numerical-stability`, `eigenvalue-precision`, `threshold-verification` (pytest subsets), `coverage`. |
-| CodeQL Analysis | `codeql.yml` | Emits **`codeql`** (job key, required by org ruleset). Also emits `Analyze (python)` on `push` events to main and the weekly schedule, but not on Dependabot PRs (token is read-only). Do not rename the job or add a `name:` override. |
+| CI | `ci.yml` | Required job keys **`lint`, `typecheck`, `security`, `quality-gate`**. `typecheck` (mypy) and `security` (bandit, pip-audit on the locked environment) fail closed. `test-run` is the per-Python matrix and `test` its aggregator; `numerical-stability`, `eigenvalue-precision`, `threshold-verification` and `coverage` run pytest subsets. None of these five is in the required list. |
+| CodeQL Analysis | `codeql.yml` | Emits `codeql` (job key; runs on every PR, not currently required). Also emits `Analyze (python)` on pushes to main and the weekly schedule, but not on Dependabot PRs. |
 | Semgrep | `semgrep.yml` | Emits **`semgrep`** (required). Runs `p/python` + `p/owasp-top-ten`. |
 | Notebook Validation | `notebooks.yml` | Executes `cd_pde_demo.ipynb` from a fresh kernel, validates it with `scripts/validate_notebook.py` (fail-closed), lints via nbqa (fail-closed). |
-| Figure Validation | `figures.yml` | Runs `generate_figures.py` (library-backed), requires the `ALL_FIGURES_OK` marker (every solve converged), verifies all 14 PNG+PDF files exist. |
-| Paper | `paper.yml` | Rebuilds the PDF with `paper/build_paper.sh` in the pinned TeX Live image (digest + fixed `SOURCE_DATE_EPOCH`, byte-reproducible), fails on unresolved references, and requires the committed PDF to be byte-identical to the rebuild (`scripts/check_paper_artifact.py`; on mismatch it prints an order-preserving text diff and a page render comparison). Edit the `.tex`, run the script, commit the rebuilt PDF with it. |
-| Docs | `docs.yml` | Builds zensical site. |
-
-**Org ruleset contract (`CI: Python Tier`)** requires: `lint`, `typecheck`, `security`, `codeql`, `semgrep`, `quality-gate`. Job keys in the workflow files map 1-to-1 to these check names — don't rename jobs without updating the ruleset, and don't add `name:` overrides that would change the emitted check name. (`test` is the aggregator job in `ci.yml` and runs on every PR, but is not in the ruleset's required list.)
+| Figure Validation | `figures.yml` | Runs `generate_figures.py`, requires the `ALL_FIGURES_OK` marker (every solve converged), verifies all 14 PNG+PDF files exist. |
+| Paper | `paper.yml` | Rebuilds the PDF with `paper/build_paper.sh` in the pinned TeX Live image (digest + fixed `SOURCE_DATE_EPOCH`, byte-reproducible), fails on unresolved references, and requires the committed PDF to be byte-identical to the rebuild (`scripts/check_paper_artifact.py`; on mismatch it prints an order-preserving text diff and a page render comparison). |
+| Docs | `docs.yml` | Builds the zensical site on PRs and deploys it on pushes to main. |
 
 ## When adding new code
 
 1. Land tests first when the claim is mathematical (write the failing assertion, then the implementation).
-2. Export new public functions via `src/cd/__init__.py`.
+2. Export new public functions via `src/cd/__init__.py` and document them in `src/README.md`.
 3. Run `uv run ruff format src/ tests/` and `uv run pytest tests/ -v` before committing.
-4. If the change affects numerics, re-run the notebook headlessly (`uv run jupyter nbconvert --to notebook --execute notebooks/cd_pde_demo.ipynb`) before pushing.
+4. If the change affects numerics, regenerate the figures and re-execute the notebook (see "Regenerating scientific artefacts") before pushing.
 5. If you touch the Lean submodule, commit and push in `cd-formalization` first, then bump the submodule pointer here.
 
 ## What this repo is not
 
-- Not a production library — API stability is not guaranteed before 1.0.
+- Not a production library — the version tracks the repository release, not an API contract; interfaces may still change.
 - Not a finished theory — see `docs/explanation/open-problems.md` and the Research Roadmap.
 - Apache 2.0 allows permissive reuse, but you must preserve required copyright/license/NOTICE attributions per the license terms; beyond that, the `CONTRIBUTORS.md` convention still applies socially.
