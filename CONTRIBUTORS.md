@@ -12,6 +12,9 @@ Everyone who has contributed to the Creative Determinant framework.
 
 <!-- Add entries as: - **Name** — Brief description of contribution -->
 
+- **Andrew Edmark** (@aedmark) — Proposed the finite-graph formulation of the positive-existence theorem and its proof route (finite-dimensional inverse positivity and positive principal eigendata, then the order-theoretic fixed-point core)
+- **Yongxi (Aaron) Lin** — Suggested the bornological form of `PDEInfra.T_compact` (Lean Zulip)
+
 ## Computational Contributors
 
 *Contributions to solvers, numerical methods, or visualizations.*
