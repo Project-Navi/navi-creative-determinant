@@ -55,6 +55,7 @@ from ._validation import (
     check_positive_int,
     check_positive_scalar,
 )
+from .analysis import _monotone_label
 
 __all__ = [
     "SemioticGraph",
@@ -237,6 +238,13 @@ def interior_connected(G: SemioticGraph) -> bool:
     return len(seen) == len(interior)
 
 
+def _off_diagonal(w: np.ndarray) -> np.ndarray:
+    """Copy of the weight matrix with the diagonal (self weights) set to zero."""
+    off = w.copy()
+    np.fill_diagonal(off, 0.0)
+    return off
+
+
 def _dirichlet_block(G: SemioticGraph) -> tuple[np.ndarray, np.ndarray]:
     """Interior block of ``diag(d') - w' - diag(b)`` where ``w'`` is ``w`` with the diagonal
     removed and ``d'`` its row sums (boundary edges included).
@@ -247,8 +255,7 @@ def _dirichlet_block(G: SemioticGraph) -> tuple[np.ndarray, np.ndarray]:
     swamp the off-diagonal contributions in floating point and corrupt the operator.
     """
     interior = np.flatnonzero(G.interior)
-    off = G.w.copy()
-    np.fill_diagonal(off, 0.0)
+    off = _off_diagonal(G.w)
     full = np.diag(off.sum(axis=1)) - off - np.diag(G.b)
     return interior, full[np.ix_(interior, interior)]
 
@@ -303,8 +310,7 @@ def spectral_report(G: SemioticGraph) -> dict[str, Any]:
     """
     lam1, phi = principal_eigenpair(G)
     interior = G.interior
-    off = G.w.copy()
-    np.fill_diagonal(off, 0.0)
+    off = _off_diagonal(G.w)
     scale = float(off.sum(axis=1).max() + np.abs(G.b).max())
     margin = 1e3 * G.n * np.finfo(float).eps * max(1.0, scale)
     rayleigh = energy(G, phi) / float(np.sum(phi**2))
@@ -454,18 +460,6 @@ def linfty_bound_graph(G: SemioticGraph) -> float:
         return 0.0
     ratio = np.maximum(G.b + G.a**2 / 4.0, 0.0) / G.c
     return float(np.max(ratio[interior]) ** (1.0 / (G.p - 1.0)))
-
-
-def _monotone_label(min_step: float, max_step: float, tol: float) -> str:
-    nondecreasing = min_step >= -tol
-    nonincreasing = max_step <= tol
-    if nondecreasing and nonincreasing:
-        return "constant"
-    if nondecreasing:
-        return "nondecreasing"
-    if nonincreasing:
-        return "nonincreasing"
-    return "non-monotone"
 
 
 def solve_graph(

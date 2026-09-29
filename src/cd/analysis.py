@@ -156,6 +156,24 @@ def residual_2d(
     return -lap - rhs
 
 
+def _monotone_label(min_step: float, max_step: float, tol: float) -> str:
+    """Monotonicity of an iterate sequence from the extreme entrywise steps it recorded.
+
+    Shared by the finite-difference solvers and the finite-graph solver, which record
+    ``min_step`` / ``max_step`` over their own (different) iterations; the label itself is a
+    property of the recorded steps only.
+    """
+    nondecreasing = min_step >= -tol
+    nonincreasing = max_step <= tol
+    if nondecreasing and nonincreasing:
+        return "constant"
+    if nondecreasing:
+        return "nondecreasing"
+    if nonincreasing:
+        return "nonincreasing"
+    return "non-monotone"
+
+
 def _finite(value: Any) -> bool:
     try:
         return bool(np.isfinite(float(value)))

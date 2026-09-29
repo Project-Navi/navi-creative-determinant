@@ -69,6 +69,14 @@ def _positive_unit_vector(v: np.ndarray) -> np.ndarray:
     return phi / m
 
 
+def _principal_interior(A: csr_matrix, q: float | np.ndarray, n: int) -> tuple[float, np.ndarray]:
+    """Smallest eigenvalue of ``A - diag(q)`` and its positive unit eigenvector on the flat
+    interior (length ``n``); the callers place it on their own full grid."""
+    M = (A - diags([q * np.ones(n)], [0], format="csr")).tocsr()
+    lam, v = _smallest_eigenpair(M)
+    return lam, _positive_unit_vector(v)
+
+
 def principal_eigenpair_1d(
     N: int, L: float, beta_b: float | np.ndarray
 ) -> tuple[float, np.ndarray]:
@@ -99,10 +107,9 @@ def principal_eigenpair_1d(
         if arr.shape == (N + 2,):
             beta_b = arr[1:-1]
     q = _potential("beta_b", beta_b, N)
-    M = (A - diags([q * np.ones(N)], [0], format="csr")).tocsr()
-    lam, v = _smallest_eigenpair(M)
+    lam, v = _principal_interior(A, q, N)
     phi = np.zeros(N + 2)
-    phi[1:-1] = _positive_unit_vector(v)
+    phi[1:-1] = v
     return lam, phi
 
 
@@ -182,10 +189,9 @@ def principal_eigenpair_2d(
         elif arr.shape == (Ny, Nx):
             beta_b = arr.reshape(-1)
     q = _potential("beta_b", beta_b, n)
-    M = (A - diags([q * np.ones(n)], [0], format="csr")).tocsr()
-    lam, v = _smallest_eigenpair(M)
+    lam, v = _principal_interior(A, q, n)
     Phi = np.zeros((Ny + 2, Nx + 2))
-    Phi[1:-1, 1:-1] = _positive_unit_vector(v).reshape(Ny, Nx)
+    Phi[1:-1, 1:-1] = v.reshape(Ny, Nx)
     return lam, Phi
 
 
@@ -268,10 +274,9 @@ def principal_eigenpair_3d(
                 f"in (z, y, x) layout; got {arr.shape}"
             )
     q = _potential("beta_b", beta_b, n)
-    M = (A - diags([q * np.ones(n)], [0], format="csr")).tocsr()
-    lam, v = _smallest_eigenpair(M)
+    lam, v = _principal_interior(A, q, n)
     Phi = np.zeros((Nz + 2, Ny + 2, Nx + 2))
-    Phi[1:-1, 1:-1, 1:-1] = _positive_unit_vector(v).reshape(Nz, Ny, Nx)
+    Phi[1:-1, 1:-1, 1:-1] = v.reshape(Nz, Ny, Nx)
     return lam, Phi
 
 

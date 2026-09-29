@@ -86,6 +86,13 @@ class TestInputValidation:
         with pytest.raises(ValueError):
             solve_2d_picard(1.0, 1.0, 4, 5, 0.0, 20.0, 10.0, residual_rtol=np.nan)
 
+    @pytest.mark.parametrize("guess", ["subsolution", "plateau", "nonsense"])
+    def test_2d_string_initial_guess_is_rejected_with_a_clear_message(self, guess):
+        """The 2D solver has no named barriers; a string start is rejected by the solver's own
+        message, not by NumPy's cast error."""
+        with pytest.raises(ValueError, match="initial_guess must be None or an array of shape"):
+            solve_2d_picard(1.0, 1.0, 4, 5, 0.0, 20.0, 10.0, initial_guess=guess)
+
 
 class TestTerminationReasons:
     def test_nonfinite_iterate_terminates_and_is_not_accepted(self):
