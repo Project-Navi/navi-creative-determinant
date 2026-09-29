@@ -6,13 +6,13 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 ## 1. Relationship Between Weak and Strong Coherence
 
-**Status**: Open; one obstruction is now proved. Proposition 4.11 of the paper shows that on a compact manifold with zero boundary data (or a closed manifold) no nonnegative \(C^1\) field satisfies the strong pointwise constraint except \(\Phi \equiv 0\), so the strong ideal is unattainable in that setting and only weak configurations are reachable.
+**Status**: Open; one obstruction is proved. Proposition 4.11 of the paper shows that on a compact manifold with zero boundary data (or a closed manifold) no nonnegative \(C^1\) field satisfies the strong pointwise constraint except \(\Phi \equiv 0\), so the strong ideal is unattainable in that setting and only weak configurations are reachable.
 
 **Problem**: The paper distinguishes "weak coherent configurations" (solutions to the PDE) from "strong coherent configurations" (fields satisfying the pointwise CD constraint \(\Phi(x) = \Phi(\kappa(x), \gamma(x), \mu(x))\)). Under what conditions are these equivalent? When does strong coherence imply weak, and vice versa?
 
 **Why it matters**: This gap determines whether the PDE is a faithful representation of the underlying semiotic/enactivist intuition or merely an analytically tractable approximation.
 
-**Starting point**: Assume a specific functional form for the pointwise constraint and derive the resulting PDE. Check consistency with the V1 model.
+**Starting point**: Assume a specific functional form for the pointwise constraint and derive the resulting PDE. Check consistency with the V1′ model.
 
 ---
 
@@ -44,7 +44,7 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 **Status**: Defined (Remark 3.17), not analyzed.
 
-**Problem**: The driven case \(-\Delta u + a(x)|\nabla u| + b(x)u - c(x)u^p = f(x)\) encodes external input or environmental significance. How does nonzero \(f\) affect existence, stability, and multiplicity of equilibria?
+**Problem**: The driven case \(-\Delta u = a(x)|\nabla u| + b(x)u - c(x)u^p + f(x)\) (Remark 3.17) encodes external input or environmental significance. How does nonzero \(f\) affect existence, stability, and multiplicity of equilibria?
 
 **Why it matters**: Real cognitive systems are open, not closed. Understanding the driven case is essential for applications.
 
@@ -72,7 +72,7 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 **Why it matters**: If the PDE can be derived from a Lagrangian or energy functional, it would connect to physics and provide additional analytic tools.
 
-**Starting point**: Investigate whether the V1 equation is the Euler--Lagrange equation of some action functional.
+**Starting point**: Investigate whether the V1′ equation is the Euler--Lagrange equation of some action functional.
 
 ---
 
@@ -120,7 +120,7 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 **Why it matters**: Real cognitive processes are temporal. A dynamical (not just static) CD theory would be more realistic.
 
-**Starting point**: Formulate the parabolic PDE \(\partial_t u = -\Delta u + a(x)|\nabla u| + b(x)u - c(x)u^p\) and study stability of equilibria.
+**Starting point**: Formulate the parabolic PDE \(\partial_t u = \Delta u + a(x)|\nabla u| + b(x)u - c(x)u^p\) and study stability of equilibria.
 
 ---
 
@@ -128,7 +128,7 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 **Status**: Settled: exact for \(a \equiv 0\); sufficient only for \(a > 0\), in the continuum and on finite graphs.
 
-**Problem**: For \(a \equiv 0\), a positive solution exists if and only if \(\lambda_1(-\Delta - b; M) < 0\) (paper Proposition 3.19). With a gradient term the spectral condition is sufficient (Theorem 3.16) but not necessary: Proposition 3.21 gives an explicit positive solution on an interval with \(\lambda_1 = +1/4\) (a classical barrier construction, not Lean-verified), and the finite-graph model has its own counterexample (Proposition 3.32, \(\lambda_1 = +1/2\)). What remains open is a characterization of the positive-existence region for \(a > 0\): what is the correct nonlinear spectral problem?
+**Problem**: For \(a \equiv 0\), a positive solution exists if and only if \(\lambda_1(-\Delta - b; M) < 0\) (paper Proposition 3.19). With a gradient term the spectral condition is sufficient (Theorem 3.16) but not necessary: Proposition 3.21 gives a positive solution on an interval with \(\lambda_1 = +1/4\), enclosed between an explicit subsolution and a constant supersolution (a classical barrier construction, not Lean-verified; the solution itself is not given in closed form), and the finite-graph model has its own counterexample (Proposition 3.32, \(\lambda_1 = +1/2\)). What remains open is a characterization of the positive-existence region for \(a > 0\): what is the correct nonlinear spectral problem?
 
 **Why it matters**: The linear indicator is used throughout the numerics; knowing where it is exact tells us when a zero result is a proof of collapse and when it is only an observation.
 
