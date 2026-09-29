@@ -62,35 +62,45 @@ def _write(tmp_path, nb, name="nb.ipynb"):
 class TestValidator:
     def test_valid_notebook_passes(self, tmp_path):
         v = _load()
-        ok, messages = v.validate(_write(tmp_path, _notebook()), min_checks=3)
+        ok, messages = v.validate(_write(tmp_path, _notebook()), min_checks=3, required=[])
         assert ok, messages
 
     def test_error_output_rejected(self, tmp_path):
         v = _load()
-        ok, messages = v.validate(_write(tmp_path, _notebook(error=True)), min_checks=3)
+        ok, messages = v.validate(
+            _write(tmp_path, _notebook(error=True)), min_checks=3, required=[]
+        )
         assert not ok
         assert any("error output" in m for m in messages)
 
     def test_unexecuted_code_cell_rejected(self, tmp_path):
         v = _load()
-        ok, messages = v.validate(_write(tmp_path, _notebook(unexecuted=True)), min_checks=3)
+        ok, messages = v.validate(
+            _write(tmp_path, _notebook(unexecuted=True)), min_checks=3, required=[]
+        )
         assert not ok
         assert any("not executed" in m for m in messages)
 
     def test_missing_final_marker_rejected(self, tmp_path):
         v = _load()
-        ok, messages = v.validate(_write(tmp_path, _notebook(marker=False)), min_checks=3)
+        ok, messages = v.validate(
+            _write(tmp_path, _notebook(marker=False)), min_checks=3, required=[]
+        )
         assert not ok
         assert any("ALL_NOTEBOOK_CHECKS_PASSED" in m for m in messages)
 
     def test_failed_check_text_rejected(self, tmp_path):
         v = _load()
-        ok, messages = v.validate(_write(tmp_path, _notebook(failed=True)), min_checks=3)
+        ok, messages = v.validate(
+            _write(tmp_path, _notebook(failed=True)), min_checks=3, required=[]
+        )
         assert not ok
 
     def test_too_few_checks_rejected(self, tmp_path):
         v = _load()
-        ok, messages = v.validate(_write(tmp_path, _notebook(n_checks=2)), min_checks=3)
+        ok, messages = v.validate(
+            _write(tmp_path, _notebook(n_checks=2)), min_checks=3, required=[]
+        )
         assert not ok
         assert any("checks" in m for m in messages)
 
@@ -98,8 +108,8 @@ class TestValidator:
         v = _load()
         good = _write(tmp_path, _notebook(), "good.ipynb")
         bad = _write(tmp_path, _notebook(error=True), "bad.ipynb")
-        assert v.main([str(good), "--min-checks", "3"]) == 0
-        assert v.main([str(bad), "--min-checks", "3"]) == 1
+        assert v.main([str(good), "--min-checks", "3", "--no-required"]) == 0
+        assert v.main([str(bad), "--min-checks", "3", "--no-required"]) == 1
 
     def test_committed_notebook_passes_with_stored_outputs(self):
         """The committed notebook carries executed outputs; they must satisfy the validator."""

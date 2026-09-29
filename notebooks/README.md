@@ -31,7 +31,7 @@ Every numerical claim is asserted in the notebook through a `check(condition, na
 | 1 | Spectral theory — exact discrete eigenvalue, continuum limit, threshold | Definition 3.13, Section 3.5 | `viabilityThreshold_lt_iff` proved (arithmetic; eigenvalue identification classical) |
 | 2 | $L^\infty$ bound (exact for the discrete model when $a=0$) | Lemma 3.10 | `linfty_bound_algebraic` proved (algebraic step) |
 | 3 | Existence and branches — residual-validated solves, ordered barriers, monotone iteration, refinement, `solve_bvp` cross-check | Theorems 3.12, 3.16, Proposition 3.19 | continuum theorems conditional on `PDEInfra`; classical proofs in the paper |
-| 4 | Scaling uniqueness (proportional solutions excluded) | Remark 3.22 | `scaling_uniqueness` proved |
+| 4 | Scaling uniqueness (proportional solutions excluded) | Remark 3.24 | `scaling_uniqueness` proved |
 | 5 | Canonical closure sweep ($a > 0$: sufficient condition only) | Definition 3.3, Remark 3.20 | `SemioticContext.canonicalViability` definition |
 | 6 | 2D presence field: a positive equilibrium and a collapsed one | Theorem 3.16 | as in §3 |
 | 7 | Finite graph: verified triangle, Jacobi iteration from both barriers, converse and bound counterexamples | Section 3.6 | `SemioticGraph.exists_pos_graph`, `triangle_isSolution` proved |
