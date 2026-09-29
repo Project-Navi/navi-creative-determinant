@@ -69,6 +69,21 @@ class TestSupportFraction:
         assert stats["total"] == 0.0
         assert stats["max"] == 0.0
 
+    def test_field_below_zero_branch_tolerance_has_no_support(self):
+        """A field whose maximum is below the zero-branch tolerance 1e-6 used by
+        ``classify_branch`` is the zero branch; its support fraction is 0, not the fraction of
+        nodes above 1% of a numerically-zero maximum."""
+        Phi = np.array([0.0, 5e-7, 5e-7, 5e-7, 0.0])
+        stats = presence_statistics(Phi, x=np.linspace(0.0, 1.0, 5))
+        assert stats["max"] == pytest.approx(5e-7)
+        assert stats["support_fraction"] == 0.0
+
+    def test_field_above_zero_branch_tolerance_keeps_computed_support(self):
+        Phi = np.array([0.0, 2e-6, 1e-9, 2e-6, 0.0])
+        stats = presence_statistics(Phi, x=np.linspace(0.0, 1.0, 5))
+        assert stats["max"] == pytest.approx(2e-6)
+        assert stats["support_fraction"] == pytest.approx(2.0 / 3.0)
+
 
 class TestRejections:
     def test_ambiguous_2d_call_is_rejected(self):

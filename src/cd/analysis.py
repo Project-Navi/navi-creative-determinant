@@ -451,7 +451,9 @@ def presence_statistics(
         - ``max``: maximum of the field over the full grid
         - ``mean``: mean over the *interior* nodes, zeros included
         - ``total``: integral by the composite (tensor) trapezoid rule on the given coordinates
-        - ``support_fraction``: fraction of interior nodes with ``Phi > 0.01 * max``
+        - ``support_fraction``: fraction of interior nodes with ``Phi > 0.01 * max``, or
+          ``0.0`` when ``max <= 1e-6`` (``_ZERO_BRANCH_TOL``, the cutoff below which
+          ``classify_branch`` reports the zero branch; a numerically-zero field has no support)
         - ``dimension``: 1 or 2
         - ``interior_count``: number of interior nodes
 
@@ -495,7 +497,7 @@ def presence_statistics(
         "dimension": dimension,
         "interior_count": int(interior.size),
     }
-    if max_phi > 1e-10:
+    if max_phi > _ZERO_BRANCH_TOL:
         stats["support_fraction"] = float((interior > 0.01 * max_phi).sum() / interior.size)
     else:
         stats["support_fraction"] = 0.0
