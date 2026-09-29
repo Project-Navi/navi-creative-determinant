@@ -29,11 +29,17 @@ pinned TeX Live image (`texlive/texlive:TL2025-historic`, by digest) with a fixe
 paper/build_paper.sh                              # needs docker; writes paper/build/creative_determinant.pdf
 cp paper/build/creative_determinant.pdf paper/    # commit the rebuilt PDF together with the source change
 python3 scripts/check_paper_artifact.py paper/creative_determinant.pdf paper/build/creative_determinant.pdf
+make -C paper                                     # stack diagram: cd_stack.dot -> docs SVG and the two figure PDFs (needs graphviz, python3)
 latexmk -pdf -cd paper/creative_determinant.tex   # quick local preview with your own TeX Live (not the committed artifact)
 ```
 
+Figures 1 and 2 (the stack diagram) are generated from the single source `cd_stack.dot` by
+`stack_figures.py`; the figure PDFs are inputs to the paper build, so regenerate them and rebuild the
+paper together. The same source renders the brand-themed diagram of the documentation site.
+
 CI (`.github/workflows/paper.yml`) rebuilds the PDF in the same image and requires the committed
-PDF to be byte-identical to the rebuild (`scripts/check_paper_artifact.py`). When the bytes
+PDF to be byte-identical to the rebuild (`scripts/check_paper_artifact.py`). It also checks that every statement number the diagram cites exists in the
+rebuilt PDF (`scripts/check_stack_citations.py`). When the bytes
 differ, the gate prints an order-preserving text diff and a page-by-page render comparison to
 locate the drift. The gate checks the artifact relation only; it does not certify the mathematics.
 

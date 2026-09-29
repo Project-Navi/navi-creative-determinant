@@ -18,7 +18,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT="${1:-$HERE/build}"
 mkdir -p "$OUT"
 OUT="$(cd "$OUT" && pwd)"
-cp "$HERE/creative_determinant.tex" "$HERE/cd_refs.bib" "$OUT/"
+cp "$HERE/creative_determinant.tex" "$HERE/cd_refs.bib" "$HERE/cd_stack_core.pdf" "$HERE/cd_stack_loop.pdf" "$OUT/"
 
 docker run --rm \
   --user "$(id -u):$(id -g)" \

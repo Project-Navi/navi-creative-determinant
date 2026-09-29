@@ -4,6 +4,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm,mathrsfs}
 \usepackage{mathtools}
+\usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{booktabs}
@@ -144,6 +145,15 @@ Neumann conditions are discussed only as a secondary variant.
 \noindent\textbf{Guiding intuition.}
 Before the formal machinery, here is the central question: \emph{when can coherent presence sustain itself?}
 The answer involves a spectral condition---when the viability potential \(b(x) = \kappa\gamma - \lambda\mu\) (care-coherence support minus contradiction cost) is strong enough to overcome boundary dissipation. This is made precise by the condition \(\lambda_1(-\Delta - b; M) < 0\), which we call the \emph{viability threshold}. The theorems below establish that crossing this threshold guarantees the existence of non-trivial coherent configurations. The proofs use classical fixed-point machinery, but the conceptual payoff is immediate: \emph{viability exceeds dissipation} $\Rightarrow$ \emph{coherent presence can be self-maintained}.
+
+Figure~\ref{fig:stackCore} shows how the objects of this section fit together.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{cd_stack_core}
+\caption{The mathematical core. The characteristic fields (Definition~\ref{def:fields}) define the creative drive \(a=\kappa\gamma\mu\) and, through the canonical closure (Definition~\ref{def:canonicalClosure}), the viability potential \(b=\kappa\gamma-\lambda\mu\); the saturated model V1\('\) (Definition~\ref{def:V1prime}) and the operator \(-\Delta-b\) on \(M\) with Dirichlet data give the principal eigenvalue \(\lambda_1(-\Delta-b;M)\). A nonnegative weak coherent configuration always exists and the zero field is one (Theorem~\ref{thm:existenceV1prime}); \(\lambda_1<0\) gives a solution positive in the interior (Theorem~\ref{thm:nontrivialV1prime}), the condition is also necessary when \(a\equiv 0\) (Proposition~\ref{prop:exactThreshold}) and sufficient only otherwise (Proposition~\ref{prop:continuumConverse}); the finite-graph analogue (Theorem~\ref{thm:graphExistence}) is machine-checked. Highlighted boxes are the model, the eigenvalue and the results.}
+\label{fig:stackCore}
+\end{figure}
 
 \subsection{Primary model: autonomous viability with logistic saturation (V1')}
 Let
@@ -569,6 +579,15 @@ We distinguish:
 \item $\lambda_1(\mathcal{L})$, the \emph{principal Dirichlet eigenvalue} of a linear operator $\mathcal{L}$ (e.g.\ $\mathcal{L}=-\Delta-b$). In the saturated CD model, the spectral sign condition $\lambda_1(-\Delta-b;M)<0$ is a viability indicator: more negative values correspond to stronger distance from the threshold $\lambda_1=0$.
 \item $\lambda$ in \eqref{eq:canonical_closure_static}, a \emph{closure parameter} multiplying contradiction $\mu$. In \eqref{eq:canonical_closure_static}, increasing $\lambda$ decreases $b$ for fixed $\mu>0$ and thus makes spectral viability harder to satisfy. Consequently, $\lambda$ functions as a \emph{contradiction cost/sensitivity parameter} (high $\lambda$ = contradiction costly/fragile; low $\lambda$ = contradiction less costly/resilient).
 \end{enumerate}
+
+Figure~\ref{fig:stackLoop} summarises the closure developed below and its feedback into the operator of Figure~\ref{fig:stackCore}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{cd_stack_loop}
+\caption{The temporal closure of Section~\ref{sec:temporal_resilience_debt}. The empirical witness \(\psi\) and its derivatives enter the base resilience (Definition~\ref{def:Rbase}); the spectral capacity witness \(\psi_s\) (Definition~\ref{def:psispectral}) is computed from the principal eigenvalue of the current operator; sustained \(\psi>\psi_s\) accumulates coherence debt (Definition~\ref{def:debt}, bounded as in Remark~\ref{rem:debtInterpretation}), which lowers the total resilience and raises the effective contradiction cost (Definition~\ref{def:Reff}) entering the dynamical closure (Definition~\ref{def:dynamical_closure}); the closure re-evaluates \(b(\cdot,t)\) and hence \(\lambda_1(t)\). The loop is a tendency, not an analysed dynamical system; the interpretation is heuristic; the dashed capacity-erosion extension (Remark~\ref{rem:capacity_erosion}) is deferred.}
+\label{fig:stackLoop}
+\end{figure}
 
 \subsubsection*{Temporal witness function and resilience factor}
 Let $\psi(t)\in[0,1]$ denote a \emph{temporal witness function} measuring instantaneous coherence at time $t$, with higher values indicating greater coherence and temporal integration. We assume \(\psi\in C^3\) on the time interval considered, or, for sampled data, that \(\psi'\), \(\psi''\) and \(\psi'''\) denote declared finite-difference (or smoothing-spline) estimators at a stated sampling step; the quantities below are not defined otherwise. Following a temporal-coherence framework developed in companion work, we interpret derivatives as dynamical signatures:
