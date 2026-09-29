@@ -272,8 +272,8 @@ def fig1_eigenvalue_threshold() -> int:
         beta_star, color="r", linestyle="--", linewidth=1.5, label=rf"$\beta^* = {beta_star:.2f}$"
     )
     regions = (
-        (1, "blue", "Subcritical (no emergence)"),
-        (-1, "green", "Supercritical (emergence)"),
+        (1, "blue", r"$\lambda_1 > 0$: zero branch (exact for $a \equiv 0$, Prop. 3.19)"),
+        (-1, "green", r"$\lambda_1 < 0$: positive branch (Thm 3.16)"),
     )
     for sign, color, label in regions:
         ax.fill_between(
@@ -379,7 +379,10 @@ def fig3_canonical_closure_sweep() -> int:
     # Right: eigenvalue indicator
     plot_sweep(ax2, lam_values, eig_records, "bo-", markersize=6, linewidth=2)
     ax2.axhline(0.0, color="k", linewidth=1)
-    for sign, color, label in ((-1, "green", "Viable"), (1, "red", "Non-viable")):
+    for sign, color, label in (
+        (-1, "green", r"$\lambda_1 < 0$: positive branch guaranteed (Thm 3.16)"),
+        (1, "red", r"$\lambda_1 \geq 0$: no guarantee (sufficient condition only)"),
+    ):
         ax2.fill_between(
             lam_values, lam1, 0, where=(sign * lam1 > 0), alpha=0.2, color=color, label=label
         )
