@@ -14,7 +14,8 @@ That said, we take security seriously because this code may be integrated into l
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
+| 1.1.x   | :white_check_mark: |
+| main    | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
@@ -64,10 +65,10 @@ These are widely-used, well-maintained libraries. We recommend keeping them upda
 
 ### No Network Access
 
-The core library makes no network requests. The only I/O is file-based (saving figures, loading data).
+The core library (`src/cd`) makes no network requests and does no file I/O; it computes on in-memory arrays. Files are written only by the figure script and the notebook, which save their own outputs.
 
 ## Responsible Use
 
 This framework models aspects of cognition and meaning. While it's purely mathematical, we ask users to consider the ethical implications of any applications they build on top of it.
 
-See the [Ethical Covenant](docs/explanation/ethical-covenant.md) for our voluntary ethical commitments.
+See the [Ethical Covenant](https://docs.projectnavi.ai/navi-creative-determinant/explanation/ethical-covenant/) for our voluntary ethical commitments.

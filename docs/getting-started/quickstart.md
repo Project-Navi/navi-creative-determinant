@@ -29,7 +29,7 @@ uv sync
 uv run pytest tests/ -v
 ```
 
-191 test functions (167 package tests, 24 repository-artefact tests under `tests/repo/`) validate the exact discrete eigenvalues, residual-validated nonlinear solves, viability threshold crossings, convergence rates, the finite-graph model of the Lean development, and the notebook validator.
+The suite validates the exact discrete eigenvalues, residual-validated nonlinear solves, viability threshold crossings, convergence rates, the finite-graph model of the Lean development, and the notebook and paper gates (under `tests/repo/`). [`tests/README.md`](https://github.com/Project-Navi/navi-creative-determinant/blob/main/tests/README.md) gives the current count and the command that reproduces it.
 
 ---
 
@@ -39,7 +39,7 @@ uv run pytest tests/ -v
 uv run jupyter lab notebooks/
 ```
 
-The Jupyter notebook `cd_pde_demo.ipynb` demonstrates the PDE framework numerically in 1D and 2D (viability thresholds, equilibrium emergence, canonical closure), reproduces the verified finite-graph example, and ends with a 3D eigenvalue illustration. Each numerical claim is asserted in the notebook itself.
+The notebook `cd_pde_demo.ipynb` demonstrates the framework numerically in 1D and 2D, reproduces the verified finite-graph example, ends with a 3D eigenvalue illustration, and asserts every numerical claim it makes.
 
 ---
 
@@ -49,7 +49,7 @@ The Jupyter notebook `cd_pde_demo.ipynb` demonstrates the PDE framework numerica
 paper/                     # The core paper (creative_determinant.pdf)
 notebooks/                 # Jupyter notebook with numerical demonstrations
 src/cd/                    # Python library (solvers, eigenvalue tools, closures)
-tests/                     # 167 package test functions (+ 24 in tests/repo/ for scripts, notebook and paper)
+tests/                     # pytest suite (package tests; tests/repo/ covers scripts, notebook and paper)
 cd_formalization/          # Lean 4 formalization (finite-graph theorem proved; continuum theorems conditional)
 figures/                   # Publication-quality visualizations
 ```
