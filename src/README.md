@@ -80,7 +80,7 @@ print(f"Above threshold: maxΦ = {info['maxPhi']:.4f}")
 ### Analysis
 
 - `residual_1d(x, Φ, a, beta_b, c, p)` → PDE residual
-- `check_convergence(info)` → (ok, message)
+- `check_convergence(info)` → (ok, message). Fail-closed: it does not trust `info["converged"]` but re-validates the recorded numbers — the residual criterion `residual_inf <= residual_atol + residual_rtol * residual_scale` (with a finite limit), the update criterion `inf_err < tol` (strict; a solved start with `iters == 0` must record `inf_err == 0.0`), `boundary_err <= residual_atol`, and the types, finiteness and signs of every diagnostic (`iters` an integral nonnegative count, `converged` a bool). A report missing any required key, including `tol` (recorded by the solvers since the update tolerance became part of the report), is reported as unvalidated / incomplete, never accepted.
 - `solution_type(info)` → 'trivial' or 'nontrivial'
 
 ## Design Principles

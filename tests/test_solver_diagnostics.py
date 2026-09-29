@@ -186,6 +186,123 @@ class TestAnalysisFailClosed:
         assert solution_type({"maxPhi": 0.5, "converged": True}) == "nontrivial"
 
 
+@pytest.fixture(scope="module")
+def converged_1d_report():
+    """Report of an ordinary converged 1D run (positive branch, iters > 0)."""
+    _, _, info = solve_1d_picard(1.0, 31, 0.0, 15.0, 10.0, tol=1e-10)
+    assert info["converged"] and info["iters"] > 0
+    return info
+
+
+class TestConvergenceReportContract:
+    """``check_convergence`` re-validates every numerical invariant behind the solver's
+    acceptance rule (residual criterion, strict update criterion, solved-start convention,
+    boundary data, field types and finiteness). An otherwise complete report with one field
+    corrupted is rejected with a message naming the reason; a report without the recorded
+    update tolerance is unvalidated, never accepted."""
+
+    def test_solved_start_1d_is_accepted_with_zero_update_and_recorded_tol(self):
+        """A converged field restarted as initial data solves the discrete equation at once:
+        iters = 0, inf_err = 0 exactly, and the update tolerance is recorded verbatim."""
+        _, Phi, info0 = solve_1d_picard(1.0, 31, 0.0, 15.0, 10.0, tol=1e-10)
+        assert info0["converged"]
+        _, Phi2, info = solve_1d_picard(1.0, 31, 0.0, 15.0, 10.0, tol=3e-9, initial_guess=Phi)
+        assert info["iters"] == 0
+        assert info["inf_err"] == 0.0
+        assert info["tol"] == 3e-9
+        assert info["termination"] == "converged"
+        ok, msg = check_convergence(info)
+        assert ok is True, msg
+        np.testing.assert_array_equal(Phi2, Phi)
+
+    def test_solved_start_2d_is_accepted_with_zero_update_and_recorded_tol(self):
+        """Same solved-start contract for the 2D solver."""
+        _, _, Phi, info0 = solve_2d_picard(1.0, 2.0, 7, 9, 0.0, 30.0, 10.0, tol=1e-8)
+        assert info0["converged"]
+        _, _, Phi2, info = solve_2d_picard(
+            1.0, 2.0, 7, 9, 0.0, 30.0, 10.0, tol=5e-7, initial_guess=Phi
+        )
+        assert info["iters"] == 0
+        assert info["inf_err"] == 0.0
+        assert info["tol"] == 5e-7
+        ok, msg = check_convergence(info)
+        assert ok is True, msg
+        np.testing.assert_array_equal(Phi2, Phi)
+
+    def test_ordinary_converged_run_records_tol_and_satisfies_strict_update_criterion(
+        self, converged_1d_report
+    ):
+        """An accepted run with iters > 0 has its last update strictly below the recorded
+        tolerance, which equals the ``tol`` argument; ``check_convergence`` accepts it."""
+        info = converged_1d_report
+        assert info["tol"] == 1e-10
+        assert info["inf_err"] < info["tol"]
+        ok, msg = check_convergence(info)
+        assert ok is True, msg
+        assert "Converged" in msg
+
+    @pytest.mark.parametrize(
+        "mutation, reason",
+        [
+            ({"iters": float("nan")}, "'iters'"),
+            ({"iters": -1}, "'iters'"),
+            ({"iters": True}, "'iters'"),
+            ({"iters": 2.0}, "'iters'"),
+            ({"residual_inf": -1.0}, "'residual_inf'"),
+            ({"inf_err": 1e100}, "update"),
+            ({"iters": 0, "inf_err": 1e-13}, "solved start"),
+            (
+                {"residual_rtol": 1e308, "residual_scale": 1e308, "residual_inf": 1e308},
+                "not finite",
+            ),
+            ({"tol": 0.0}, "'tol'"),
+            ({"tol": -1.0}, "'tol'"),
+            ({"tol": float("nan")}, "'tol'"),
+            ({"converged": 1}, "'converged'"),
+            ({"boundary_err": -1.0}, "'boundary_err'"),
+        ],
+        ids=[
+            "iters-nan",
+            "iters-negative",
+            "iters-bool",
+            "iters-float",
+            "residual-negative",
+            "update-huge",
+            "solved-start-nonzero-update",
+            "residual-limit-overflow",
+            "tol-zero",
+            "tol-negative",
+            "tol-nan",
+            "converged-int",
+            "boundary-negative",
+        ],
+    )
+    def test_corrupted_report_is_rejected_naming_the_reason(
+        self, converged_1d_report, mutation, reason
+    ):
+        """One invalid field in an otherwise complete, genuinely converged report is enough
+        to reject it, and the message names the offending invariant."""
+        info = {**converged_1d_report, **mutation}
+        ok, msg = check_convergence(info)
+        assert ok is False
+        assert reason in msg, msg
+
+    def test_update_equal_to_tol_is_rejected_strictly(self, converged_1d_report):
+        """The solver requires ``inf_err < tol`` (strict); the checker must not accept equality."""
+        info = {**converged_1d_report, "inf_err": converged_1d_report["tol"]}
+        ok, msg = check_convergence(info)
+        assert ok is False
+        assert "update" in msg and "tolerance" in msg
+
+    def test_report_without_tol_is_unvalidated_not_accepted(self, converged_1d_report):
+        """Reports produced before ``tol`` was recorded cannot be re-validated: they are
+        reported as unvalidated / incomplete, never as accepted."""
+        info = {k: v for k, v in converged_1d_report.items() if k != "tol"}
+        ok, msg = check_convergence(info)
+        assert ok is False
+        assert "unvalidated" in msg and "incomplete" in msg and "tol" in msg
+
+
 class TestResidualValidation:
     def test_residual_1d_rejects_nonuniform_grid(self):
         x = np.array([0.0, 0.1, 0.5, 1.0])

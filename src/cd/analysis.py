@@ -10,6 +10,7 @@ Provides tools for validating numerical solutions:
 
 from __future__ import annotations
 
+import numbers
 from typing import Any
 
 import numpy as np
@@ -162,6 +163,20 @@ def _finite(value: Any) -> bool:
         return False
 
 
+def _is_real(value: Any) -> bool:
+    """A genuine real number (Python or NumPy), never a bool."""
+    return isinstance(value, numbers.Real) and not isinstance(value, (bool, np.bool_))
+
+
+def _is_count(value: Any) -> bool:
+    """An integral, non-boolean, nonnegative count (``int`` or ``numpy.integer``)."""
+    return (
+        isinstance(value, numbers.Integral)
+        and not isinstance(value, (bool, np.bool_))
+        and int(value) >= 0
+    )
+
+
 _REQUIRED_DIAGNOSTICS = (
     "converged",
     "termination",
@@ -171,39 +186,90 @@ _REQUIRED_DIAGNOSTICS = (
     "residual_scale",
     "residual_atol",
     "residual_rtol",
+    "tol",
     "boundary_err",
     "maxPhi",
 )
+
+# Real, finite and >= 0 (norms and tolerances); ``maxPhi`` only needs to be real and finite.
+_NONNEGATIVE_DIAGNOSTICS = (
+    "inf_err",
+    "residual_inf",
+    "residual_scale",
+    "residual_atol",
+    "residual_rtol",
+    "boundary_err",
+)
+
+_UNVALIDATED = "Not accepted: unvalidated report"
+
+
+def _report_field_error(info: dict) -> str | None:
+    """First violated type/finiteness/sign invariant of a complete report, or ``None``."""
+    if not isinstance(info["converged"], (bool, np.bool_)):
+        return f"'converged' must be a bool (got {type(info['converged']).__name__})"
+    if not isinstance(info["termination"], str):
+        return f"'termination' must be a str (got {type(info['termination']).__name__})"
+    if not _is_count(info["iters"]):
+        return f"'iters' must be a finite nonnegative integer count (got {info['iters']!r})"
+    for key in _NONNEGATIVE_DIAGNOSTICS:
+        value = info[key]
+        if not (_is_real(value) and _finite(value) and float(value) >= 0.0):
+            return f"'{key}' must be a finite real number >= 0 (got {value!r})"
+    if not (_is_real(info["maxPhi"]) and _finite(info["maxPhi"])):
+        return f"'maxPhi' must be a finite real number (got {info['maxPhi']!r})"
+    tol = info["tol"]
+    if not (_is_real(tol) and _finite(tol) and float(tol) > 0.0):
+        return f"'tol' must be a finite real number > 0 (got {tol!r})"
+    return None
 
 
 def check_convergence(info: dict) -> tuple[bool, str]:
     """
     Fail-closed convergence check on a solver ``info`` dictionary.
 
-    A run is accepted only when the report is complete and internally consistent:
+    The boolean ``converged`` flag is never trusted on its own: the report is accepted only
+    when it is complete and every numerical invariant behind the solver's acceptance rule is
+    re-validated from the recorded numbers.
 
-    * every key in ``_REQUIRED_DIAGNOSTICS`` is present and finite (``termination`` a string);
+    * every key in ``_REQUIRED_DIAGNOSTICS`` is present; a missing key (including ``tol``)
+      gives an *unvalidated, incomplete report* result, never a pass;
+    * ``converged`` is a genuine bool and ``termination`` a str;
+    * ``iters`` is an integral, non-boolean, finite, nonnegative count;
+    * ``inf_err``, ``residual_inf``, ``residual_scale``, ``residual_atol``, ``residual_rtol``
+      and ``boundary_err`` are real, finite and ``>= 0``; ``maxPhi`` is real and finite;
+      ``tol`` is finite and ``> 0``;
+    * the residual limit ``residual_atol + residual_rtol * residual_scale`` is finite (finite
+      inputs can still overflow to ``inf``, which would accept any residual);
     * ``converged`` is ``True`` and ``termination == "converged"``;
-    * the recorded residual satisfies the recorded criterion,
+    * residual criterion, exactly as the solver applies it (non-strict):
       ``residual_inf <= residual_atol + residual_rtol * residual_scale``;
+    * update criterion, exactly as the solver applies it: after at least one iteration
+      (``iters > 0``) the last update satisfies ``inf_err < tol`` (strict); a solved start
+      (``iters == 0``, the initial field already solves the discrete equation) records
+      ``inf_err == 0.0`` exactly;
     * ``boundary_err <= residual_atol`` (the solvers return exactly zero boundary values).
 
-    The boolean flag is therefore re-validated against the numbers that justify it; a report
-    with ``converged=True`` but a residual above its own tolerance, a nonzero boundary error,
-    or nonfinite diagnostics is rejected. Iteration exhaustion, stagnation and nonfinite
-    iterates are never accepted. There is no "nearly converged" category.
+    Iteration exhaustion, stagnation and nonfinite iterates are never accepted. There is no
+    "nearly converged" category.
+
+    Compatibility: reports produced before the solvers recorded ``tol`` cannot have their
+    update criterion re-validated, so they are reported as unvalidated / incomplete rather
+    than accepted. Re-run the solver to obtain a complete report.
 
     Parameters
     ----------
     info : dict
-        Solver info as returned by ``solve_1d_picard`` / ``solve_2d_picard``.
+        Solver info as returned by ``solve_1d_picard`` / ``solve_2d_picard``. The finite-graph
+        solver ``cd.graph.solve_graph`` reports different keys and is not covered.
 
     Returns
     -------
     ok : bool
         True only for an accepted solution.
     message : str
-        Diagnostic message including the termination reason.
+        Diagnostic message; a rejection says that the report is not accepted and why,
+        including the termination reason where it is known.
     """
     iters = info.get("iters", "?")
     term = info.get("termination", "unknown")
@@ -211,39 +277,51 @@ def check_convergence(info: dict) -> tuple[bool, str]:
     if missing:
         return (
             False,
-            f"Not accepted: incomplete diagnostics (missing {missing}; termination={term})",
+            f"{_UNVALIDATED}: incomplete diagnostics (missing {missing}; termination={term})",
         )
-    numeric = (
-        "inf_err",
-        "residual_inf",
-        "residual_scale",
-        "residual_atol",
-        "residual_rtol",
-        "boundary_err",
-        "maxPhi",
-    )
-    if not all(_finite(info[k]) for k in numeric):
-        return False, f"Not accepted: nonfinite diagnostics (iters={iters}, termination={term})"
+    field_error = _report_field_error(info)
+    if field_error is not None:
+        return False, f"{_UNVALIDATED}: {field_error} (iters={iters!r}, termination={term!r})"
+    iters = int(info["iters"])
     inf_err = float(info["inf_err"])
     res = float(info["residual_inf"])
-    bound = float(info["residual_atol"]) + float(info["residual_rtol"]) * float(
-        info["residual_scale"]
-    )
-    if info["converged"] is not True or term != "converged":
+    atol = float(info["residual_atol"])
+    rtol = float(info["residual_rtol"])
+    scale = float(info["residual_scale"])
+    tol = float(info["tol"])
+    bound = atol + rtol * scale
+    if not np.isfinite(bound):
+        return (
+            False,
+            f"{_UNVALIDATED}: residual limit residual_atol + residual_rtol * residual_scale is "
+            f"not finite ({atol:.2e} + {rtol:.2e} * {scale:.2e})",
+        )
+    if bool(info["converged"]) is not True or term != "converged":
         return (
             False,
             f"Did not converge after {iters} iterations (termination={term}, update={inf_err:.2e}, residual={res:.2e})",
         )
     if res > bound:
         return False, f"Not accepted: residual {res:.2e} exceeds its recorded tolerance {bound:.2e}"
-    if float(info["boundary_err"]) > float(info["residual_atol"]):
+    if iters == 0:
+        if inf_err != 0.0:
+            return (
+                False,
+                f"Not accepted: a solved start (iters=0) must record a zero update, got {inf_err:.2e}",
+            )
+    elif not inf_err < tol:
+        return (
+            False,
+            f"Not accepted: last update {inf_err:.2e} is not below the update tolerance {tol:.2e}",
+        )
+    if float(info["boundary_err"]) > atol:
         return (
             False,
             f"Not accepted: boundary error {float(info['boundary_err']):.2e} (Dirichlet data violated)",
         )
     return (
         True,
-        f"Converged in {iters} iterations (update={inf_err:.2e}, residual={res:.2e} <= {bound:.2e})",
+        f"Converged in {iters} iterations (update={inf_err:.2e} < {tol:.2e}, residual={res:.2e} <= {bound:.2e})",
     )
 
 

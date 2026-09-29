@@ -157,10 +157,13 @@ class TestSolverContract:
             "residual_scale": 1.0,
             "residual_atol": 1e-8,
             "residual_rtol": 0.0,
+            "tol": 1e-10,
             "boundary_err": 1.0,
             "maxPhi": 1.0,
         }
-        assert not check_convergence(info)[0]
+        ok, msg = check_convergence(info)
+        assert not ok
+        assert "residual" in msg and "exceeds" in msg
 
     def test_convergence_checker_rejects_boundary_violation_alone(self):
         info = {
@@ -172,10 +175,13 @@ class TestSolverContract:
             "residual_scale": 1.0,
             "residual_atol": 1e-8,
             "residual_rtol": 0.0,
+            "tol": 1e-10,
             "boundary_err": 1e-3,
             "maxPhi": 1.0,
         }
-        assert not check_convergence(info)[0]
+        ok, msg = check_convergence(info)
+        assert not ok
+        assert "boundary error" in msg
 
     def test_convergence_checker_rejects_incomplete_reports(self):
         assert not check_convergence(

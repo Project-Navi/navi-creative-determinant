@@ -256,6 +256,7 @@ def _picard_loop(
         "residual_scale": scale,
         "residual_atol": residual_atol,
         "residual_rtol": residual_rtol,
+        "tol": tol,
         "clipped_iterations": clipped_iterations,
         "clipped": clipped_last,
         "monotone": _monotone_label(min_step, max_step, step_tol) if it > 0 else "constant",
@@ -378,9 +379,12 @@ def solve_1d_picard(
     info : dict
         - 'converged': residual and update criteria met on a finite field
         - 'termination': 'converged' | 'max_iter' | 'nonfinite' | 'stagnation'
-        - 'iters': iterations actually performed
+        - 'iters': iterations actually performed (0 when the initial field already solves
+          the discrete equation; then 'inf_err' is exactly 0.0)
         - 'inf_err': L∞ norm of the last update
         - 'residual_inf', 'residual_scale', 'residual_atol', 'residual_rtol'
+        - 'tol': the update tolerance the last update was compared against (``inf_err < tol``
+          is required for acceptance after at least one iteration)
         - 'boundary_err': max |Φ| on the boundary (0 by construction)
         - 'maxPhi', 'min_interior'
         - 'branch': 'zero' | 'positive' | 'nonnegative' | 'unresolved' | 'invalid'
@@ -508,7 +512,7 @@ def solve_2d_picard(
     Phi : ndarray
         Field including boundary values, shape (Ny+2, Nx+2).
     info : dict
-        Same keys as ``solve_1d_picard``.
+        Same keys as ``solve_1d_picard`` (including ``'tol'``, the recorded update tolerance).
 
     Raises
     ------
