@@ -20,6 +20,7 @@ on:
       - 'paper/**'
       - 'scripts/check_paper_artifact.py'
       - 'scripts/check_stack_citations.py'
+      - 'docs/explanation/cd-stack.md'
       - '.github/workflows/paper.yml'
   pull_request:
     branches: [main]
@@ -27,6 +28,7 @@ on:
       - 'paper/**'
       - 'scripts/check_paper_artifact.py'
       - 'scripts/check_stack_citations.py'
+      - 'docs/explanation/cd-stack.md'
       - '.github/workflows/paper.yml'
   workflow_dispatch:
 
@@ -66,12 +68,13 @@ jobs:
             exit 1
           }
 
-      # The stack diagram (paper/cd_stack.dot, Figures 1 and 2) names paper statements by
-      # number; the numbers must exist in the rebuilt PDF.
-      - name: Check the statement numbers cited by the stack diagram
+      # Every statement or section cited by the stack diagram (paper/cd_stack.dot, Figures 1
+      # and 2) or the CD Stack page must have a header with the expected number and title in
+      # the rebuilt PDF.
+      - name: Check the statements cited by the stack diagram
         run: |
           pdftotext build/creative_determinant.pdf rebuilt.txt
-          python3 scripts/check_stack_citations.py paper/cd_stack.dot rebuilt.txt
+          python3 scripts/check_stack_citations.py paper/cd_stack.dot rebuilt.txt --also docs/explanation/cd-stack.md
 
       - name: Upload rebuilt PDF
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

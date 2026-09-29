@@ -19,9 +19,9 @@ uv run coverage run -m pytest tests/
 uv run coverage report --show-missing
 ```
 
-## Test Coverage — 218 test functions across 18 files (parametrized cases expand to more collected tests)
+## Test Coverage — 229 test functions across 18 files (parametrized cases expand to more collected tests)
 
-Two populations: **183 package tests in 14 files directly under `tests/`** (shipped in the sdist and runnable against the installed `cd` package alone) and **35 repository-artefact tests in 4 files under `tests/repo/`** (need `scripts/`, `notebooks/` and `paper/`; excluded from the sdist). `uv run pytest tests/` collects both.
+Two populations: **183 package tests in 14 files directly under `tests/`** (shipped in the sdist and runnable against the installed `cd` package alone) and **46 repository-artefact tests in 4 files under `tests/repo/`** (need `scripts/`, `notebooks/` and `paper/`; excluded from the sdist). `uv run pytest tests/` collects both.
 
 Shared fixtures live in `tests/conftest.py` (factory fixtures for the three-vertex Lean graphs, the closed-form discrete 1D eigenvalue, and one real converged solver report) and `tests/repo/conftest.py` (the repository root, a fresh loader for the scripts under `scripts/`, and a synthetic-notebook writer).
 
@@ -44,13 +44,13 @@ Shared fixtures live in `tests/conftest.py` (factory fixtures for the three-vert
 | **repo/test_paper_gate.py** | 10 | The paper artifact gate: byte identity between the committed PDF and its pinned-image rebuild; the diagnostics locate a changed sign, reversed inequality operands, swapped numerator/denominator, moved minus, changed digit, moved decimal point, changed multiplication glyph, altered exponent and dropped sentence (order-preserving text comparison) and a changed pixel (page renders) |
 | **repo/test_validate_notebook_required.py** | 7 | The notebook validator requires each essential claim exactly once and the completion marker after the last check (negative fixtures: missing, duplicated, misplaced marker); the committed notebook satisfies it, and the required list is complete, duplicate-free and in notebook order |
 | **repo/test_validate_notebook.py** | 8 | The notebook validator fails closed on error outputs, unexecuted cells, missing markers, failed or too few checks (negative fixtures), and its CLI exit codes |
-| **repo/test_stack_diagram.py** | 10 | The stack diagram has one source: both rendered SVGs carry the SHA-256 of `paper/cd_stack.dot`, the figure PDFs exist, the source parses into its five clusters with well-formed edges, the figure subsets keep only internal edges, and `scripts/check_stack_citations.py` rejects a stale statement number |
+| **repo/test_stack_diagram.py** | 21 | The stack diagram has one source: both rendered SVGs carry the SHA-256 of `paper/cd_stack.dot`, the figure PDFs exist, the source parses into its five clusters with well-formed edges, the figure subsets keep only internal edges, Figure 2 draws the path from the fields and the closure back to the eigenvalue, Theorem 3.26 has no edge from the continuum model, and both its docs and print labels state all three hypotheses (connected interior graph, λ₁ᴳ < 0, the edge condition at both ends of every interior edge of positive weight) and the conclusion u(x) > 0; `scripts/check_stack_citations.py` rejects a renumbered or retitled statement header (a title shortened or lengthened past its entry included), a renumbered section, an unmapped citation and a number that occurs only in figure text, expands plural citations, every statement entry of the diagram source runs through the character that closes its title, and every citation in the diagram and on the CD Stack page is mapped |
 
 Verify the total count locally:
 
 ```bash
 grep -R '^[[:space:]]*def test_' tests/ --include='test_*.py' | wc -l
-# expected: 218 (183 in tests/*.py, 35 in tests/repo/*.py); the --include keeps the example below out of the count
+# expected: 229 (183 in tests/*.py, 46 in tests/repo/*.py); the --include keeps the example below out of the count
 ```
 
 The per-file counts are also visible via `grep -c "def test_" tests/test_*.py`.
@@ -66,7 +66,7 @@ These tests validate **mathematical correctness**, not implementation details:
 5. **Graph tests** reproduce the Lean finite-graph model exactly, including its verified example and two counterexamples, with the spectral assembly checked against the operator evaluated from pair differences
 6. **Field and statistics tests** verify coefficient constructors and the quadrature measure
 
-A failing test after a change to `src/cd/` usually means the math is wrong. Fix the solver/operator, not the test assertion. Any contribution that touches `src/cd/` must keep these tests green.
+A failing test after a change to `src/cd/` usually means the math is wrong. Fix the solver/operator, not the test assertion.
 
 ## Adding Tests
 
@@ -87,7 +87,4 @@ def test_2d_eigenvalue_formula(self):
 
 ## Continuous Integration
 
-The org ruleset requires these checks to pass on every PR to `main`:
-`lint`, `typecheck`, `security`, `semgrep`, `quality-gate`. The `codeql` check runs on every PR but is not in the required list.
-
-The `test` aggregator job (over the matrix `test-run (3.10|3.11|3.12)` defined in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) runs on every PR but is not in the ruleset's required list. The matrix installs dependencies via `uv sync --locked` and runs `uv run pytest tests/ -v`.
+CI runs `uv run pytest tests/ -v` after `uv sync --locked` on Python 3.10, 3.11 and 3.12 (the `test-run` matrix in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)).

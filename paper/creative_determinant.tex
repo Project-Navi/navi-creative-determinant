@@ -5,10 +5,10 @@
 \usepackage{amsmath,amssymb,amsthm,mathrsfs}
 \usepackage{mathtools}
 \usepackage{graphicx}
-\usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{booktabs}
 \usepackage{float}
+\usepackage{hyperref}
 \setlength{\emergencystretch}{2em}
 \urlstyle{tt}
 
@@ -150,8 +150,8 @@ Figure~\ref{fig:stackCore} shows how the objects of this section fit together.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{cd_stack_core}
-\caption{The mathematical core. The characteristic fields (Definition~\ref{def:fields}) define the creative drive \(a=\kappa\gamma\mu\) and, through the canonical closure (Definition~\ref{def:canonicalClosure}), the viability potential \(b=\kappa\gamma-\lambda\mu\); the saturated model V1\('\) (Definition~\ref{def:V1prime}) and the operator \(-\Delta-b\) on \(M\) with Dirichlet data give the principal eigenvalue \(\lambda_1(-\Delta-b;M)\). A nonnegative weak coherent configuration always exists and the zero field is one (Theorem~\ref{thm:existenceV1prime}); \(\lambda_1<0\) gives a solution positive in the interior (Theorem~\ref{thm:nontrivialV1prime}), the condition is also necessary when \(a\equiv 0\) (Proposition~\ref{prop:exactThreshold}) and sufficient only otherwise (Proposition~\ref{prop:continuumConverse}); the finite-graph analogue (Theorem~\ref{thm:graphExistence}) is machine-checked. Highlighted boxes are the model, the eigenvalue and the results.}
+\includegraphics[width=\textwidth,height=0.75\textheight,keepaspectratio]{cd_stack_core}
+\caption{The mathematical core. The characteristic fields (Definition~\ref{def:fields}) define the creative drive \(a=\kappa\gamma\mu\) and, through the canonical closure (Definition~\ref{def:canonicalClosure}), the viability potential \(b=\kappa\gamma-\lambda\mu\), which enter the saturated model V1\('\) (Definition~\ref{def:V1prime}); the operator \(-\Delta-b\) on \(M\) with Dirichlet data has the principal eigenvalue \(\lambda_1(-\Delta-b;M)\) (Definition~\ref{def:lambda1}). Under the coefficient hypotheses of the model, a nonnegative weak coherent configuration exists and the zero field is one (Theorem~\ref{thm:existenceV1prime}); \(\lambda_1<0\) gives a solution positive in the interior (Theorem~\ref{thm:nontrivialV1prime}); the condition is also necessary when \(a\equiv 0\) (Proposition~\ref{prop:exactThreshold}), and a counterexample shows that it is not necessary in general when \(a\not\equiv 0\) (Proposition~\ref{prop:continuumConverse}). The finite-graph model (Definition~\ref{def:graphModel}) is a separate problem (Remark~\ref{rem:threeModels}); its existence theorem (Theorem~\ref{thm:graphExistence}), which assumes a connected interior graph, \(\lambda_1^G<0\) and the edge condition, is proved outright and machine-checked. Highlighted boxes are the model, the eigenvalue and the results.}
 \label{fig:stackCore}
 \end{figure}
 
@@ -584,8 +584,8 @@ Figure~\ref{fig:stackLoop} summarises the closure developed below and its feedba
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{cd_stack_loop}
-\caption{The temporal closure of Section~\ref{sec:temporal_resilience_debt}. The empirical witness \(\psi\) and its derivatives enter the base resilience (Definition~\ref{def:Rbase}); the spectral capacity witness \(\psi_s\) (Definition~\ref{def:psispectral}) is computed from the principal eigenvalue of the current operator; sustained \(\psi>\psi_s\) accumulates coherence debt (Definition~\ref{def:debt}, bounded as in Remark~\ref{rem:debtInterpretation}), which lowers the total resilience and raises the effective contradiction cost (Definition~\ref{def:Reff}) entering the dynamical closure (Definition~\ref{def:dynamical_closure}); the closure re-evaluates \(b(\cdot,t)\) and hence \(\lambda_1(t)\). The loop is a tendency, not an analysed dynamical system; the interpretation is heuristic; the dashed capacity-erosion extension (Remark~\ref{rem:capacity_erosion}) is deferred.}
+\includegraphics[width=\textwidth,height=0.75\textheight,keepaspectratio]{cd_stack_loop}
+\caption{The temporal closure of Section~\ref{sec:temporal_resilience_debt}. The derivatives of the empirical witness \(\psi\) enter the base resilience (Definition~\ref{def:Rbase}), and \(\psi\) itself enters the debt; the spectral capacity witness \(\psi_s\) (Definition~\ref{def:psispectral}) is computed from the principal eigenvalue of the current operator; only operation above capacity, \(\psi>\psi_s\), feeds the coherence debt (Definition~\ref{def:debt}), which rises only while \(D<(\eta/\rho)[\psi-\psi_s]^+\) and is bounded by \(\max\{D(0),\eta/\rho\}\) (Remark~\ref{rem:debtInterpretation}); the debt lowers the total resilience and raises the effective contradiction cost (Definition~\ref{def:Reff}); the effective cost and the fields \(\kappa,\gamma,\mu\) at time \(t\) enter the dynamical closure (Definition~\ref{def:dynamical_closure}). The closure supplies \(b(\cdot,t)\), so the operator and \(\lambda_1(t)\) are re-evaluated. The loop is a tendency, not an analysed dynamical system; the dashed capacity-erosion extension (Remark~\ref{rem:capacity_erosion}) is deferred.}
 \label{fig:stackLoop}
 \end{figure}
 
@@ -628,9 +628,9 @@ Fix a scale parameter $s>0$ and define the \emph{spectral capacity witness}
 The mapping \eqref{eq:psispectral} converts the real-valued spectral margin $\lambda_1(t)$ into a bounded witness comparable to $\psi(t)$:
 more negative $\lambda_1$ (deeper viability) yields $\psi_s$ closer to $1$, while $\lambda_1$ near or above $0$ yields $\psi_s$ near $1/2$ or below.
 Other monotone maps $\mathbb{R}\to(0,1)$ are possible; \eqref{eq:psispectral} is chosen for smoothness.
-\end{remark}
 
 We interpret $\psi_s(t)$ as a \emph{capacity envelope}: what the current system can sustain given its current structural conditions. This is a proposed proxy; the sigmoid score is not shown to be an upper envelope of an independently measured coherence witness $\psi$, and the comparison $\psi>\psi_s$ below is meaningful only under a stated calibration of the two scales. In contrast, $\psi(t)$ is an empirical witness of what the system is actually doing.
+\end{remark}
 
 \subsubsection*{Coherence debt: chronic operation beyond capacity}
 The central burnout/recovery phenomenon motivating this section is the possibility that a system can temporarily \emph{perform coherence beyond sustainable capacity}. Formally, this corresponds to $\psi(t)>\psi_s(t)$. Acute excursions are not necessarily pathological; the pathological regime is \emph{sustained} overcapacity operation. We encode this temporally via a debt variable.
@@ -673,7 +673,7 @@ and the \emph{effective contradiction cost}
 \end{definition}
 
 \begin{remark}[Burnout spiral as feedback]
-When $\psi>\psi_s$ persists, debt $D(t)$ increases, reducing $R(t)$ and therefore increasing $\lambda_{\mathrm{eff}}(t)$.
+When $\psi>\psi_s$ persists, debt $D(t)$ accumulates while \(D<(\eta/\rho)[\psi-\psi_s]^+\) (Remark~\ref{rem:debtInterpretation}), reducing $R(t)$ and therefore increasing $\lambda_{\mathrm{eff}}(t)$.
 Through the viability closure below, this reduces $b(\cdot,t)$, which pushes the spectral indicator $\lambda_1(t)$ upward (toward $0$) and lowers $\psi_s(t)$.
 Thus sustained overcapacity operation is a self-reinforcing fragility \emph{tendency}: capacity declines while debt accumulates. By the bound in Remark~\ref{rem:debtInterpretation} the loop is neither automatically monotone nor unbounded; whether it converges, oscillates or saturates depends on the parameters and on the closure, which is not analysed here.
 \end{remark}
@@ -709,7 +709,7 @@ A natural extension is to let prolonged debt degrade the characteristic fields o
 \dot\gamma = -\delta_\gamma [D-D_{\mathrm{crit}}]^+,\qquad
 \dot\mu = +\delta_\mu [D-D_{\mathrm{crit}}]^+,
 \]
-or alternatively encode erosion by time-dependent boundary/geometry changes in $M(t)$.
+with \(\kappa,\gamma,\mu\) projected (clipped) onto \([0,1]\), the range of Definition~\ref{def:fields}, or alternatively encode erosion by time-dependent boundary/geometry changes in $M(t)$.
 We do not analyze such extended dynamics here; the present contribution is the minimal debt-resilience closure \eqref{eq:debtODE}--\eqref{eq:dynamical_closure}.
 \end{remark}
 

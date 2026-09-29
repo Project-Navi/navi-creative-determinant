@@ -6,8 +6,8 @@ Outputs (all deterministic; graphviz honours ``SOURCE_DATE_EPOCH``):
 * ``paper/cd_stack.svg`` and ``docs/assets/cd-stack.svg`` — the full diagram in the brand
   palette used by the documentation site (dark background, light text, teal accent);
 * ``paper/cd_stack_core.pdf`` — Layer 1 only, in a print palette, for Figure 1 of the paper;
-* ``paper/cd_stack_loop.pdf`` — Layers 2, 3, 4 and the deferred extension plus the two Layer 1
-  nodes they connect to (``OP`` and ``LAM``), in the print palette, for Figure 2.
+* ``paper/cd_stack_loop.pdf`` — Layers 2, 3, 4 and the deferred extension plus the three Layer 1
+  nodes they connect to (``FIELDS``, ``OP`` and ``LAM``), in the print palette, for Figure 2.
 
 The source file is parsed by its cluster markers (``// ---------- NAME ----------``), so a
 figure is a subset of clusters; cross-layer edges are kept only when both endpoints are in
@@ -31,6 +31,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent
 SOURCE = HERE / "cd_stack.dot"
 DOCS_SVG = ROOT / "docs" / "assets" / "cd-stack.svg"
+DOCS_PAD = "-Gpad=0.3"
 EPOCH = "1767225600"  # 2026-01-01T00:00:00Z, the same fixed date as paper/build_paper.sh
 
 # Brand palette (docs) -> print palette (paper figures). Applied as literal substitutions.
@@ -44,10 +45,17 @@ PRINT_PALETTE = {
     "#d4a574": "#8a5a1e",  # deferred extension
 }
 
+# Print-only type sizes (points before scaling). The figures are scaled to the text width, so
+# the source sizes are raised to keep the printed node text at 7 pt or more and the edge labels
+# at 6.5 pt or more; the docs SVG keeps the sizes of the source.
+PRINT_FONTSIZE = {"node": 12, "edge": 11}
+# Print-only spacing (inches for nodesep, points for the cluster margin): tighter than the docs.
+PRINT_SPACING = {"nodesep=0.35": "nodesep=0.22", "margin=16": "margin=10"}
+
 FIGURES = {
     # name: (clusters to keep, context nodes to keep from other clusters, graph title)
     "core": (["L1"], [], ""),
-    "loop": (["L2", "L3", "L4", "EXT"], ["OP", "LAM"], ""),
+    "loop": (["L2", "L3", "L4", "EXT"], ["FIELDS", "OP", "LAM"], ""),
 }
 
 CLUSTER_RE = re.compile(
@@ -101,9 +109,11 @@ def subset(text: str, keep: list[str], context: list[str], title: str) -> str:
                 if node in context:
                     ctx_lines.append(line)
                     kept_nodes.add(node)
+        # the context nodes form one row at the top of the figure
+        ctx_lines.append("    { rank=same; " + "; ".join(context) + " }")
         body += (
             "  subgraph cluster_context {\n"
-            '    label="Layer 1 (see Figure 1)"\n    labeljust=l\n    fontname="Fraunces"\n'
+            '    label="Mathematical core (see Figure 1)"\n    labeljust=l\n    fontname="Fraunces"\n'
             '    fontsize=14\n    fontcolor="#7eb8a8"\n    color="#2a2a2a"\n    style=dashed\n'
             "    margin=16\n\n" + "\n".join(ctx_lines) + "\n  }\n"
         )
@@ -128,8 +138,16 @@ def subset(text: str, keep: list[str], context: list[str], title: str) -> str:
     return header + "\n".join(body_lines) + "\n" + "\n".join(edges) + "\n}\n"
 
 
-PLABEL_RE = re.compile(r'\s*plabel="((?:[^"\\]|\\.)*)"')
-LABEL_RE = re.compile(r'label="((?:[^"\\]|\\.)*)"')
+# Print-only attributes: ``p<name>`` sets ``<name>`` in the paper figures and is dropped from
+# the docs diagram (``plabel`` is the compact print text; ``plabeljust``, ``ptailport`` and
+# ``pconstraint`` adapt the placement to the print layout, whose node order differs from the
+# docs layout).
+PRINT_ATTRS = ("label", "labeljust", "tailport", "constraint")
+VALUE = r'(?:"(?:[^"\\]|\\.)*"|[\w.]+)'
+PRINT_ATTR_RE = {name: re.compile(rf"\s*\bp{name}=({VALUE})") for name in PRINT_ATTRS}
+ATTR_RE = {name: re.compile(rf"(?<![\w]){name}=({VALUE})") for name in PRINT_ATTRS}
+CLUSTER_BODY_RE = re.compile(r"(subgraph cluster_\w+ \{\n)(.*?)(\n  \})", re.S)
+CLUSTER_PRINT_LINE_RE = re.compile(rf"^    p({'|'.join(PRINT_ATTRS)})=({VALUE})\n", re.M)
 
 
 def attribute_blocks(text: str) -> list[tuple[int, int]]:
@@ -173,34 +191,47 @@ def _map_blocks(text: str, fn) -> str:
     return "".join(out)
 
 
-CLUSTER_PLABEL_RE = re.compile(
-    r'(    label=")((?:[^"\\]|\\.)*)("\n)    plabel="((?:[^"\\]|\\.)*)"\n'
-)
-
-
 def compact_labels(text: str) -> str:
-    """Use each ``plabel`` (compact print text) in place of its ``label`` and drop the attribute.
+    """Apply the print-only attributes: each ``p<name>`` replaces ``<name>`` and is dropped.
 
-    Applies to node and edge attribute lists (possibly spanning lines) and to the
-    ``label``/``plabel`` line pair at the top of a cluster.
+    Applies to node and edge attribute lists (possibly spanning lines) and to the attribute
+    lines at the top of a cluster.
     """
 
     def swap(block: str) -> str:
-        m = PLABEL_RE.search(block)
-        if not m:
-            return block
-        compact = m.group(1)
-        block = block[: m.start()] + block[m.end() :]
-        return LABEL_RE.sub(lambda lm: f'label="{compact}"', block, count=1)
+        for name in PRINT_ATTRS:
+            m = PRINT_ATTR_RE[name].search(block)
+            if not m:
+                continue
+            value = m.group(1)
+            block = block[: m.start()] + block[m.end() :]
+            block, n = ATTR_RE[name].subn(lambda _: f"{name}={value}", block, count=1)
+            if not n:
+                block = block[:-1].rstrip() + f" {name}={value}]"
+        return block
 
-    text = _map_blocks(text, swap)
-    return CLUSTER_PLABEL_RE.sub(lambda m: f"{m.group(1)}{m.group(4)}{m.group(3)}", text)
+    def swap_cluster(m: re.Match) -> str:
+        body = m.group(2) + "\n"
+        for pm in list(CLUSTER_PRINT_LINE_RE.finditer(body)):
+            name, value = pm.group(1), pm.group(2)
+            body = body.replace(pm.group(0), "", 1)
+            line_re = re.compile(rf"^    {name}={VALUE}$", re.M)
+            body, n = line_re.subn(lambda _: f"    {name}={value}", body, count=1)
+            assert n == 1, f"cluster has p{name} without {name}"
+        return m.group(1) + body[:-1] + m.group(3)
+
+    return CLUSTER_BODY_RE.sub(swap_cluster, _map_blocks(text, swap))
 
 
 def strip_plabels(text: str) -> str:
-    """Remove the ``plabel`` attributes (the docs diagram shows the full labels)."""
-    text = _map_blocks(text, lambda block: PLABEL_RE.sub("", block))
-    return re.sub(r'\n    plabel="(?:[^"\\]|\\.)*"', "", text)
+    """Remove the print-only attributes (the docs diagram shows the full labels)."""
+
+    def strip(block: str) -> str:
+        for name in PRINT_ATTRS:
+            block = PRINT_ATTR_RE[name].sub("", block)
+        return block
+
+    return CLUSTER_PRINT_LINE_RE.sub("", _map_blocks(text, strip))
 
 
 def print_theme(text: str) -> str:
@@ -208,13 +239,26 @@ def print_theme(text: str) -> str:
     text = compact_labels(text)
     for src, dst in PRINT_PALETTE.items():
         text = text.replace(src, dst)
+    for src, dst in PRINT_SPACING.items():
+        text = text.replace(src, dst)
+    # no page margin: the PDF device otherwise adds 0.5 in on every side, which LaTeX would
+    # scale together with the drawing
+    text = text.replace("digraph cd_stack {\n", "digraph cd_stack {\n  margin=0.03\n", 1)
+    for kind, size in PRINT_FONTSIZE.items():
+        text, n = re.subn(
+            rf"^(  {kind} \[[^\]]*?fontsize=)[\d.]+", rf"\g<1>{size}", text, count=1, flags=re.M
+        )
+        assert n == 1, f"no default {kind} fontsize in the source"
     return text
 
 
-def render(dot_text: str, fmt: str, out: pathlib.Path) -> None:
+def render(dot_text: str, fmt: str, out: pathlib.Path, *options: str) -> None:
     env = dict(os.environ, SOURCE_DATE_EPOCH=EPOCH)
     subprocess.run(
-        ["dot", f"-T{fmt}", "-o", str(out)], input=dot_text.encode(), check=True, env=env
+        ["dot", f"-T{fmt}", *options, "-o", str(out)],
+        input=dot_text.encode(),
+        check=True,
+        env=env,
     )
 
 
@@ -223,7 +267,8 @@ def main() -> int:
     digest = hashlib.sha256(source.encode("utf-8")).hexdigest()
     # Full diagram, brand palette, for the docs site (and a copy next to the source).
     svg_path = HERE / "cd_stack.svg"
-    render(strip_plabels(source), "svg", svg_path)
+    # padding keeps edge labels at the outer edges inside the viewBox
+    render(strip_plabels(source), "svg", svg_path, DOCS_PAD)
     svg = (
         svg_path.read_text(encoding="utf-8").rstrip("\n")
         + f"\n<!-- source: cd_stack.dot sha256 {digest} -->\n"
