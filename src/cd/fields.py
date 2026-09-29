@@ -53,7 +53,7 @@ def viability_canonical(
 
     Notes
     -----
-    Heuristic (a modelling choice, paper Definition of the canonical closure; not a theorem).
+    Heuristic (a modelling choice, paper Definition 3.3, the canonical closure; not a theorem).
     The canonical closure encodes:
     - κγ: baseline support from care × coherence
     - λμ: cost imposed by contradiction
