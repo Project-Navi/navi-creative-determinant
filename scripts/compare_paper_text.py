@@ -5,8 +5,8 @@ Both inputs are ``pdftotext -layout`` outputs. The comparison is made on the mul
 content characters: whitespace is ignored (pdftotext places it differently around subscripts
 and inside fractions depending on the TeX Live and poppler versions), ASCII hyphens are dropped
 (hyphenation at a line break; the Unicode minus sign of typeset mathematics is kept), and
-control characters and centred-dot glyphs are dropped (the same glyph is extracted as U+2022 or
-as a backspace by different font maps). Every other character must occur the same number of
+control and format characters (Unicode categories Cc, Cf, Co, Cn) and centred-dot glyphs are
+dropped (the same glyph is extracted as U+2022 or as a C0/C1 control by different font maps). Every other character must occur the same number of
 times in both texts. Line-breaking, pagination and extraction-order differences therefore pass;
 any changed, added or removed letter, digit or sign fails, and the differing characters are
 listed.
@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import pathlib
 import sys
+import unicodedata
 from collections import Counter
 
 _DOT_GLYPHS = frozenset("\u2022\u00b7\u22c5")  # bullet, middle dot, dot operator
@@ -34,7 +35,10 @@ def normalize(text: str) -> Counter[str]:
     return Counter(
         ch
         for ch in text
-        if not ch.isspace() and ch != "-" and ord(ch) >= 32 and ch not in _DOT_GLYPHS
+        if not ch.isspace()
+        and ch != "-"
+        and not unicodedata.category(ch).startswith("C")
+        and ch not in _DOT_GLYPHS
     )
 
 

@@ -47,7 +47,7 @@ class TestPaperTextGuard:
         centred dot extracted as a bullet by one poppler build and as a backspace by another."""
         v = _load()
         local = BASE + "\nλ 1 = + 1\n4 and 1\n2 with a • b"
-        remote = BASE + "\nλ1 = + 4\n1 and 2\n1 with a \x08 b"
+        remote = BASE + "\nλ1 = + 4\n1 and 2\n1 with a \x08 b\x88"
         ok, report = v.compare(local, remote)
         assert ok, report
 
