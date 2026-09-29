@@ -1,10 +1,12 @@
-# Paper build check
+# Paper artifact check
 #
-# Rebuilds paper/creative_determinant.pdf from source with bibliography and
-# cross-references, fails on unresolved references or citations, and checks
-# that the committed PDF's text agrees with the freshly built one token for
-# token, so that the TeX source and the checked-in PDF cannot drift apart. The rebuilt
-# PDF is uploaded as an artifact; the committed file is never modified here.
+# Rebuilds paper/creative_determinant.pdf from source in the pinned TeX Live image used by
+# paper/build_paper.sh (the same image, epoch and command that produced the committed PDF),
+# fails on unresolved references or citations, and requires the committed PDF to be the
+# byte-identical build of the source (scripts/check_paper_artifact.py). When the bytes differ
+# the gate prints an order-preserving text diff and a page-by-page render comparison so the
+# drift can be located. The rebuilt PDF is uploaded as an artifact; the committed file is never
+# modified here.
 
 name: Paper
 
@@ -16,13 +18,13 @@ on:
     branches: [main]
     paths:
       - 'paper/**'
-      - 'scripts/compare_paper_text.py'
+      - 'scripts/check_paper_artifact.py'
       - '.github/workflows/paper.yml'
   pull_request:
     branches: [main]
     paths:
       - 'paper/**'
-      - 'scripts/compare_paper_text.py'
+      - 'scripts/check_paper_artifact.py'
       - '.github/workflows/paper.yml'
   workflow_dispatch:
 
@@ -35,37 +37,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - name: Install TeX Live and tools
+      # poppler is used only by the gate's diagnostics (pdftotext, pdftoppm, pdfinfo); the
+      # PDF itself is produced inside the pinned image.
+      - name: Install poppler for the gate diagnostics
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            texlive-latex-base texlive-latex-recommended texlive-latex-extra \
-            texlive-fonts-recommended texlive-bibtex-extra latexmk poppler-utils
+          sudo apt-get install -y --no-install-recommends poppler-utils
 
-      - name: Build in a clean directory
+      - name: Build in the pinned TeX Live image
+        run: paper/build_paper.sh build
+
+      - name: Check the build log and page count
         run: |
-          mkdir -p build
-          cp paper/creative_determinant.tex paper/cd_refs.bib build/
-          cd build
-          latexmk -pdf -interaction=nonstopmode -halt-on-error creative_determinant.tex
-          if grep -E "Reference .* undefined|Citation .* undefined|multiply defined" creative_determinant.log; then
+          if grep -E "Reference .* undefined|Citation .* undefined|multiply defined" build/creative_determinant.log; then
             echo "::error::unresolved references or citations"
             exit 1
           fi
-          pages=$(pdfinfo creative_determinant.pdf | awk '/^Pages:/ {print $2}')
+          pages=$(pdfinfo build/creative_determinant.pdf | awk '/^Pages:/ {print $2}')
           echo "pages: $pages"
           test "$pages" -ge 10
 
-      # scripts/compare_paper_text.py compares the character multisets of both texts, ignoring
-      # whitespace, hyphens and extraction-only glyph differences; line breaks, pagination and
-      # extraction order may differ, a changed letter, digit or sign may not. Its negative
-      # fixtures are in tests/test_paper_guard.py.
-      - name: Compare committed PDF text with the rebuilt PDF (exact character multiset)
+      - name: Require the committed PDF to be the byte-identical build of the source
         run: |
-          pdftotext -layout paper/creative_determinant.pdf committed.txt
-          pdftotext -layout build/creative_determinant.pdf rebuilt.txt
-          python3 scripts/compare_paper_text.py committed.txt rebuilt.txt || {
-            echo "::error::the committed PDF does not match the source; rebuild and commit paper/creative_determinant.pdf"
+          python3 scripts/check_paper_artifact.py paper/creative_determinant.pdf build/creative_determinant.pdf || {
+            echo "::error::paper/creative_determinant.pdf is not the build of the source in the pinned image; run paper/build_paper.sh and commit build/creative_determinant.pdf"
             exit 1
           }
 
