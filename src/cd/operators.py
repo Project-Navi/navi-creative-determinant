@@ -200,27 +200,6 @@ def grid_1d(N: int, L: float) -> np.ndarray:
     return np.linspace(0, L, N + 2)
 
 
-def grid_2d(Nx: int, Ny: int, Lx: float, Ly: float) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Generate 2D meshgrid including boundary points.
-
-    Parameters
-    ----------
-    Nx, Ny : int
-        Number of interior points in each direction.
-    Lx, Ly : float
-        Domain lengths.
-
-    Returns
-    -------
-    X, Y : ndarray
-        Meshgrid arrays of shape (Ny+2, Nx+2).
-    """
-    x = grid_1d(Nx, Lx)
-    y = grid_1d(Ny, Ly)
-    return np.meshgrid(x, y)
-
-
 def grid_3d(
     Nx: int, Ny: int, Nz: int, Lx: float, Ly: float, Lz: float
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
