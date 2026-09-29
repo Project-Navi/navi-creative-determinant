@@ -15,8 +15,9 @@ The core theoretical paper for the Creative Determinant framework.
 | §3 | Existence framework, positive existence, exact threshold for \(a \equiv 0\), finite-graph model (machine-checked) | PDE/analysis |
 | §4 | Interpretive layer: care, coherence, contradiction | Cognitive science, philosophy |
 | §5 | CD condition, falsifiability criteria | AI safety, empirical researchers |
-| §6 | Limitations and open problems | Everyone |
+| §6 | Discussion and limitations | Everyone |
 | App. A | Formal verification: what is proved, what is conditional, paper-to-Lean alignment | Lean / formal verification |
+| App. B | Transfer of the cited Euclidean results to the manifold | PDE/analysis |
 
 ## Building
 
@@ -28,7 +29,6 @@ pinned TeX Live image (`texlive/texlive:TL2025-historic`, by digest) with a fixe
 paper/build_paper.sh                              # needs docker; writes paper/build/creative_determinant.pdf
 cp paper/build/creative_determinant.pdf paper/    # commit the rebuilt PDF together with the source change
 python3 scripts/check_paper_artifact.py paper/creative_determinant.pdf paper/build/creative_determinant.pdf
-make -C paper                                     # cd_stack diagrams only
 latexmk -pdf -cd paper/creative_determinant.tex   # quick local preview with your own TeX Live (not the committed artifact)
 ```
 
@@ -39,18 +39,11 @@ locate the drift. The gate checks the artifact relation only; it does not certif
 
 ## Citation
 
-```bibtex
-@techreport{spence2026creative,
-  author = {Spence, Nelson},
-  title = {The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions},
-  institution = {Project Navi LLC},
-  year = {2026},
-  month = {January},
-  address = {Austin, Texas}
-}
-```
+Cite the paper with the metadata in [`CITATION.cff`](../CITATION.cff) at the repository root; its `preferred-citation` entry is the report record, and GitHub renders it as BibTeX or APA.
 
 ## Key Results
+
+This list is the canonical summary of the paper's results; the other pages link here rather than restating them.
 
 - **Theorem 3.12** (Existence framework): a compact fixed-point formulation with a priori bounds for nonnegative weak coherent configurations; the zero field is always one
 - **Theorem 3.16** (Positive existence): when viability exceeds dissipation (λ₁ < 0), a solution positive throughout the interior exists, enclosed between εφ₁ and a constant

@@ -4,7 +4,7 @@ Numerical demonstrations of the Creative Determinant PDE framework.
 
 ## Contents
 
-**cd_pde_demo.ipynb** — Complete numerical validation of the mathematical claims, with references to the Lean4 formal proofs.
+**cd_pde_demo.ipynb** — Numerical validation of the discrete claims behind the mathematical results (the notebook checks discrete statements; it cannot validate the continuum theorems themselves), with references to the Lean4 formal proofs.
 
 ## Running the Notebook
 
@@ -41,7 +41,7 @@ Every numerical claim is asserted in the notebook through a `check(condition, na
 
 The notebook provides computational evidence for the core claims in the paper. Each part includes interpretive markdown linking the numerical result to the corresponding paper theorem and Lean4 formal proof.
 
-- **Numerical code**: imported from `src/cd/` (operators, solvers, eigenvalues, fields, analysis, graph); the only inline code is the `solve_bvp` cross-check and the 3D operators
+- **Numerical code**: imported from `src/cd/` (operators, solvers, eigenvalues, fields, analysis, graph), including the 3D operators; the inline definitions are the `check` helper, `converse_barrier`, the `solve_bvp` cross-check (`solve_bvp_V1prime`), `history` and the dense reference assembly `independent_3d_matrix`
 - **Lean4 proofs**: in `cd_formalization/CdFormal/` (Theorems.lean, Basic.lean, Axioms.lean, Graph/*.lean)
 - **Paper**: `paper/creative_determinant.pdf`
 

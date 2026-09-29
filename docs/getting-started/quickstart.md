@@ -51,7 +51,6 @@ notebooks/                 # Jupyter notebook with numerical demonstrations
 src/cd/                    # Python library (solvers, eigenvalue tools, closures)
 tests/                     # 167 package test functions (+ 24 in tests/repo/ for scripts, notebook and paper)
 cd_formalization/          # Lean 4 formalization (finite-graph theorem proved; continuum theorems conditional)
-experiments/               # Scaffolding for empirical tests
 figures/                   # Publication-quality visualizations
 ```
 

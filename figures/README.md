@@ -11,16 +11,16 @@ These figures provide visual evidence for the core mathematical claims. Each dem
 | **Fig 1** | `fig1_eigenvalue_threshold` | Principal eigenvalue λ₁ crossing zero as β increases; numeric vs analytic agreement | §3 (Definition 3.13, Theorem 3.16) |
 | **Fig 2** | `fig2_threshold_comparison` | Below-threshold (flat) vs above-threshold (emergent) presence Φ(x) | §3 (Existence) |
 | **Fig 3** | `fig3_canonical_closure_sweep` | Presence collapse and eigenvalue indicator as contradiction cost λ increases | §3 (Canonical closure) |
-| **Fig 4** | `fig4_2d_presence_field` | 2D viability field b(x,y) and emergent presence Φ(x,y) with contours | §4 (Spatial heterogeneity) |
+| **Fig 4** | `fig4_2d_presence_field` | 2D viability field b(x,y) and emergent presence Φ(x,y) with contours | §3 (Theorem 3.16 with a spatially varying potential) |
 | **Fig 5** | `fig5_grid_refinement` | Convergence under grid refinement: discretization error of max Φ at second order; the discrete residual sits at solver tolerance on every grid | §3 (numerical companion) |
 | **Fig 6** | `fig6_field_decomposition` | Component fields: κγ, μ(x), b(x), a(x) and their relationships | §2 (Definitions) |
-| **Fig 7** | `fig7_2d_phase_transition` | Side-by-side: viable equilibrium (maxΦ > 0) vs collapsed state (maxΦ ≈ 0) | §4/§5 (Phase transition) |
+| **Fig 7** | `fig7_2d_phase_transition` | Side-by-side: viable equilibrium (maxΦ > 0) vs collapsed state (maxΦ ≈ 0) | §3 (threshold and existence), §5 (operational layer) |
 
 ## Key Visual Claims
 
-1. **Threshold is sharp** (Fig 1, 2): The transition from trivial to nontrivial solution is not gradual—it's a bifurcation at β*.
+1. **Threshold is sharp for a ≡ 0** (Fig 1, 2): the zero branch below β* and the positive branch above it meet at the threshold. Both figures use a = 0, the only regime where the spectral condition is exact (Proposition 3.19).
 
-2. **Contradiction kills presence** (Fig 3): As contradiction cost increases, presence collapses to zero. The eigenvalue indicator predicts this.
+2. **Contradiction kills presence** (Fig 3): As contradiction cost increases, presence collapses to zero. This sweep has a > 0, where the eigenvalue indicator is a sufficient condition for a positive branch, not an exact threshold.
 
 3. **Spatial structure emerges** (Fig 4, 7): The PDE produces smooth, localized presence fields—not arbitrary point masses.
 
@@ -40,9 +40,7 @@ uv run python figures/generate_figures.py   # from the repository root
 
 ## Using in Publications
 
-All figures are licensed under Apache 2.0. If you use them, please cite:
-
-> Spence, N. (2026). *Creative Determinant PDE Framework: Numerical Demonstrations*. Project Navi LLC.
+All figures are licensed under Apache 2.0. If you use them, please cite the repository with the metadata in [`CITATION.cff`](../CITATION.cff).
 
 ## Adding New Figures
 

@@ -33,21 +33,21 @@ Two populations: **167 package tests in 14 files directly under `tests/`** (ship
 | **test_graph.py** | 37 | Finite-graph lane (Lean model): verified triangle crosswalk, Jacobi residual identity, proof constants, monotone iteration from both barriers, diagonal-weight and permutation invariances, edge condition at both ends, disconnected interiors, converse counterexample (Proposition 3.32), graph bound counterexample (Proposition 3.30), graph vs centered gradient |
 | **test_analysis_statistics.py** | 14 | Spatial statistics: interior mean including zeros, tensor trapezoid quadrature (area measure), nonuniform grids, explicit coordinates, rejections |
 | **test_spatial_solver.py** | 3 | Spatially-varying coefficients (1D): scalar/array equivalence, spatially-varying solves, residual parity |
-| **test_eigenvalues.py** | 3 | Spatial eigenvalue solver (1D and 2D): constant-field parity with scalar solver, monotone response to potential |
+| **test_eigenvalues.py** | 3 | Spatial eigenvalue solver: 1D constant-field parity with the scalar solver, monotone response to the potential, 2D constant field against the analytic formula λ₁ = π²(1/Lx² + 1/Ly²) - βb |
 | **test_2d.py** | 2 | 2D solver with array coefficients; residual on converged 2D solution |
 | **test_fields.py** | 4 | 1D Gaussian bump constructor: peak location, amplitude, shape, range |
 | **test_review_regressions.py** | 19 | Regressions from the mathematical review: spectral assembly is independent of self weights and verified against the direct operator and Rayleigh quotient, exact edge condition without slack, indeterminate status near λ₁ = 0, zero-step accepted roots with defined diagnostics, negative initial data rejected, sign-checked branch labels, a convergence checker that re-validates its own numbers |
 | **test_operators_3d.py** | 5 | 3D Dirichlet Laplacian and eigenvalues with an explicit (z, y, x) convention: constant-potential closed form on an anisotropic box, an asymmetric potential against an independent dense assembly, wrong layouts rejected by shape, discrete-vs-continuum sign near threshold |
 | **test_continuum_counterexample.py** | 6 | Positive continuum solution below the linear threshold (Proposition 3.21): analytic barrier identities, library solve enclosed between the barriers with λ₁ = +1/4, independent collocation agreement |
 | **repo/test_paper_gate.py** | 10 | The paper artifact gate: byte identity between the committed PDF and its pinned-image rebuild; the diagnostics locate a changed sign, reversed inequality operands, swapped numerator/denominator, moved minus, changed digit, moved decimal point, changed multiplication glyph, altered exponent and dropped sentence (order-preserving text comparison) and a changed pixel (page renders) |
-| **repo/test_validate_notebook_required.py** | 5 | The notebook validator requires each essential claim exactly once, in order before the completion marker (negative fixtures: missing, duplicated, misplaced marker); the committed notebook satisfies it |
+| **repo/test_validate_notebook_required.py** | 5 | The notebook validator requires each essential claim exactly once and the completion marker after the last check (negative fixtures: missing, duplicated, misplaced marker); the committed notebook satisfies it |
 | **repo/test_validate_notebook.py** | 9 | The notebook validator fails closed on error outputs, unexecuted cells, missing markers, failed or too few checks (negative fixtures); the committed notebook passes |
 
 Verify the total count locally:
 
 ```bash
-grep -R '^[[:space:]]*def test_' tests/ | wc -l
-# expected: 191 (167 in tests/*.py, 24 in tests/repo/*.py)
+grep -R '^[[:space:]]*def test_' tests/ --include='test_*.py' | wc -l
+# expected: 191 (167 in tests/*.py, 24 in tests/repo/*.py); the --include keeps the example below out of the count
 ```
 
 The per-file counts are also visible via `grep -c "def test_" tests/test_*.py`.
@@ -63,7 +63,7 @@ These tests validate **mathematical correctness**, not implementation details:
 5. **Graph tests** reproduce the Lean finite-graph model exactly, including its verified example and two counterexamples, with the spectral assembly checked against the operator evaluated from pair differences
 6. **Field and statistics tests** verify coefficient constructors and the quadrature measure
 
-A failing test after a change to `src/cd/` means the math is wrong. Fix the solver/operator, not the test assertion. Any contribution that touches `src/cd/` must keep these tests green.
+A failing test after a change to `src/cd/` usually means the math is wrong. Fix the solver/operator, not the test assertion. Any contribution that touches `src/cd/` must keep these tests green.
 
 ## Adding Tests
 
@@ -78,13 +78,13 @@ Example:
 
 ```python
 def test_2d_eigenvalue_formula(self):
-    """Verify λ₁ = π²(1/Lx² + 1/Ly²) - βb for 2D rectangle (Theorem 3.12)."""
+    """Verify λ₁ = π²(1/Lx² + 1/Ly²) - βb for 2D rectangle (Definition 3.13)."""
     # ... implementation
 ```
 
 ## Continuous Integration
 
 The org ruleset requires these checks to pass on every PR to `main`:
-`lint`, `typecheck`, `security`, `codeql`, `semgrep`, `quality-gate`.
+`lint`, `typecheck`, `security`, `semgrep`, `quality-gate`. The `codeql` check runs on every PR but is not in the required list.
 
 The `test` aggregator job (over the matrix `test-run (3.10|3.11|3.12)` defined in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) runs on every PR but is not in the ruleset's required list. The matrix installs dependencies via `uv sync --locked` and runs `uv run pytest tests/ -v`.
