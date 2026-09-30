@@ -103,7 +103,7 @@ cd_formalization/        # Git SUBMODULE → Project-Navi/cd-formalization (Lean
 paper/                   # creative_determinant.pdf + .tex + bib + Makefile + svg
 docs/                    # Diataxis structure, rendered via zensical
 experiments/             # Scaffolding for empirical instantiations
-.github/workflows/       # ci / codeql / docs / figures / notebooks / semgrep / scorecard
+.github/workflows/       # ci / codeql / docs / figures / notebooks / semgrep
 ```
 
 ## Gotchas
@@ -162,14 +162,13 @@ Before adding a test:
 
 ## CI
 
-Eight workflows. The unified `ci.yml` holds four of the six required checks (`lint`, `typecheck`, `security`, `quality-gate`); `codeql.yml` emits `codeql` and `semgrep.yml` emits `semgrep`.
+Seven workflows. The unified `ci.yml` holds four of the six required checks (`lint`, `typecheck`, `security`, `quality-gate`); `codeql.yml` emits `codeql` and `semgrep.yml` emits `semgrep`.
 
 | Workflow | File | Notes |
 |---|---|---|
 | CI | `ci.yml` | Job keys mapped to ruleset checks: **`lint`, `typecheck`, `security`, `quality-gate`**. `typecheck` (mypy) and `security` (bandit, pip-audit on the locked environment) fail closed. `test-run` is the per-Python matrix; `test` is the aggregator (runs on every PR but is not in the ruleset's required list). Non-required: `numerical-stability`, `eigenvalue-precision`, `threshold-verification` (pytest subsets), `coverage`. |
 | CodeQL Analysis | `codeql.yml` | Emits **`codeql`** (job key, required by org ruleset). Also emits `Analyze (python)` on `push` events to main and the weekly schedule, but not on Dependabot PRs (token is read-only). Do not rename the job or add a `name:` override. |
 | Semgrep | `semgrep.yml` | Emits **`semgrep`** (required). Runs `p/python` + `p/owasp-top-ten`. |
-| OpenSSF Scorecard | `scorecard.yml` | Scheduled + on-push to main. Calls the org-shared workflow. |
 | Notebook Validation | `notebooks.yml` | Executes `cd_pde_demo.ipynb` from a fresh kernel, validates it with `scripts/validate_notebook.py` (fail-closed), lints via nbqa (fail-closed). |
 | Figure Validation | `figures.yml` | Runs `generate_figures.py` (library-backed), requires the `ALL_FIGURES_OK` marker (every solve converged), verifies all 14 PNG+PDF files exist. |
 | Paper | `paper.yml` | Rebuilds the PDF with `paper/build_paper.sh` in the pinned TeX Live image (digest + fixed `SOURCE_DATE_EPOCH`, byte-reproducible), fails on unresolved references, and requires the committed PDF to be byte-identical to the rebuild (`scripts/check_paper_artifact.py`; on mismatch it prints an order-preserving text diff and a page render comparison). Edit the `.tex`, run the script, commit the rebuilt PDF with it. |
