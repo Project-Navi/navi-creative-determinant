@@ -58,7 +58,7 @@ from .operators import (
 )
 from .solvers import barriers_1d, solve_1d_picard, solve_2d_picard
 
-__version__ = "1.1.0"
+__version__ = "1.2.0.dev0"
 __author__ = "Nelson Spence"
 __email__ = "nelson@projectnavi.ai"
 

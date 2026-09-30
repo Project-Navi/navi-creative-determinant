@@ -12,7 +12,7 @@ Guidance for coding agents and contributors working in this repository.
 
 Tests check implementation contracts and numerical consequences of the stated mathematics (eigenvalue formulas, viability thresholds, O(h²) grid convergence); the proofs are in the paper and the Lean development.
 
-Status: version 1.1.0 (package and repository release). Research seed, intentionally small and auditable.
+Status: version 1.2.0.dev0, unreleased; the last tagged release is v1.1.0. Research seed, intentionally small and auditable.
 
 ## Commands
 
