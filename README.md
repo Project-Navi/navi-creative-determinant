@@ -24,7 +24,7 @@ on a compact Riemannian manifold with boundary, with creative drive `a = κγμ 
 | Result | Statement | Status |
 |---|---|---|
 | Existence | Theorem 3.12: a nonnegative weak coherent configuration exists; `Φ ≡ 0` is always one | classical proof; Lean, conditional on `PDEInfra` |
-| Positive existence | Theorem 3.16: `λ₁(−Δ − b; M) < 0` gives a solution positive in the interior, enclosed between `εφ₁` and a constant | classical proof; Lean, conditional on `PDEInfra` |
+| Positive existence | Theorem 3.16: `λ₁(−Δ − b; M) < 0` gives a solution positive in the interior, enclosed between `εφ₁` and a constant | classical proof; Lean, conditional on `PDEInfra`, only a nonnegative solution positive at one interior point |
 | Exact threshold | Proposition 3.19: for `a ≡ 0` the spectral condition is also necessary | classical proof |
 | Converse fails with drive | Proposition 3.21: `a = 1, b = 3/4, c = 1, p = 2` on `(0, π)` has a positive solution with `λ₁ = +1/4` | classical proof |
 | Finite-graph theorem | Theorem 3.26, `SemioticGraph.exists_pos_graph`: a positive solution on a finite graph, with the explicit triangle example | proved outright, machine-checked |

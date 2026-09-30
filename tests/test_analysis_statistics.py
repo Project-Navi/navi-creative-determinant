@@ -137,6 +137,8 @@ class TestLinftyBoundValidation:
             linfty_bound(1.0, np.array([1.0, 0.0]), 2.0)
 
     def test_closed_form_on_scalars_and_fields(self):
+        """Lemma 3.10: the bound is ``(B/c0)^{1/(p-1)}`` with ``B = max(beta_b)_+`` and
+        ``c0 = min(c)``, for scalars and for fields; ``B <= 0`` gives 0."""
         assert linfty_bound(15.0, 10.0, 2.0) == pytest.approx(1.5)
         assert linfty_bound(np.array([-1.0, 15.0]), np.array([10.0, 40.0]), 2.0) == pytest.approx(
             1.5

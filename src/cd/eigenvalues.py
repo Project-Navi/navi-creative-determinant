@@ -12,10 +12,10 @@ Mathematical status
 * The threshold ``β* = (π/L)²/b`` for ``b > 0`` is the Lean lemma ``viabilityThreshold_lt_iff``
   (``β > β*`` iff ``(π/L)² - βb < 0``); the identification of that expression with the principal
   eigenvalue is classical and not formalized.
-* ``λ₁ < 0`` is sufficient for a positive solution (paper Theorem 3.16). It is also necessary
-  when ``a ≡ 0`` (Proposition 3.19, the exact threshold); with a gradient term it is not
-  necessary in general: Proposition 3.21 gives a positive continuum solution below the linear
-  threshold, and Proposition 3.32 the finite-graph counterexample implemented in ``cd.graph``.
+* Theorem 3.16: ``λ₁ < 0`` is sufficient for a positive solution. Proposition 3.19: it is also
+  necessary when ``a ≡ 0`` (the exact threshold). Propositions 3.21 and 3.32: with a gradient
+  term it is not necessary in general; 3.21 gives a positive continuum solution below the linear
+  threshold, 3.32 the finite-graph counterexample implemented in ``cd.graph``.
 """
 
 from __future__ import annotations
