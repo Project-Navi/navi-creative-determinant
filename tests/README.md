@@ -19,9 +19,9 @@ uv run coverage run -m pytest tests/
 uv run coverage report --show-missing
 ```
 
-## Test Coverage — 232 test functions across 18 files (parametrized cases expand to more collected tests)
+## Test Coverage — 233 test functions across 18 files (parametrized cases expand to more collected tests)
 
-Two populations: **183 package tests in 14 files directly under `tests/`** (shipped in the sdist and runnable against the installed `cd` package alone) and **49 repository-artefact tests in 4 files under `tests/repo/`** (need `scripts/`, `notebooks/` and `paper/`; excluded from the sdist). `uv run pytest tests/` collects both.
+Two populations: **184 package tests in 14 files directly under `tests/`** (shipped in the sdist and runnable against the installed `cd` package alone) and **49 repository-artefact tests in 4 files under `tests/repo/`** (need `scripts/`, `notebooks/` and `paper/`; excluded from the sdist). `uv run pytest tests/` collects both.
 
 Shared fixtures live in `tests/conftest.py` (factory fixtures for the three-vertex Lean graphs, the closed-form discrete 1D eigenvalue, and one real converged solver report) and `tests/repo/conftest.py` (the repository root, a fresh loader for the scripts under `scripts/`, and a synthetic-notebook writer).
 
@@ -33,7 +33,7 @@ Shared fixtures live in `tests/conftest.py` (factory fixtures for the three-vert
 | **test_barriers.py** | 9 | Discrete ordered barriers εφ₁ and plateau M (a = 0), monotone shifted iteration from below and above, exact discrete threshold for a = 0 (Proposition 3.19), unresolved near-threshold runs |
 | **test_independent_checks.py** | 6 | Manufactured residual at second order, independent solve_bvp comparison (a = 0 and a = 0.5) including a zero-start control, mesh refinement, algebraic vs discretization error |
 | **test_graph.py** | 38 | Finite-graph lane (Lean model): verified triangle crosswalk, Jacobi residual identity, proof constants, monotone iteration from both barriers, tolerance validation, diagonal-weight and permutation invariances, edge condition at both ends, disconnected interiors, converse counterexample (Proposition 3.32), graph bound counterexample (Proposition 3.30), graph vs centered gradient |
-| **test_analysis_statistics.py** | 20 | Spatial statistics: interior mean including zeros, tensor trapezoid quadrature (area measure), nonuniform grids, explicit coordinates, the zero-branch cutoff of the support fraction, rejections; input domain of the L∞ bound (Lemma 3.10) |
+| **test_analysis_statistics.py** | 21 | Spatial statistics: interior mean including zeros, tensor trapezoid quadrature (area measure), nonuniform grids, explicit coordinates, the support fraction's relative rule and its 1e-10 floor (a positive field below the zero-branch tolerance keeps its support), rejections; input domain of the L∞ bound (Lemma 3.10) |
 | **test_spatial_solver.py** | 3 | Spatially-varying coefficients (1D): scalar/array equivalence, spatially-varying solves, residual parity |
 | **test_eigenvalues.py** | 3 | Spatial eigenvalue solver: 1D constant-field parity with the scalar solver, monotone response to the potential, 2D constant field against the analytic formula λ₁ = π²(1/Lx² + 1/Ly²) - βb |
 | **test_2d.py** | 2 | 2D solver with array coefficients; residual on converged 2D solution |
@@ -50,7 +50,7 @@ Verify the total count locally:
 
 ```bash
 grep -R '^[[:space:]]*def test_' tests/ --include='test_*.py' | wc -l
-# expected: 232 (183 in tests/*.py, 49 in tests/repo/*.py); the --include keeps the example below out of the count
+# expected: 233 (184 in tests/*.py, 49 in tests/repo/*.py); the --include keeps the example below out of the count
 ```
 
 The per-file counts are also visible via `grep -c "def test_" tests/test_*.py`.

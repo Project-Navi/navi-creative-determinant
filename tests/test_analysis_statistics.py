@@ -69,16 +69,21 @@ class TestSupportFraction:
         assert stats["total"] == 0.0
         assert stats["max"] == 0.0
 
-    def test_field_below_zero_branch_tolerance_has_no_support(self):
-        """A field whose maximum is below the zero-branch tolerance 1e-6 used by
-        ``classify_branch`` is the zero branch; its support fraction is 0, not the fraction of
-        nodes above 1% of a numerically-zero maximum."""
-        Phi = np.array([0.0, 5e-7, 5e-7, 5e-7, 0.0])
-        stats = presence_statistics(Phi, x=np.linspace(0.0, 1.0, 5))
+    def test_positive_field_below_the_zero_branch_tolerance_keeps_its_support(self):
+        """Maximum 5e-7 is below the zero-branch tolerance 1e-6 of ``classify_branch``, but the
+        field is not zero: the support fraction is a separate measurement and counts its
+        node."""
+        stats = presence_statistics(np.array([0.0, 5e-7, 0.0]), x=np.array([0.0, 0.5, 1.0]))
         assert stats["max"] == pytest.approx(5e-7)
+        assert stats["mean"] == pytest.approx(5e-7)
+        assert stats["support_fraction"] == 1.0
+
+    def test_field_at_rounding_level_has_no_support(self):
+        """At or below the absolute floor 1e-10 the relative 1% rule is not applied."""
+        stats = presence_statistics(np.array([0.0, 5e-11, 0.0]), x=np.array([0.0, 0.5, 1.0]))
         assert stats["support_fraction"] == 0.0
 
-    def test_field_above_zero_branch_tolerance_keeps_computed_support(self):
+    def test_small_field_support_is_relative_to_its_maximum(self):
         Phi = np.array([0.0, 2e-6, 1e-9, 2e-6, 0.0])
         stats = presence_statistics(Phi, x=np.linspace(0.0, 1.0, 5))
         assert stats["max"] == pytest.approx(2e-6)
