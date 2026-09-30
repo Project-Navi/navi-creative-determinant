@@ -115,7 +115,8 @@ class TestRejections:
 
 class TestLinftyBoundValidation:
     """Lemma 3.10 bound ``(max(q)_+ / min(c))^{1/(p-1)}``: the inputs are finite scalars or
-    fields, ``c`` positive everywhere; non-numbers are rejected, not coerced."""
+    fields, ``c`` positive everywhere; scalar strings and bools are rejected, not coerced, and
+    arrays are converted to float."""
 
     @pytest.mark.parametrize("bad", ["15", True, np.bool_(True), np.nan])
     def test_potential_must_be_a_finite_number_or_field(self, bad):

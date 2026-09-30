@@ -33,8 +33,9 @@ class TestGaussianBump1d:
 
 
 class TestCanonicalClosureValidation:
-    """b = κγ - λμ with κ, γ ∈ [0, 1] and λ >= 0: inputs outside the documented domain, and
-    non-numbers (strings, bools, NaN), are rejected at the boundary; λ = 0 is admissible."""
+    """b = κγ - λμ and a = κγμ. The scalars κ, γ ∈ [0, 1] and λ >= 0: values outside that
+    domain and non-numbers (strings, bools, NaN) are rejected; λ = 0 is admissible. The field μ is
+    converted to a float array and checked for finiteness only."""
 
     MU = np.array([0.0, 0.5, 1.0])
 
@@ -63,6 +64,12 @@ class TestCanonicalClosureValidation:
             viability_canonical(0.5, 0.5, mu, 1.0)
         with pytest.raises(ValueError):
             creative_drive(0.5, 0.5, mu)
+
+    def test_mu_is_not_range_checked_or_clipped(self):
+        """Policy: values of μ outside [0, 1] pass through unchanged; nothing is clipped."""
+        mu = np.array([-0.5, 1.5])
+        np.testing.assert_allclose(viability_canonical(1.0, 1.0, mu, 1.0), [1.5, -0.5])
+        np.testing.assert_allclose(creative_drive(1.0, 1.0, mu), mu)
 
     def test_unit_endpoints_are_accepted(self):
         np.testing.assert_allclose(creative_drive(1.0, 1.0, self.MU), self.MU)

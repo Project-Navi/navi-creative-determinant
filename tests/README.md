@@ -19,9 +19,9 @@ uv run coverage run -m pytest tests/
 uv run coverage report --show-missing
 ```
 
-## Test Coverage — 233 test functions across 18 files (parametrized cases expand to more collected tests)
+## Test Coverage — 234 test functions across 18 files (parametrized cases expand to more collected tests)
 
-Two populations: **184 package tests in 14 files directly under `tests/`** (shipped in the sdist and runnable against the installed `cd` package alone) and **49 repository-artefact tests in 4 files under `tests/repo/`** (need `scripts/`, `notebooks/` and `paper/`; excluded from the sdist). `uv run pytest tests/` collects both.
+Two populations: **185 package tests in 14 files directly under `tests/`** (shipped in the sdist and runnable against the installed `cd` package alone) and **49 repository-artefact tests in 4 files under `tests/repo/`** (need `scripts/`, `notebooks/` and `paper/`; excluded from the sdist). `uv run pytest tests/` collects both.
 
 Shared fixtures live in `tests/conftest.py` (factory fixtures for the three-vertex Lean graphs, the closed-form discrete 1D eigenvalue, and one real converged solver report) and `tests/repo/conftest.py` (the repository root, a fresh loader for the scripts under `scripts/`, and a synthetic-notebook writer).
 
@@ -37,7 +37,7 @@ Shared fixtures live in `tests/conftest.py` (factory fixtures for the three-vert
 | **test_spatial_solver.py** | 3 | Spatially-varying coefficients (1D): scalar/array equivalence, spatially-varying solves, residual parity |
 | **test_eigenvalues.py** | 3 | Spatial eigenvalue solver: 1D constant-field parity with the scalar solver, monotone response to the potential, 2D constant field against the analytic formula λ₁ = π²(1/Lx² + 1/Ly²) - βb |
 | **test_2d.py** | 2 | 2D solver with array coefficients; residual on converged 2D solution |
-| **test_fields.py** | 12 | 1D Gaussian bump constructor: peak location, amplitude, shape, range; input domains of the canonical closure, creative drive and Gaussian bumps (unit-interval intensities, λ ≥ 0, positive width, finite fields; strings, bools and NaN rejected) |
+| **test_fields.py** | 13 | 1D Gaussian bump constructor: peak location, amplitude, shape, range; input domains of the canonical closure, creative drive and Gaussian bumps (scalar κ, γ in [0, 1], λ ≥ 0 and positive width, with strings, bools and NaN rejected; μ and the grids finite; μ neither range-checked nor clipped) |
 | **test_review_regressions.py** | 18 | Regressions from the mathematical review: spectral assembly is independent of self weights and verified against the direct operator and Rayleigh quotient, exact edge condition without slack, indeterminate status near λ₁ = 0, zero-step accepted roots with defined diagnostics, negative initial data rejected, sign-checked branch labels, a convergence checker that re-validates its own numbers |
 | **test_operators_3d.py** | 5 | 3D Dirichlet Laplacian and eigenvalues with an explicit (z, y, x) convention: constant-potential closed form on an anisotropic box, an asymmetric potential against an independent dense assembly, wrong layouts rejected by shape, discrete-vs-continuum sign near threshold |
 | **test_continuum_counterexample.py** | 6 | Positive continuum solution below the linear threshold (Proposition 3.21): analytic barrier identities, library solve enclosed between the barriers with λ₁ = +1/4, independent collocation agreement |
@@ -50,7 +50,7 @@ Verify the total count locally:
 
 ```bash
 grep -R '^[[:space:]]*def test_' tests/ --include='test_*.py' | wc -l
-# expected: 233 (184 in tests/*.py, 49 in tests/repo/*.py); the --include keeps the example below out of the count
+# expected: 234 (185 in tests/*.py, 49 in tests/repo/*.py); the --include keeps the example below out of the count
 ```
 
 The per-file counts are also visible via `grep -c "def test_" tests/test_*.py`.
@@ -72,7 +72,7 @@ classical arguments in the paper and the Lean declarations in `cd_formalization/
 
 ### When a test fails
 
-- A failing test is a finding. Establish whether the code, the claim or the oracle is wrong before changing either.
+- A failing test is a finding. Establish whether the code, the claim or the oracle is wrong before changing anything.
 - Never weaken an assertion, loosen a tolerance, skip a case or change an expected value to obtain a pass.
 - When the oracle is wrong (a wrong closed form, a claim stronger than the paper states, a tolerance the discretization cannot meet), correct it with the mathematical or contractual reason in the docstring or commit message, and keep equivalent or stronger coverage.
 - Add a regression test for every reproduced defect.

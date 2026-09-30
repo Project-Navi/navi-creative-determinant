@@ -534,8 +534,8 @@ def linfty_bound(beta_b: float | np.ndarray, c: float | np.ndarray, p: float) ->
     Raises
     ------
     ValueError
-        If ``beta_b`` or ``c`` is not a finite number or finite array, ``c`` is not positive
-        everywhere, or ``p <= 1``.
+        If ``beta_b`` or ``c`` is a string, a bool or a nonfinite number, has a nonfinite entry
+        after conversion to a float array, ``c`` is not positive everywhere, or ``p <= 1``.
     """
     B = float(np.max(check_finite_field("beta_b", beta_b)))
     c_field = check_finite_field("c", c)

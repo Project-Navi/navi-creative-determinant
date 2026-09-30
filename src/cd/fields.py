@@ -36,7 +36,8 @@ def viability_canonical(
     gamma : float
         Coherence intensity ∈ [0, 1].
     mu : ndarray
-        Contradiction field ∈ [0, 1] (finite).
+        Contradiction field. The model takes values in [0, 1]; ``mu`` is converted to a float
+        array and only its finiteness is checked (no range check, no clipping).
     lam : float
         Contradiction cost parameter λ ≥ 0 (λ = 0 switches the contradiction cost off).
 
@@ -48,8 +49,9 @@ def viability_canonical(
     Raises
     ------
     ValueError
-        If ``kappa`` or ``gamma`` is not a number in ``[0, 1]``, ``lam`` is not a nonnegative
-        finite number, or ``mu`` has a nonfinite entry. Strings, bools and NaN are rejected.
+        If ``kappa`` or ``gamma`` is not a real number in ``[0, 1]`` or ``lam`` is not a finite
+        real number ``>= 0`` (for these scalars strings, bools and NaN are rejected), or ``mu``
+        has a nonfinite entry after conversion to a float array.
 
     Notes
     -----
@@ -85,7 +87,7 @@ def creative_drive(
     gamma : float
         Coherence intensity.
     mu : ndarray
-        Contradiction field.
+        Contradiction field, converted to a float array; only its finiteness is checked.
 
     Returns
     -------
@@ -95,8 +97,8 @@ def creative_drive(
     Raises
     ------
     ValueError
-        If ``kappa`` or ``gamma`` is not a number in ``[0, 1]`` or ``mu`` has a nonfinite
-        entry. Strings, bools and NaN are rejected.
+        If ``kappa`` or ``gamma`` is not a real number in ``[0, 1]`` (strings, bools and NaN
+        are rejected), or ``mu`` has a nonfinite entry after conversion to a float array.
 
     Notes
     -----
