@@ -94,11 +94,13 @@ This is a research seed, not a finished theory. The goal is for knowledge to flo
 
 ## Development Process
 
-**What the author did**: the semiotic manifold formulation, the saturated model V1′, the proof strategy for existence and positive existence (the truncated Schaefer framework, ordered barriers and the maximum-principle comparison), the canonical closure, the temporal debt–resilience closure, the CD condition, and the connection between enactivist philosophy and PDE theory. Nelson Spence, April 2025 – March 2026. The classical elliptic theory is cited from Gilbarg–Trudinger and Evans.
+**Original framework (April 2025 – March 2026)**: Nelson Spence developed the semiotic manifold formulation, the saturated model V1′, the original existence argument (Schaefer's fixed-point theorem with sub- and supersolutions and the maximum principle), the canonical closure, the temporal debt–resilience closure, the CD condition, and the connection between enactivist philosophy and PDE theory.
+
+**2026 revision**: A later mathematical review found errors and gaps in that manuscript. The current version reconstructs the existence proofs (the truncated Schaefer framework, ordered barriers and the maximum-principle comparison), states the spectral threshold as sufficient in general and exact without drive, adds a continuum counterexample below the threshold, and brings in the finite-graph model of the Lean development. The review and the reconstruction were done with contributor input and AI assistance. Nelson Spence is responsible for the final claims and presentation. The classical elliptic theory is cited from Gilbarg–Trudinger and Evans.
 
 **Other contributors**: Andrew Edmark (@aedmark) proposed the finite-graph formulation and its proof route (finite-dimensional inverse positivity and positive principal eigendata, then the order-theoretic fixed-point core). Yongxi (Aaron) Lin suggested the bornological form of `PDEInfra.T_compact` on the Lean Zulip.
 
-**What AI tools did**: Claude Opus assisted with the Python numerics, the tests, the notebook and the documentation, and with Lean 4 syntax, Mathlib API navigation and proof term synthesis, including the finite-graph development. Aristotle (Harmonic) proved algebraic leaf lemmas by automated proof search.
+**What AI tools did**: Claude Opus assisted with the Python numerics, the tests, the notebook and the documentation; with Lean 4 syntax, Mathlib API navigation and proof term synthesis, including the finite-graph development; and in the 2026 revision with writing the repaired proofs and the counterexample and checking the classical sources. Aristotle (Harmonic) proved algebraic leaf lemmas by automated proof search.
 
 ---
 
