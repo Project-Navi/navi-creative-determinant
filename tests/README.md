@@ -1,6 +1,6 @@
 # Tests
 
-Test suite validating the mathematical claims of the Creative Determinant framework.
+Tests of the `cd` package and of the repository artefacts (notebook, paper, stack diagram).
 
 ## Running Tests
 
@@ -55,18 +55,27 @@ grep -R '^[[:space:]]*def test_' tests/ --include='test_*.py' | wc -l
 
 The per-file counts are also visible via `grep -c "def test_" tests/test_*.py`.
 
-## Test Philosophy
+## What the tests establish
 
-These tests validate **mathematical correctness**, not implementation details:
+The tests check implementation contracts (input validation, convergence reports, diagnostics,
+artefact freshness, packaging) and numerical consequences of the paper's statements. They are
+evidence that the code implements the mathematics, not proofs of it: the proofs are the
+classical arguments in the paper and the Lean declarations in `cd_formalization/`.
 
 1. **Eigenvalue tests** verify the spectral theory: the exact discrete formula, the continuum limit, the threshold (Definition 3.13, Theorem 3.16)
 2. **Threshold and barrier tests** verify branch classification against the exact discrete criterion for a = 0 (Proposition 3.19) and the monotone iteration between ordered barriers
 3. **Residual tests** verify that a run is accepted only when the discrete equation holds; a small update is never enough
 4. **Independent checks** compare the finite-difference solver with a collocation solver and a manufactured residual
 5. **Graph tests** reproduce the Lean finite-graph model exactly, including its verified example and two counterexamples, with the spectral assembly checked against the operator evaluated from pair differences
-6. **Field and statistics tests** verify coefficient constructors and the quadrature measure
+6. **Field and statistics tests** verify coefficient constructors, their input domains and the quadrature measure
+7. **Repository-artefact tests** check the notebook validator, the paper gate and the stack diagram ([`repo/README.md`](repo/README.md))
 
-A failing test after a change to `src/cd/` usually means the math is wrong. Fix the solver/operator, not the test assertion.
+### When a test fails
+
+- A failing test is a finding. Establish whether the code, the claim or the oracle is wrong before changing either.
+- Never weaken an assertion, loosen a tolerance, skip a case or change an expected value to obtain a pass.
+- When the oracle is wrong (a wrong closed form, a claim stronger than the paper states, a tolerance the discretization cannot meet), correct it with the mathematical or contractual reason in the docstring or commit message, and keep equivalent or stronger coverage.
+- Add a regression test for every reproduced defect.
 
 ## Adding Tests
 

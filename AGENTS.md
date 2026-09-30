@@ -10,7 +10,7 @@ Guidance for coding agents and contributors working in this repository.
 2. **Numerics** — `src/cd/` Python library, `notebooks/cd_pde_demo.ipynb`, and `figures/`.
 3. **Formalization** — `cd_formalization/` Lean 4 project (machine-checked proofs, git submodule).
 
-Tests validate **mathematical claims** (eigenvalue formulas, viability thresholds, O(h²) grid convergence) — not implementation behaviour.
+Tests check implementation contracts and numerical consequences of the stated mathematics (eigenvalue formulas, viability thresholds, O(h²) grid convergence); the proofs are in the paper and the Lean development.
 
 Status: version 1.1.0 (package and repository release). Research seed, intentionally small and auditable.
 
@@ -103,7 +103,7 @@ docs/                    # Diataxis structure, rendered via zensical (zensical.t
 
 - **`cd_formalization/` is a git submodule.** A bare `git clone` leaves it empty — `ls` shows nothing and it looks like missing code. Run `git submodule update --init --recursive` (or clone with `--recursive`) before touching Lean files.
 - **`tests/README.md` may drift from reality.** If the documented test count disagrees with the code (verify with the grep command under Commands), treat the code as source of truth **and update `tests/README.md` in the same PR** so the docs stay aligned.
-- **Tests are mathematical proofs, not regressions.** If a test fails after editing `src/cd/`, the math is usually wrong, not the test. Do not "fix" tests to pass — fix the solver/operator.
+- **A failing test is a finding, not a verdict.** Establish whether the code, the claim or the oracle is wrong. Never weaken an assertion to get a pass; an oracle is corrected only with a stated reason and equivalent or stronger coverage. The rule is in `tests/README.md` (When a test fails).
 - **Docs use `zensical`, not MkDocs.** Config is `zensical.toml`. Don't suggest `mkdocs build`.
 - **Ruff runs `--no-fix --check` in pre-commit.** It won't auto-repair; formatting violations reject the commit. Run `uv run ruff format src/ tests/` locally before committing.
 - **Gitleaks pre-commit hook is enabled.** Files matching secret patterns (API keys, tokens, private keys) block the commit. Do not `--no-verify` to bypass — rotate the secret and commit a redacted version.
