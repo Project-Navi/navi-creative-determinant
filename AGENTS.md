@@ -49,8 +49,9 @@ uv run nbqa ruff notebooks/cd_pde_demo.ipynb --ignore E501,E402
 # Figures (regenerates all 7 figures as PNG+PDF — 14 files — and prints ALL_FIGURES_OK)
 uv run python figures/generate_figures.py
 
-# Stack diagram (Figures 1-2 of the paper and the docs diagram) from its single source
-make -C paper                                     # cd_stack.dot -> docs/assets/cd-stack.svg + cd_stack_{core,loop}.pdf (graphviz, python3)
+# Stack diagram (Figures 1-2 of the paper and the docs diagram), rendered in a pinned image (needs docker)
+make -C paper                                     # cd_stack.dot -> docs/assets/cd-stack.svg + cd_stack_{core,loop}.pdf, installed in place
+make -C paper check                               # render into a temporary directory; fails unless the committed outputs are identical
 
 # Paper — reproducible build in the pinned TeX Live image (needs docker); commit the result
 paper/build_paper.sh && cp paper/build/creative_determinant.pdf paper/
@@ -64,7 +65,7 @@ uv run pre-commit run --all-files
 
 ### Regenerating scientific artefacts after a numerics change
 
-After any edit under `src/cd/`, run the figure and notebook commands above. Figures must end with `ALL_FIGURES_OK` and all 14 files must exist; PDF figures that differ only in metadata need not be committed. The notebook is committed **with** its executed outputs (the repository tests validate them), so execute it in place, validate, lint, and commit `notebooks/cd_pde_demo.ipynb` together with the source change. Any `.tex` edit is committed together with the rebuilt PDF. The stack diagram has one source, `paper/cd_stack.dot`: after editing it run `make -C paper` (regenerates the docs SVG and the paper's stack figures, which are inputs to the paper build) and rebuild the paper. A repository test fails when the SVG is stale. The paper workflow runs `scripts/check_stack_citations.py`, which requires every statement or section the diagram and `docs/explanation/cd-stack.md` cite to have a `// cites:` line in `cd_stack.dot` whose title matches that statement's header in the rebuilt PDF.
+After any edit under `src/cd/`, run the figure and notebook commands above. Figures must end with `ALL_FIGURES_OK` and all 14 files must exist; PDF figures that differ only in metadata need not be committed. The notebook is committed **with** its executed outputs (the repository tests validate them), so execute it in place, validate, lint, and commit `notebooks/cd_pde_demo.ipynb` together with the source change. Any `.tex` edit is committed together with the rebuilt PDF. The stack diagram is rendered from `paper/cd_stack.dot` by `paper/stack_figures.py` in the image of `paper/figures.Dockerfile` (Graphviz, cairo and fonts pinned): after editing any of the three run `make -C paper` (regenerates the docs SVG and the paper's stack figures, which are inputs to the paper build) and rebuild the paper. The paper workflow re-renders the four outputs, fails unless the committed copies are byte-identical, builds the paper from the re-rendered figures, and runs `scripts/check_stack_citations.py`, which requires every statement or section the diagram and `docs/explanation/cd-stack.md` cite to have a `// cites:` line in `cd_stack.dot` whose title matches that statement's header in the rebuilt PDF.
 
 ### Bumping the Lean submodule
 
@@ -92,7 +93,7 @@ scripts/
 ├── check_paper_artifact.py   # byte-identity gate between the committed PDF and its rebuild
 └── check_stack_citations.py  # the stack diagram's citations match statement headers in the rebuilt paper
 figures/                 # generate_figures.py and the 7 PNG+PDF pairs it writes
-paper/                   # .tex, .bib, .bbl, the committed PDF, build_paper.sh, cd_stack.dot + stack_figures.py (figures), README
+paper/                   # .tex, .bib, .bbl, the committed PDF, build_paper.sh; cd_stack.dot, stack_figures.py, figures.Dockerfile, build_figures.sh (stack diagram); README
 cd_formalization/        # git SUBMODULE → Project-Navi/cd-formalization (Lean 4)
 docs/                    # Diataxis structure, rendered via zensical (zensical.toml)
 .github/workflows/       # ci / codeql / docs / figures / notebooks / paper / semgrep
@@ -109,7 +110,7 @@ docs/                    # Diataxis structure, rendered via zensical (zensical.t
 - **Large files cap: 1024 KB** (`check-added-large-files`). Figures and the executed notebook are tracked because their generation is scripted; the notebook is close to 0.9 MB, so keep its outputs lean. New binaries ≥1 MB are rejected.
 - **Notebook CI validates claims, not output counts.** `notebooks.yml` executes `cd_pde_demo.ipynb` on Python 3.12 and runs `scripts/validate_notebook.py`, which rejects any error output, any unexecuted code cell, any `CHECK FAILED` text, fewer than 30 `CHECK PASSED` lines, a missing or misplaced `ALL_NOTEBOOK_CHECKS_PASSED` marker, or any essential claim (`REQUIRED_CHECKS` in the script) that is missing or duplicated. New numerical claims in the notebook go through the `check(condition, name)` helper; renaming an essential claim requires updating `REQUIRED_CHECKS` and `tests/repo/test_validate_notebook_required.py`. The notebook is also linted fail-closed (`nbqa ruff`, ignoring E501/E402).
 - **Statement numbers in the stack diagram are literal.** `paper/cd_stack.dot` and `docs/explanation/cd-stack.md` cite Definitions, Theorems, Propositions, Remarks and Sections by number, and each cited number has a `// cites: <Kind> <n.m> = <title start>` line in `cd_stack.dot`. Inserting a numbered statement in Section 2 or 3 shifts the numbers; `scripts/check_stack_citations.py` then fails because a header no longer matches its title. Fix the numbers and the `cites:` lines, regenerate, rebuild.
-- **CI triggers are path-filtered.** `ci.yml` runs on pushes and pull requests to `main`. `notebooks.yml` runs on `notebooks/**`, `src/**`, `scripts/validate_notebook.py`, `pyproject.toml`, `uv.lock`; `figures.yml` on `figures/**`, `src/**`, `pyproject.toml`, `uv.lock`; `paper.yml` on `paper/**`, `scripts/check_paper_artifact.py`, `scripts/check_stack_citations.py` and itself; `docs.yml` on `docs/**`, `zensical.toml` and itself.
+- **CI triggers are path-filtered.** `ci.yml` runs on pushes and pull requests to `main`. `notebooks.yml` runs on `notebooks/**`, `src/**`, `scripts/validate_notebook.py`, `pyproject.toml`, `uv.lock`; `figures.yml` on `figures/**`, `src/**`, `pyproject.toml`, `uv.lock`; `paper.yml` on `paper/**`, `scripts/check_paper_artifact.py`, `scripts/check_stack_citations.py`, `docs/explanation/cd-stack.md`, `docs/assets/cd-stack.svg` and itself; `docs.yml` on `docs/**`, `zensical.toml` and itself.
 - **CodeQL is advanced setup, not default.** `codeql.yml` emits the check `codeql` (the job key), not `Analyze (python)` (the SARIF-upload-side check, which never fires on Dependabot PRs because their `GITHUB_TOKEN` is read-only). The check is not currently in the ruleset's required list, but keep the job key stable, and if someone toggles GitHub's default CodeQL setup on, it silently disables `codeql.yml` — restore advanced setup via the Actions UI or API.
 
 ## Conventions
@@ -153,7 +154,7 @@ Seven workflows. The org ruleset on `main` requires five checks — `lint`, `typ
 | Semgrep | `semgrep.yml` | Emits **`semgrep`** (required). Runs `p/python` + `p/owasp-top-ten`. |
 | Notebook Validation | `notebooks.yml` | Executes `cd_pde_demo.ipynb` from a fresh kernel, validates it with `scripts/validate_notebook.py` (fail-closed), lints via nbqa (fail-closed). |
 | Figure Validation | `figures.yml` | Runs `generate_figures.py`, requires the `ALL_FIGURES_OK` marker (every solve converged), verifies all 14 PNG+PDF files exist. |
-| Paper | `paper.yml` | Rebuilds the PDF with `paper/build_paper.sh` in the pinned TeX Live image (digest + fixed `SOURCE_DATE_EPOCH`, byte-reproducible), fails on unresolved references, and requires the committed PDF to be byte-identical to the rebuild (`scripts/check_paper_artifact.py`; on mismatch it prints an order-preserving text diff and a page render comparison). |
+| Paper | `paper.yml` | Re-renders the stack diagram with `paper/build_figures.sh check` in its pinned image and requires the committed SVGs and figure PDFs to be byte-identical; then rebuilds the PDF from the re-rendered figures with `paper/build_paper.sh` in the pinned TeX Live image (digest + fixed `SOURCE_DATE_EPOCH`, byte-reproducible), fails on unresolved references, and requires the committed PDF to be byte-identical to the rebuild (`scripts/check_paper_artifact.py`; on mismatch it prints an order-preserving text diff and a page render comparison). |
 | Docs | `docs.yml` | Builds the zensical site on PRs and deploys it on pushes to main. |
 
 ## When adding new code

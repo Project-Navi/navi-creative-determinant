@@ -1,10 +1,14 @@
-"""The stack diagram has one source and its rendered outputs must be current.
+"""The stack diagram has one source and its rendered outputs must be the render of it.
 
-``paper/cd_stack.dot`` is the single source of the docs diagram and of the two paper figures.
-The renderer (``paper/stack_figures.py``) writes the SHA-256 of the source into the SVG it
-produces, so an edit to the source without a regeneration is detectable without graphviz;
-the two paper figure PDFs are written by the same run. These tests also check that the
-source has the structure the renderer relies on (the five clusters and edges whose endpoints
+``paper/cd_stack.dot`` is the single source of the docs diagram and of the two paper figures,
+rendered by ``paper/stack_figures.py``. The outputs are verified by generation:
+``paper/build_figures.sh check`` (paper workflow) re-renders all four in the pinned image of
+``paper/figures.Dockerfile`` and requires the committed copies to be byte-identical, and the paper
+is built from the re-rendered figures. The tests here keep that check wired to every output, to a
+pinned environment and to the paper build, and run two quick checks that need no renderer: the
+SVG ends with the SHA-256 of the source, which catches a source edit committed without a new
+render (it says nothing about the renderer or the environment), and the two SVG copies agree.
+They also check that the source has the structure the renderer relies on (the five clusters and edges whose endpoints
 are defined nodes), that Figure 2 draws the feedback path from the fields and the closure
 back to the eigenvalue, and that ``scripts/check_stack_citations.py`` rejects a renumbered
 or retitled statement header (including a title shortened or lengthened past the entry of
@@ -28,7 +32,45 @@ def _load_renderer(repo_root):
     return module
 
 
-class TestRenderedOutputsAreCurrent:
+class TestGenerationCheck:
+    """``paper/build_figures.sh check`` compares every output, in a pinned environment, and the
+    paper workflow builds the paper from the render it checked."""
+
+    OUTPUTS = {
+        "paper/cd_stack.svg",
+        "docs/assets/cd-stack.svg",
+        "paper/cd_stack_core.pdf",
+        "paper/cd_stack_loop.pdf",
+    }
+
+    def test_every_output_is_compared(self, repo_root):
+        script = (repo_root / "paper" / "build_figures.sh").read_text(encoding="utf-8")
+        match = re.search(r"^OUTPUTS=\(([^)]*)\)$", script, re.M)
+        assert match and set(match.group(1).split()) == self.OUTPUTS
+
+    def test_the_environment_is_pinned(self, repo_root):
+        """Base image by digest, packages from a dated Debian snapshot, the two brand fonts by
+        SHA-256."""
+        dockerfile = (repo_root / "paper" / "figures.Dockerfile").read_text(encoding="utf-8")
+        assert re.search(r"^FROM \S+@sha256:[0-9a-f]{64}$", dockerfile, re.M)
+        assert re.search(r"snapshot\.debian\.org/archive/debian/\d{8}T\d{6}Z", dockerfile)
+        assert "deb.debian.org" not in dockerfile
+        assert len(re.findall(r"^ADD .*--checksum=sha256:[0-9a-f]{64}", dockerfile, re.M)) == 2
+
+    def test_the_paper_is_built_from_the_checked_render(self, repo_root):
+        workflow = (repo_root / ".github" / "workflows" / "paper.yml").read_text(encoding="utf-8")
+        check = "paper/build_figures.sh check build/figures"
+        build = "paper/build_paper.sh build build/figures/paper"
+        assert check in workflow and build in workflow
+        assert workflow.index(check) < workflow.index(build)
+        # a change to the docs copy alone also runs the workflow (push and pull_request)
+        assert workflow.count("- 'docs/assets/cd-stack.svg'") == 2
+
+
+class TestQuickOutputChecks:
+    """Checks that need no renderer. They catch a forgotten render; they do not show that the
+    outputs are the render of the current source, renderer and environment."""
+
     def test_svgs_carry_the_source_hash(self, repo_root):
         """Both SVG copies end with the SHA-256 of the current source."""
         source = (repo_root / "paper" / "cd_stack.dot").read_bytes()

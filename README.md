@@ -42,14 +42,14 @@ Lean 4 against Mathlib v4.34.1; the submodule `cd_formalization/` is pinned at `
 
 ## Building
 
-Requires Python 3.10+ and [uv](https://docs.astral.sh/uv/); the paper build requires Docker, the diagram build graphviz, the Lean build [elan](https://github.com/leanprover/elan).
+Requires Python 3.10+ and [uv](https://docs.astral.sh/uv/); the paper and diagram builds require Docker, the Lean build [elan](https://github.com/leanprover/elan).
 
 ```bash
 uv sync
 uv run pytest tests/ -v
 uv run jupyter lab notebooks/
 uv run python figures/generate_figures.py
-make -C paper                                   # stack diagram (Figures 1-2, docs)
+make -C paper                                   # stack diagram (Figures 1-2, docs), in a pinned image
 paper/build_paper.sh                            # writes paper/build/creative_determinant.pdf
 cd cd_formalization && lake build --wfail       # fails on any warning, including sorry
 ```

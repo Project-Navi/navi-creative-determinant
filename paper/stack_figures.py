@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Render the Creative Determinant stack diagram from the single source ``cd_stack.dot``.
 
-Outputs (all deterministic; graphviz honours ``SOURCE_DATE_EPOCH``):
+Outputs, written under the directory given by ``--out`` at the paths they have in the
+repository (graphviz honours ``SOURCE_DATE_EPOCH``):
 
 * ``paper/cd_stack.svg`` and ``docs/assets/cd-stack.svg`` — the full diagram in the brand
   palette used by the documentation site (dark background, light text, teal accent);
@@ -13,13 +14,19 @@ The source file is parsed by its cluster markers (``// ---------- NAME ---------
 figure is a subset of clusters; cross-layer edges are kept only when both endpoints are in
 the subset. The print palette is a fixed substitution of the brand colours, so the two
 themes never drift apart in content. The SVG gets a trailing comment with the SHA-256 of
-the source so that a repository test can tell when the outputs are stale.
+the source, which catches a source edit committed without a new render; it says nothing
+about the renderer or the environment.
 
-Usage: python3 paper/stack_figures.py   (run from anywhere; paths are relative to this file)
+The outputs are byte-reproducible only in a fixed environment (Graphviz, cairo, pango and the
+fonts): ``paper/build_figures.sh`` runs this script in the image of ``paper/figures.Dockerfile``
+and installs (``make -C paper``) or checks (``make -C paper check``) the outputs.
+
+Usage: python3 paper/stack_figures.py --out DIR
 """
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import os
 import pathlib
@@ -28,9 +35,7 @@ import subprocess
 import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
-ROOT = HERE.parent
 SOURCE = HERE / "cd_stack.dot"
-DOCS_SVG = ROOT / "docs" / "assets" / "cd-stack.svg"
 DOCS_PAD = "-Gpad=0.3"
 EPOCH = "1767225600"  # 2026-01-01T00:00:00Z, the same fixed date as paper/build_paper.sh
 
@@ -262,11 +267,17 @@ def render(dot_text: str, fmt: str, out: pathlib.Path, *options: str) -> None:
     )
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Render the stack diagram from cd_stack.dot.")
+    parser.add_argument("--out", required=True, type=pathlib.Path, help="root of the output tree")
+    out = parser.parse_args(argv).out
+    paper, docs = out / "paper", out / "docs" / "assets"
+    paper.mkdir(parents=True, exist_ok=True)
+    docs.mkdir(parents=True, exist_ok=True)
     source = SOURCE.read_text(encoding="utf-8")
     digest = hashlib.sha256(source.encode("utf-8")).hexdigest()
     # Full diagram, brand palette, for the docs site (and a copy next to the source).
-    svg_path = HERE / "cd_stack.svg"
+    svg_path = paper / "cd_stack.svg"
     # padding keeps edge labels at the outer edges inside the viewBox
     render(strip_plabels(source), "svg", svg_path, DOCS_PAD)
     svg = (
@@ -274,13 +285,12 @@ def main() -> int:
         + f"\n<!-- source: cd_stack.dot sha256 {digest} -->\n"
     )
     svg_path.write_text(svg, encoding="utf-8")
-    DOCS_SVG.parent.mkdir(parents=True, exist_ok=True)
-    DOCS_SVG.write_text(svg, encoding="utf-8")
+    (docs / "cd-stack.svg").write_text(svg, encoding="utf-8")
     # Paper figures, print palette.
     for name, (keep, context, title) in FIGURES.items():
         dot_text = print_theme(subset(source, keep, context, title))
-        (HERE / f"cd_stack_{name}.dot.generated").write_text(dot_text, encoding="utf-8")
-        render(dot_text, "pdf", HERE / f"cd_stack_{name}.pdf")
+        (paper / f"cd_stack_{name}.dot.generated").write_text(dot_text, encoding="utf-8")
+        render(dot_text, "pdf", paper / f"cd_stack_{name}.pdf")
     print(
         f"rendered cd_stack.svg, docs/assets/cd-stack.svg, cd_stack_core.pdf, cd_stack_loop.pdf (source sha256 {digest[:12]})"
     )

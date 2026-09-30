@@ -1,11 +1,14 @@
-# The stack diagram: one source (cd_stack.dot) rendered as the brand-themed SVG for the docs
-# site and as the two print-palette figures of the paper. Needs graphviz (dot) and python3.
-# Rebuild the paper afterwards (paper/build_paper.sh); the figure PDFs are inputs to it.
+# The stack diagram: one source (cd_stack.dot) rendered by stack_figures.py as the brand-themed SVG
+# for the docs site and as the two print-palette figures of the paper, in the pinned environment of
+# figures.Dockerfile (needs docker; see build_figures.sh). Rebuild the paper afterwards
+# (paper/build_paper.sh); the figure PDFs are inputs to it.
 
+# render and install the four outputs
 all:
-	python3 stack_figures.py
+	./build_figures.sh update
 
-clean:
-	rm -f cd_stack.svg cd_stack_core.pdf cd_stack_loop.pdf cd_stack_core.dot.generated cd_stack_loop.dot.generated ../docs/assets/cd-stack.svg
+# render into a temporary directory and require the committed outputs to be identical
+check:
+	./build_figures.sh check
 
-.PHONY: all clean
+.PHONY: all check

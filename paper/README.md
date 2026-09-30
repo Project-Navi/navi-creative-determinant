@@ -28,17 +28,23 @@ image (`texlive/texlive:TL2025-historic`, by digest) with a fixed `SOURCE_DATE_E
 paper/build_paper.sh                              # needs docker; writes paper/build/creative_determinant.pdf
 cp paper/build/creative_determinant.pdf paper/    # commit the rebuilt PDF together with the source change
 python3 scripts/check_paper_artifact.py paper/creative_determinant.pdf paper/build/creative_determinant.pdf
-make -C paper                                     # stack diagram: cd_stack.dot -> docs SVG and the two figure PDFs (needs graphviz, python3)
+make -C paper                                     # stack diagram: cd_stack.dot -> docs SVG and the two figure PDFs, in a pinned image (needs docker)
+make -C paper check                               # render into a temporary directory and require the committed outputs to be identical
 latexmk -pdf -cd paper/creative_determinant.tex   # quick local preview with your own TeX Live (not the committed artifact)
 ```
 
 `make -C paper` renders `cd_stack.dot` through `stack_figures.py` into the paper's stack figures
-and the documentation-site SVG; rebuild the paper after regenerating them.
+and the documentation-site SVG, in the image of `figures.Dockerfile` (Graphviz, cairo and fonts
+pinned: base image by digest, packages from a fixed Debian snapshot, fonts by SHA-256), and copies
+the four outputs into place; rebuild the paper after regenerating them. A change to the source,
+the renderer or the Dockerfile changes the outputs.
 
-CI (`paper.yml`) fails unless the committed PDF is byte-identical to a rebuild in the same image
+CI (`paper.yml`) re-renders the four diagram outputs in that image and fails unless the committed
+copies are byte-identical (`build_figures.sh check`); it then builds the paper from the
+re-rendered figures and fails unless the committed PDF is byte-identical to that build
 (`scripts/check_paper_artifact.py`) and every statement the diagram cites has a matching header
-in it (`scripts/check_stack_citations.py`). On a mismatch it prints a text diff and a page-by-page
-render comparison.
+in it (`scripts/check_stack_citations.py`). On a PDF mismatch it prints a text diff and a
+page-by-page render comparison.
 
 ## Citation
 

@@ -9,7 +9,8 @@
 // text used in the paper figures, whose captions and surrounding text carry the details.
 // The other `p` attributes (plabeljust, ptailport, pconstraint) likewise apply only to the
 // paper figures, whose node order differs from the docs layout.
-// Regenerate with `make -C paper` after editing (needs graphviz and python3).
+// Regenerate with `make -C paper` after editing (renders in the pinned image of
+// paper/figures.Dockerfile; needs docker), then rebuild the paper.
 //
 // Styling follows the Project Navi brand guide (background #141414, text #e8e4de, accent
 // #7eb8a8; tiers #7eb8a8 positive, #d4a574 neutral, #9a958e muted), as in the
