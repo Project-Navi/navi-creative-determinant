@@ -100,7 +100,7 @@ This is a research seed, not a finished theory. The goal is for knowledge to flo
 
 **Other contributors**: Andrew Edmark (@aedmark) proposed the finite-graph formulation and its proof route (finite-dimensional inverse positivity and positive principal eigendata, then the order-theoretic fixed-point core). Yongxi (Aaron) Lin suggested the bornological form of `PDEInfra.T_compact` on the Lean Zulip.
 
-**What AI tools did**: Claude Opus assisted with the Python numerics, the tests, the notebook and the documentation; with Lean 4 syntax, Mathlib API navigation and proof term synthesis, including the finite-graph development; and in the 2026 revision with writing the repaired proofs and the counterexample and checking the classical sources. Aristotle (Harmonic) proved algebraic leaf lemmas by automated proof search.
+**What AI tools did**: AI tools assisted with the numerics, tests, notebook, documentation and Lean development, and with the 2026 mathematical review and reconstruction of the proofs.
 
 ---
 
@@ -115,7 +115,7 @@ I've carried this as far as I could alone. African wisdom provides our community
 
 ## License and Ethical Use
 
-Copyright 2026 Nelson Spence. Licensed under **[Apache 2.0](LICENSE)**: use, modification and redistribution, including commercial use, with the copyright notices and the LICENSE file preserved.
+Copyright 2025-2026 Nelson Spence. Licensed under **[Apache 2.0](LICENSE)**: use, modification and redistribution, including commercial use, with the copyright notices and the LICENSE file preserved.
 
 ### Ethical Covenant (Voluntary)
 

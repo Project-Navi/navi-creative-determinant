@@ -4,7 +4,7 @@ Everyone who has contributed to the Creative Determinant framework.
 
 ## Founder
 
-- **Nelson Spence** — Framework conception, mathematical formalization, numerical implementation, documentation
+- **Nelson Spence** — Framework conception and the original mathematics; direction of the 2026 revision, the numerics and the documentation, and responsibility for the final claims
 
 ## Theoretical Contributors
 

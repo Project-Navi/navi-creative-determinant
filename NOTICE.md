@@ -1,5 +1,5 @@
 Creative Determinant Framework
-Copyright 2026 Nelson Spence / Project Navi LLC
+Copyright 2025-2026 Nelson Spence / Project Navi LLC
 
 Licensed under the Apache License, Version 2.0 (the "License").
 See LICENSE file for full terms.
