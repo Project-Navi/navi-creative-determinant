@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "creative-determinant"
-version = "0.1.0"
+version = "1.2.0.dev0"
 description = "A field theory of coherence and meaning: nonlinear elliptic PDEs for presence emergence"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -52,7 +52,7 @@ docs = [
 
 [project.urls]
 Homepage = "https://projectnavi.ai"
-Documentation = "https://github.com/Project-Navi/navi-creative-determinant"
+Documentation = "https://docs.projectnavi.ai/navi-creative-determinant/"
 Repository = "https://github.com/Project-Navi/navi-creative-determinant"
 Issues = "https://github.com/Project-Navi/navi-creative-determinant/issues"
 
@@ -63,7 +63,7 @@ packages = ["src/cd"]
 # everything not ignored by the root .gitignore, including the Lean submodule's .lake/ build
 # cache (over 100 MB), figures, notebooks, the paper and local tool state.
 [tool.hatch.build.targets.sdist]
-only-include = ["src/cd", "tests", "README.md", "LICENSE.md", "NOTICE.md", "CITATION.cff"]
+only-include = ["src/cd", "tests", "README.md", "LICENSE", "NOTICE.md", "CITATION.cff"]
 # tests/repo holds repository-artefact tests (scripts/, notebooks/, paper/); they need a full checkout.
 exclude = ["tests/repo"]
 

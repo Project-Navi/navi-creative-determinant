@@ -12,9 +12,10 @@ Mathematical status
 * The threshold ``β* = (π/L)²/b`` for ``b > 0`` is the Lean lemma ``viabilityThreshold_lt_iff``
   (``β > β*`` iff ``(π/L)² - βb < 0``); the identification of that expression with the principal
   eigenvalue is classical and not formalized.
-* ``λ₁ < 0`` is sufficient for a positive solution (paper Theorem 3.16). It is also necessary
-  when ``a ≡ 0`` (paper Proposition on the exact threshold); with a gradient term it is not
-  necessary in general (a finite-graph counterexample is in ``cd.graph``).
+* Theorem 3.16: ``λ₁ < 0`` is sufficient for a positive solution. Proposition 3.19: it is also
+  necessary when ``a ≡ 0`` (the exact threshold). Propositions 3.21 and 3.32: with a gradient
+  term it is not necessary in general; 3.21 gives a positive continuum solution below the linear
+  threshold, 3.32 the finite-graph counterexample implemented in ``cd.graph``.
 """
 
 from __future__ import annotations
@@ -69,6 +70,14 @@ def _positive_unit_vector(v: np.ndarray) -> np.ndarray:
     return phi / m
 
 
+def _principal_interior(A: csr_matrix, q: float | np.ndarray, n: int) -> tuple[float, np.ndarray]:
+    """Smallest eigenvalue of ``A - diag(q)`` and its positive unit eigenvector on the flat
+    interior (length ``n``); the callers place it on their own full grid."""
+    M = (A - diags([q * np.ones(n)], [0], format="csr")).tocsr()
+    lam, v = _smallest_eigenpair(M)
+    return lam, _positive_unit_vector(v)
+
+
 def principal_eigenpair_1d(
     N: int, L: float, beta_b: float | np.ndarray
 ) -> tuple[float, np.ndarray]:
@@ -99,10 +108,9 @@ def principal_eigenpair_1d(
         if arr.shape == (N + 2,):
             beta_b = arr[1:-1]
     q = _potential("beta_b", beta_b, N)
-    M = (A - diags([q * np.ones(N)], [0], format="csr")).tocsr()
-    lam, v = _smallest_eigenpair(M)
+    lam, v = _principal_interior(A, q, N)
     phi = np.zeros(N + 2)
-    phi[1:-1] = _positive_unit_vector(v)
+    phi[1:-1] = v
     return lam, phi
 
 
@@ -114,8 +122,9 @@ def principal_eigenvalue_1d(
     """
     Compute principal eigenvalue of (-Δ - βb) on (0, L) with Dirichlet BC.
 
-    For constant b, the discrete value is exactly ``(4/h²) sin²(πh/(2L)) - βb`` with
-    ``h = L/(N+1)``, and the continuum value is ``λ₁ = (π/L)² - βb``.
+    Theorem (closed form for the tridiagonal matrix): for constant b the discrete value is
+    exactly ``(4/h²) sin²(πh/(2L)) - βb`` with ``h = L/(N+1)``. The continuum value is
+    ``λ₁ = (π/L)² - βb`` (Definition 3.13), approached at second order in ``h``.
 
     Parameters
     ----------
@@ -136,7 +145,7 @@ def principal_eigenvalue_1d(
     The viability threshold occurs at β* where λ₁ = 0:
         β* = (π/L)² / b   (for b > 0)
 
-    - λ₁ > 0: below threshold; for a ≡ 0 only the zero solution exists
+    - λ₁ > 0: below threshold; for a ≡ 0 only the zero solution exists (Proposition 3.19)
     - λ₁ < 0: above threshold; a positive solution exists (Theorem 3.16)
 
     Example
@@ -182,10 +191,9 @@ def principal_eigenpair_2d(
         elif arr.shape == (Ny, Nx):
             beta_b = arr.reshape(-1)
     q = _potential("beta_b", beta_b, n)
-    M = (A - diags([q * np.ones(n)], [0], format="csr")).tocsr()
-    lam, v = _smallest_eigenpair(M)
+    lam, v = _principal_interior(A, q, n)
     Phi = np.zeros((Ny + 2, Nx + 2))
-    Phi[1:-1, 1:-1] = _positive_unit_vector(v).reshape(Ny, Nx)
+    Phi[1:-1, 1:-1] = v.reshape(Ny, Nx)
     return lam, Phi
 
 
@@ -199,9 +207,10 @@ def principal_eigenvalue_2d(
     """
     Compute principal eigenvalue of (-Δ - βb) on rectangle with Dirichlet BC.
 
-    For constant b on [0,Lx] × [0,Ly], the continuum value is
+    For constant b on [0,Lx] × [0,Ly], the continuum value (Definition 3.13) is
         λ₁ = π²(1/Lx² + 1/Ly²) - βb,
-    and the discrete value is the sum of the two one-dimensional discrete eigenvalues minus βb.
+    and, by the Kronecker structure of the operator (Theorem: separable eigenvectors), the
+    discrete value is the sum of the two one-dimensional discrete eigenvalues minus βb.
 
     Parameters
     ----------
@@ -268,10 +277,9 @@ def principal_eigenpair_3d(
                 f"in (z, y, x) layout; got {arr.shape}"
             )
     q = _potential("beta_b", beta_b, n)
-    M = (A - diags([q * np.ones(n)], [0], format="csr")).tocsr()
-    lam, v = _smallest_eigenpair(M)
+    lam, v = _principal_interior(A, q, n)
     Phi = np.zeros((Nz + 2, Ny + 2, Nx + 2))
-    Phi[1:-1, 1:-1, 1:-1] = _positive_unit_vector(v).reshape(Nz, Ny, Nx)
+    Phi[1:-1, 1:-1, 1:-1] = v.reshape(Nz, Ny, Nx)
     return lam, Phi
 
 
@@ -279,8 +287,10 @@ def principal_eigenvalue_3d(
     Nx: int, Ny: int, Nz: int, Lx: float, Ly: float, Lz: float, beta_b: float | np.ndarray
 ) -> float:
     """Principal eigenvalue of (-Δ - q) on a box with Dirichlet BC; see ``principal_eigenpair_3d``
-    for the array convention. For constant q the value is the sum of the three 1D discrete
-    eigenvalues minus q, i.e. ``Σ (4/h²) sin²(πh/(2L)) - q``."""
+    for the array convention. Theorem (Kronecker structure, separable eigenvectors): for
+    constant q the value is the sum of the three 1D discrete eigenvalues minus q, i.e.
+    ``Σ (4/h²) sin²(πh/(2L)) - q``. This is the 3D eigenvalue illustration, a model distinct
+    from the 1D/2D continuum solvers and from the finite-graph model."""
     lam, _ = principal_eigenpair_3d(Nx, Ny, Nz, Lx, Ly, Lz, beta_b)
     return lam
 
@@ -305,7 +315,8 @@ def viability_threshold_1d(L: float, b: float) -> float:
     ------
     ValueError
         If ``L <= 0`` or ``b <= 0``. For ``b <= 0`` the operator ``-Δ - βb`` has
-        ``λ₁ >= (π/L)² > 0`` for every ``β >= 0``: there is no threshold to cross.
+        ``λ₁ >= (π/L)² > 0`` for every ``β >= 0`` (Theorem: ``λ₁`` is nonincreasing in the
+        potential, so ``λ₁(-Δ - βb) >= λ₁(-Δ)``): there is no threshold to cross.
 
     Notes
     -----
@@ -314,8 +325,8 @@ def viability_threshold_1d(L: float, b: float) -> float:
     computed eigenvalue (``principal_eigenvalue_1d`` with the field); the constant-coefficient
     threshold of a reference level such as ``κγ`` is then only a scale for choosing β.
 
-    For β < β*: λ₁ > 0 (for a ≡ 0 only the zero solution)
-    For β > β*: λ₁ < 0 (a positive solution exists)
+    For β < β*: λ₁ > 0 (for a ≡ 0 only the zero solution, Proposition 3.19)
+    For β > β*: λ₁ < 0 (a positive solution exists, Theorem 3.16)
     """
     L = check_positive_scalar("L", L)
     b = check_finite_scalar("b", b)

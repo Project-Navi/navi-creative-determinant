@@ -9,6 +9,14 @@ Provides utilities for constructing the characteristic fields:
 
 import numpy as np
 
+from ._validation import (
+    check_finite_array,
+    check_finite_scalar,
+    check_nonnegative_scalar,
+    check_positive_scalar,
+    check_unit_interval_scalar,
+)
+
 
 def viability_canonical(
     kappa: float,
@@ -28,17 +36,26 @@ def viability_canonical(
     gamma : float
         Coherence intensity ∈ [0, 1].
     mu : ndarray
-        Contradiction field ∈ [0, 1].
+        Contradiction field. The model takes values in [0, 1]; ``mu`` is converted to a float
+        array and only its finiteness is checked (no range check, no clipping).
     lam : float
-        Contradiction cost parameter λ > 0.
+        Contradiction cost parameter λ ≥ 0 (λ = 0 switches the contradiction cost off).
 
     Returns
     -------
     b : ndarray
         Viability potential (same shape as mu).
 
+    Raises
+    ------
+    ValueError
+        If ``kappa`` or ``gamma`` is not a real number in ``[0, 1]`` or ``lam`` is not a finite
+        real number ``>= 0`` (for these scalars strings, bools and NaN are rejected), or ``mu``
+        has a nonfinite entry after conversion to a float array.
+
     Notes
     -----
+    Heuristic (a modelling choice, paper Definition 3.3, the canonical closure; not a theorem).
     The canonical closure encodes:
     - κγ: baseline support from care × coherence
     - λμ: cost imposed by contradiction
@@ -46,12 +63,10 @@ def viability_canonical(
     When b(x) > 0: local viability supports presence
     When b(x) < 0: local environment hostile to presence
     """
-    if not (0 <= kappa <= 1):
-        raise ValueError(f"Care kappa must be in [0, 1], got kappa={kappa}")
-    if not (0 <= gamma <= 1):
-        raise ValueError(f"Coherence gamma must be in [0, 1], got gamma={gamma}")
-    if lam < 0:
-        raise ValueError(f"Contradiction cost lam must be >= 0, got lam={lam}")
+    kappa = check_unit_interval_scalar("kappa", kappa)
+    gamma = check_unit_interval_scalar("gamma", gamma)
+    lam = check_nonnegative_scalar("lam", lam)
+    mu = check_finite_array("mu", mu)
     return kappa * gamma - lam * mu
 
 
@@ -72,25 +87,31 @@ def creative_drive(
     gamma : float
         Coherence intensity.
     mu : ndarray
-        Contradiction field.
+        Contradiction field, converted to a float array; only its finiteness is checked.
 
     Returns
     -------
     a : ndarray
         Creative drive (same shape as mu).
 
+    Raises
+    ------
+    ValueError
+        If ``kappa`` or ``gamma`` is not a real number in ``[0, 1]`` (strings, bools and NaN
+        are rejected), or ``mu`` has a nonfinite entry after conversion to a float array.
+
     Notes
     -----
+    Heuristic (a modelling choice; the interpretation below is not a theorem).
     The gradient term a|∇Φ| contributes to presence
     where all three fields jointly support activity.
     Creative drive requires contradiction to be present
     (μ > 0) — creativity emerges from engaging with
     contradictions, not avoiding them.
     """
-    if not (0 <= kappa <= 1):
-        raise ValueError(f"Care kappa must be in [0, 1], got kappa={kappa}")
-    if not (0 <= gamma <= 1):
-        raise ValueError(f"Coherence gamma must be in [0, 1], got gamma={gamma}")
+    kappa = check_unit_interval_scalar("kappa", kappa)
+    gamma = check_unit_interval_scalar("gamma", gamma)
+    mu = check_finite_array("mu", mu)
     return kappa * gamma * mu
 
 
@@ -126,15 +147,20 @@ def gaussian_bump_2d(
     Raises
     ------
     ValueError
-        If ``sigma`` is non-positive.
+        If ``sigma`` is not a positive finite number, ``x0``, ``y0`` or ``amplitude`` is not a
+        finite number, or ``X`` / ``Y`` has a nonfinite entry.
 
     Example
     -------
     >>> X, Y = np.meshgrid(np.linspace(0, 1, 50), np.linspace(0, 1, 50))
     >>> mu = gaussian_bump_2d(X, Y, 0.5, 0.5, 0.1)  # Contradiction at center
     """
-    if sigma <= 0:
-        raise ValueError(f"sigma must be positive, got sigma={sigma}")
+    X = check_finite_array("X", X)
+    Y = check_finite_array("Y", Y)
+    x0 = check_finite_scalar("x0", x0)
+    y0 = check_finite_scalar("y0", y0)
+    sigma = check_positive_scalar("sigma", sigma)
+    amplitude = check_finite_scalar("amplitude", amplitude)
     r2 = (X - x0) ** 2 + (Y - y0) ** 2
     return amplitude * np.exp(-r2 / (2 * sigma**2))
 
@@ -169,72 +195,11 @@ def gaussian_bump_1d(
     Raises
     ------
     ValueError
-        If ``sigma`` is non-positive.
+        If ``sigma`` is not a positive finite number, ``center`` or ``amplitude`` is not a
+        finite number, or ``x`` has a nonfinite entry.
     """
-    if sigma <= 0:
-        raise ValueError(f"sigma must be positive, got sigma={sigma}")
+    x = check_finite_array("x", x)
+    center = check_finite_scalar("center", center)
+    sigma = check_positive_scalar("sigma", sigma)
+    amplitude = check_finite_scalar("amplitude", amplitude)
     return amplitude * np.exp(-((x - center) ** 2) / (2 * sigma**2))
-
-
-def constant_field(shape: tuple[int, ...], value: float) -> np.ndarray:
-    """
-    Create a constant field.
-
-    Parameters
-    ----------
-    shape : tuple
-        Output shape.
-    value : float
-        Constant value.
-
-    Returns
-    -------
-    field : ndarray
-        Constant array.
-    """
-    return np.full(shape, value)
-
-
-def linear_gradient_1d(N: int, v0: float, v1: float) -> np.ndarray:
-    """
-    Create a linear gradient in 1D (interior points only).
-
-    Parameters
-    ----------
-    N : int
-        Number of interior points.
-    v0, v1 : float
-        Values at left and right boundaries.
-
-    Returns
-    -------
-    field : ndarray
-        Linear interpolation, shape (N,).
-    """
-    return np.linspace(v0, v1, N + 2)[1:-1]
-
-
-def step_function_1d(N: int, x_step: float, L: float, v_left: float, v_right: float) -> np.ndarray:
-    """
-    Create a step function in 1D (interior points only).
-
-    Parameters
-    ----------
-    N : int
-        Number of interior points.
-    x_step : float
-        Location of step.
-    L : float
-        Domain length.
-    v_left : float
-        Value for x < x_step.
-    v_right : float
-        Value for x >= x_step.
-
-    Returns
-    -------
-    field : ndarray
-        Step function, shape (N,).
-    """
-    x = np.linspace(0, L, N + 2)[1:-1]
-    return np.where(x < x_step, v_left, v_right)

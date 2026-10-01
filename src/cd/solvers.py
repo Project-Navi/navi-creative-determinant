@@ -51,7 +51,7 @@ from ._validation import (
     coefficient_2d,
     require_positive_coefficient,
 )
-from .analysis import classify_branch
+from .analysis import _monotone_label, classify_branch
 from .analysis import linfty_bound as _linfty_bound
 from .eigenvalues import principal_eigenpair_1d
 from .operators import laplacian_1d_dirichlet, laplacian_2d_dirichlet
@@ -69,10 +69,12 @@ def _check_tolerances(
 
 
 def _plateau_level(q: float | np.ndarray, c: float | np.ndarray, p: float) -> float:
-    """Smallest ``M >= 1`` with ``c M^{p-1} >= q_+`` everywhere (supersolution level)."""
-    q_plus = float(np.max(np.maximum(q, 0.0)))
-    c_min = float(np.min(c))
-    return max(1.0, (q_plus / c_min) ** (1.0 / (p - 1.0)))
+    """Smallest ``M >= 1`` with ``c M^{p-1} >= q_+`` everywhere (supersolution level).
+
+    This is the L∞ reference level ``(max(q)_+ / min(c))^{1/(p-1)}`` of ``linfty_bound``
+    (``0`` when ``q <= 0`` everywhere), floored at ``1``.
+    """
+    return max(1.0, _linfty_bound(q, c, p))
 
 
 def _auto_shift(q: float | np.ndarray, c: float | np.ndarray, p: float, M: float) -> float:
@@ -152,18 +154,6 @@ def barriers_1d(
         "sup": sup,
         "K": _auto_shift(q, c_i, p, M),
     }
-
-
-def _monotone_label(min_step: float, max_step: float, tol: float) -> str:
-    nondecreasing = min_step >= -tol
-    nonincreasing = max_step <= tol
-    if nondecreasing and nonincreasing:
-        return "constant"
-    if nondecreasing:
-        return "nondecreasing"
-    if nonincreasing:
-        return "nonincreasing"
-    return "non-monotone"
 
 
 def _picard_loop(
@@ -282,8 +272,26 @@ def _attach_bound(info: dict[str, Any], beta_b, c, p: float, a_is_zero: bool) ->
         warnings.warn(
             f"Converged field max(Phi)={info['maxPhi']:.6g} exceeds the discrete maximum-principle "
             f"bound K={K:.6g} for a = 0; this indicates a numerical defect.",
-            stacklevel=3,
+            stacklevel=4,
         )
+
+
+def _finalize(
+    Phi: np.ndarray,
+    Phi_int: np.ndarray,
+    info: dict[str, Any],
+    q: float | np.ndarray,
+    c: float | np.ndarray,
+    p: float,
+    a: float | np.ndarray,
+) -> None:
+    """Shared tail of both solvers: boundary and amplitude diagnostics, the branch label and
+    the L∞ reference bound. ``Phi`` is the full-grid field, ``Phi_int`` its flat interior."""
+    info["boundary_err"] = 0.0
+    info["maxPhi"] = float(np.max(Phi)) if np.all(np.isfinite(Phi)) else float("nan")
+    info["min_interior"] = float(np.min(Phi_int)) if np.all(np.isfinite(Phi_int)) else float("nan")
+    info["branch"] = classify_branch(Phi, info)
+    _attach_bound(info, q, c, p, a_is_zero=bool(np.all(np.asarray(a) == 0.0)))
 
 
 def _require_nonnegative_initial(arr: np.ndarray) -> None:
@@ -314,6 +322,37 @@ def _initial_1d(
         raise ValueError(f"initial_guess must have length {N} or {N + 2}, got shape {arr.shape}")
     _require_nonnegative_initial(arr)
     return arr.copy()
+
+
+def _initial_2d(
+    initial_guess,
+    Nx: int,
+    Ny: int,
+    X: np.ndarray,
+    Y: np.ndarray,
+    Lx: float,
+    Ly: float,
+    initial_amplitude: float,
+) -> np.ndarray:
+    if initial_guess is None:
+        amp = check_nonnegative_scalar("initial_amplitude", initial_amplitude)
+        Phi0 = amp * np.sin(np.pi * X / Lx) * np.sin(np.pi * Y / Ly)
+        return Phi0[1:-1, 1:-1].reshape(-1).copy()
+    if isinstance(initial_guess, str):
+        raise ValueError(
+            f"initial_guess must be None or an array of shape ({Ny}, {Nx}) or "
+            f"({Ny + 2}, {Nx + 2}); the 2D solver has no named barriers, got {initial_guess!r}"
+        )
+    arr = check_finite_array("initial_guess", initial_guess)
+    if arr.shape == (Ny + 2, Nx + 2):
+        arr = arr[1:-1, 1:-1]
+    elif arr.shape != (Ny, Nx):
+        raise ValueError(
+            f"initial_guess must have shape ({Ny}, {Nx}) or ({Ny + 2}, {Nx + 2}), got {arr.shape}"
+        )
+    Phi_int = arr.reshape(-1).copy()
+    _require_nonnegative_initial(Phi_int)
+    return Phi_int
 
 
 def solve_1d_picard(
@@ -446,11 +485,7 @@ def solve_1d_picard(
 
     Phi = np.zeros(N + 2)
     Phi[1:-1] = Phi_int
-    info["boundary_err"] = 0.0
-    info["maxPhi"] = float(np.max(Phi)) if np.all(np.isfinite(Phi)) else float("nan")
-    info["min_interior"] = float(np.min(Phi_int)) if np.all(np.isfinite(Phi_int)) else float("nan")
-    info["branch"] = classify_branch(Phi, info)
-    _attach_bound(info, q_int, c_int, p, a_is_zero=bool(np.all(np.asarray(a_int) == 0.0)))
+    _finalize(Phi, Phi_int, info, q_int, c_int, p, a_int)
     return x, Phi, info
 
 
@@ -460,7 +495,7 @@ def solve_2d_picard(
     Nx: int,
     Ny: int,
     a: float | np.ndarray,
-    beta_b: float,
+    beta_b: float | np.ndarray,
     c: float | np.ndarray,
     p: float = 2.0,
     max_iter: int = 8000,
@@ -544,22 +579,7 @@ def solve_2d_picard(
     x = np.linspace(0, Lx, Nx + 2)
     y = np.linspace(0, Ly, Ny + 2)
     X, Y = np.meshgrid(x, y)
-    if initial_guess is None:
-        amp = check_nonnegative_scalar("initial_amplitude", initial_amplitude)
-        Phi0 = amp * np.sin(np.pi * X / Lx) * np.sin(np.pi * Y / Ly)
-        Phi_int = Phi0[1:-1, 1:-1].reshape(-1).copy()
-    else:
-        arr = check_finite_array("initial_guess", initial_guess)
-        if arr.shape == (Ny + 2, Nx + 2):
-            Phi_int = arr[1:-1, 1:-1].reshape(-1).copy()
-        elif arr.shape == (Ny, Nx):
-            Phi_int = arr.reshape(-1).copy()
-        else:
-            raise ValueError(
-                f"initial_guess must have shape ({Ny}, {Nx}) or ({Ny + 2}, {Nx + 2}), got {arr.shape}"
-            )
-
-    _require_nonnegative_initial(Phi_int)
+    Phi_int = _initial_2d(initial_guess, Nx, Ny, X, Y, Lx, Ly, initial_amplitude)
 
     def reaction(v: np.ndarray) -> np.ndarray:
         full = np.zeros((Ny + 2, Nx + 2))
@@ -583,9 +603,5 @@ def solve_2d_picard(
 
     Phi = np.zeros((Ny + 2, Nx + 2))
     Phi[1:-1, 1:-1] = Phi_int.reshape(Ny, Nx)
-    info["boundary_err"] = 0.0
-    info["maxPhi"] = float(np.max(Phi)) if np.all(np.isfinite(Phi)) else float("nan")
-    info["min_interior"] = float(np.min(Phi_int)) if np.all(np.isfinite(Phi_int)) else float("nan")
-    info["branch"] = classify_branch(Phi, info)
-    _attach_bound(info, q_flat, c_flat, p, a_is_zero=bool(np.all(np.asarray(a_flat) == 0.0)))
+    _finalize(Phi, Phi_int, info, q_flat, c_flat, p, a_flat)
     return X, Y, Phi, info

@@ -1,18 +1,21 @@
 # Dependabot configuration
-# Keeps dependencies updated for security and compatibility
+# Keeps dependencies updated for security and compatibility. Python dependencies are
+# resolved by uv (pyproject.toml + uv.lock), so the uv ecosystem is used; a cooldown
+# keeps newly published packages out of automatic updates for a week.
 
 version: 2
 updates:
-  # Python dependencies
-  - package-ecosystem: "pip"
+  # Python dependencies (uv.lock)
+  - package-ecosystem: "uv"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
     labels:
       - "dependencies"
-      - "security"
     commit-message:
       prefix: "deps"
     groups:
@@ -33,8 +36,9 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
     labels:
-      - "ci"
       - "dependencies"
     commit-message:
       prefix: "ci"

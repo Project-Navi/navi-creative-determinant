@@ -1,6 +1,6 @@
 # Creative Determinant Research Roadmap
 
-This document outlines open research directions stemming from the Creative Determinant (CD) framework. **These are not private plans — they are invitations.** If you pick up any of these, you are doing canonical CD work. Open an issue or PR to coordinate, or just run with it and share results.
+Open research directions in the Creative Determinant (CD) framework. Anyone may take one up. Open an issue or PR to coordinate, or work independently and share results.
 
 ---
 
@@ -31,7 +31,7 @@ This document outlines open research directions stemming from the Creative Deter
 
 **Technical prerequisites**: Basic dynamical systems theory, Python (NumPy/SciPy).
 
-**Starting point**: Logistic map, Henon map, or Lorenz system with hand-chosen coherence metrics.
+**Starting point**: Logistic map, Hénon map, or Lorenz system with hand-chosen coherence metrics. A concrete first setup: iterate the Hénon map \(x_{n+1} = 1 - A x_n^2 + y_n\), \(y_{n+1} = B x_n\), take the coherence observable to be the inverse distance to the attractor or the sign stability of the local Lyapunov exponent, record \(\log|\det J|\) at each step, and measure the correlation along a long trajectory. **Conjecture**: for a well-chosen observable, the correlation is low in chaotic regimes and higher in periodic or quasi-periodic regimes.
 
 ---
 
@@ -76,38 +76,38 @@ This document outlines open research directions stemming from the Creative Deter
 
 **Technical prerequisites**: Elliptic/parabolic PDE theory, numerical time-stepping.
 
-**Starting point**: Add a simple Gaussian forcing term to the 1D V1 model and observe equilibrium shifts.
+**Starting point**: Add a simple Gaussian forcing term to the 1D V1′ model and observe equilibrium shifts.
 
 ---
 
 ## 6. CD Condition on Small Neural Networks
 
-**Motivation**: Can we actually measure the CD condition on a real (if small) neural network?
+**Motivation**: Can the CD condition be measured on a small trained neural network?
 
 **What this involves**:
 - Train or fine-tune a small transformer or RNN.
-- Define a coherence observable (e.g., intrinsic dimensionality of neural representations, attention entropy).
+- Define a coherence observable (e.g., intrinsic dimensionality of neural representations, attention entropy, inverse perplexity).
 - Approximate Jacobian determinants using low-rank methods or trace estimators.
 - Compute correlations across a dataset or along generated trajectories.
 
 **Technical prerequisites**: ML frameworks (PyTorch/JAX), Jacobian estimation techniques, interpretability tools.
 
-**Starting point**: 2-layer transformer on a toy language task, compute correlations layer-by-layer.
+**Starting point**: 2-layer transformer on a toy language task (for example next-token prediction over a small vocabulary); compute correlations layer-by-layer and compare coherent, low-perplexity inputs against noise.
 
 ---
 
 ## 7. Care-Weighted Metrics and Behavioral Experiments
 
-**Motivation**: The care-weighted homotopy energy principle (Proposition 4.9) suggests care acts as a topological obstruction. Can this be tested behaviorally?
+**Motivation**: Proposition 4.9 states that if every homotopy contracting a loop must meet the zero-care set \(\{\kappa = 0\}\), then no admissible homotopy exists: the care-weighted energy is defined only on homotopies that stay in \(\{\kappa > 0\}\), so care acts by excluding paths from the admissible class, not by making them expensive (Remark 4.10). Can this obstruction be tested behaviorally?
 
 **What this involves**:
 - Design a cognitive task where "care" (attention, importance weighting) is experimentally manipulated.
-- Measure whether paths through "low-care" conceptual regions are indeed costly (slower, error-prone) even when geometrically short.
+- Measure whether transitions that must pass through zero-care (unattended) conceptual regions fail or are avoided even when geometrically short. Whether low-care paths are merely slower or more error-prone is a separate empirical question that Proposition 4.9 does not decide.
 - Map results onto a simple manifold model.
 
 **Technical prerequisites**: Experimental design, behavioral data analysis, basic topology.
 
-**Starting point**: Simple lexical decision or category learning task with attention manipulation.
+**Starting point**: Simple lexical decision, semantic priming or category learning task with attention manipulation; compare reaction times and error rates for transitions through high-care versus low-care regions and map the results onto a simple 2D manifold model.
 
 ---
 
@@ -117,7 +117,7 @@ This document outlines open research directions stemming from the Creative Deter
 
 **What this involves**:
 - Design experiments targeting F1–F5 (e.g., look for coherence without coupling, Hamiltonian systems with CD signatures, contradiction resolution without care).
-- Document results honestly: null results or violations are valuable.
+- Document every result, including null results and violations.
 
 **Technical prerequisites**: Depends on the criterion chosen.
 
@@ -144,6 +144,8 @@ This document outlines open research directions stemming from the Creative Deter
 
 **Motivation**: Can CD formalize cognitive/psychiatric pathologies as breakdown regimes of coherence?
 
+**Status**: Heuristic. The mappings below are interpretive proposals, not theorems or derived predictions.
+
 **What this involves**:
 - Model depression as \(\kappa \to 0\) (where \(\kappa\) is the care parameter; zero care everywhere).
 - Model schizophrenia as high \(\mu\) (contradiction measure) without resolution (contradictions persist).
@@ -160,8 +162,6 @@ This document outlines open research directions stemming from the Creative Deter
 1. Open an issue tagged `roadmap` describing which direction you want to pursue (or propose a new one).
 2. Or just start working and open a PR when you have something to share.
 3. Collaboration is encouraged --- tag others if you want co-investigators.
-
-**These directions are intentionally open.** There is no central authority. If you make progress on any of these, you are extending the CD research program.
 
 ---
 

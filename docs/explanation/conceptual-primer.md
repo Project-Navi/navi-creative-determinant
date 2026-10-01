@@ -42,7 +42,7 @@ The CD framework identifies three essential ingredients that govern how any syst
 
 **Care** (\(\kappa\)) is the energetic investment, attention, or importance a system gives to something. I describe it as the "holding capacity" or the "energetic investment that sustains the system."
 
-Think of Care as a spotlight in a dark room. It illuminates what matters, leaving the rest in shadow. Or see it as the fuel in a car that makes a journey possible. A path through a region with "zero care" is functionally impassable --- the cost of traversing it is infinite because the system has no energy or motivation to engage with it.
+Think of Care as a spotlight in a dark room. It illuminates what matters, leaving the rest in shadow. Or see it as the fuel in a car that makes a journey possible. A path through a region with "zero care" is functionally impassable, because the system has no energy or motivation to engage with it. In the framework's care-weighted geometry, paths stay where care is positive; that rule is how the model expresses impassability. It does not show that every way of crossing a zero-care region would cost infinitely much.
 
 Without this crucial investment of Care, a system is inert. It cannot engage with challenges, sustain its identity through difficulty, or fund the costly process of genuine change.
 
@@ -102,7 +102,7 @@ b = \kappa\gamma - \lambda\mu
 
 This equation is my attempt to make rigorous what I saw for years: the delicate dance between a person's internal support system (\(\kappa\gamma\)) and the strain of life's challenges (\(\lambda\mu\)). When the strain overwhelms the support, a crisis begins.
 
-For a system to be "viable" --- that is, able to sustain itself and grow --- its Support (\(\kappa\gamma\)) must be greater than its Strain (\(\lambda\mu\)). When the strain becomes too high for the support system to handle, the system enters a "dissolution zone" where it begins to break down.
+Where Support (\(\kappa\gamma\)) is greater than Strain (\(\lambda\mu\)), presence is supported locally. Where the strain becomes too high for the support system to handle, that part of the landscape is a "dissolution zone" where presence begins to break down. Whether the system as a whole is "viable" --- able to sustain itself and grow --- is a global question: support has to outweigh strain across the whole landscape by enough to overcome what drains away at its edges. Support can exceed strain at every point and still fall short of the viability threshold described in the next section.
 
 This concept of viability determines whether a system can even show up on our map of meaning, which brings us to the final core concept: "presence."
 
@@ -119,7 +119,7 @@ Imagine our vast landscape of meaning again. The Presence Field overlays a heat 
 - **The bright, "hot" spots** are the areas of meaning where the system is viable, active, and focused. These are the beliefs, ideas, and perspectives that the system can coherently maintain and invest energy in.
 - **The cold, dark spots** are areas where the system is absent --- ideas it cannot entertain, perspectives it cannot integrate, or challenges that would cause it to fragment.
 
-A system can only generate a "hot spot" of presence when its viability threshold is exceeded. This is my rigorous way of saying that a coherent identity can only emerge and sustain itself when its internal support (Care and Coherence) successfully outweighs its costs and challenges (Contradiction).
+Crossing the viability threshold guarantees a positive presence field, a "hot spot", under the model's assumptions. This is my rigorous way of saying that a coherent identity can emerge and sustain itself when its internal support (Care and Coherence), taken across the whole landscape, outweighs its costs and challenges (Contradiction) by enough to overcome what drains away at the edges. The threshold is necessary when creative drive vanishes; positive fields can exist below it when drive is active.
 
 We've traveled from a landscape of possible meanings, to the three forces that shape the journey, to the recipe for balancing them, and finally to a heat map showing where a system can actually "live" on that landscape.
 
@@ -135,7 +135,7 @@ The framework reframes the central challenge of AI alignment this way:
 
 > "We kept asking: 'Is this output safe?' We should have been asking: 'Can this system change safely?'"
 
-Critically, **the framework generates specific, falsifiable predictions** about when systems will maintain coherence under change and when they will fragment or dissolve. This isn't philosophy dressed up as math --- it's a testable theory with computational demonstrations you can run yourself.
+Critically, **the framework proposes specific, falsifiable tests** of when systems will maintain coherence under change and when they will fragment or dissolve. These are proposals, not results: the core equation describes steady states, not how a system changes over time, and mapping it onto real people or AI systems is empirical work still to be done. This isn't philosophy dressed up as math --- the theorems come with proofs, the computational demonstrations are there for you to run, and the proposed tests are open for anyone to try.
 
 ---
 

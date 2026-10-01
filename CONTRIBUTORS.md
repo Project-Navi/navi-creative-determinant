@@ -4,13 +4,16 @@ Everyone who has contributed to the Creative Determinant framework.
 
 ## Founder
 
-- **Nelson Spence** — Framework conception, mathematical formalization, numerical implementation, documentation
+- **Nelson Spence** — Framework conception and the original mathematics; direction of the 2026 revision, the numerics and the documentation, and responsibility for the final claims
 
 ## Theoretical Contributors
 
 *Contributions to proofs, theorems, or mathematical extensions.*
 
 <!-- Add entries as: - **Name** — Brief description of contribution -->
+
+- **Andrew Edmark** (@aedmark) — Proposed the finite-graph formulation of the positive-existence theorem and its proof route (finite-dimensional inverse positivity and positive principal eigendata, then the order-theoretic fixed-point core)
+- **Yongxi (Aaron) Lin** — Suggested the bornological form of `PDEInfra.T_compact` (Lean Zulip)
 
 ## Computational Contributors
 

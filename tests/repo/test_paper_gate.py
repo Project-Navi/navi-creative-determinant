@@ -11,22 +11,7 @@ These tests exercise the repository script, not the ``cd`` package, so they live
 ``tests/repo`` and are not shipped in the sdist.
 """
 
-import importlib.util
-import pathlib
-
 import pytest
-
-ROOT = pathlib.Path(__file__).resolve().parents[2]
-SCRIPT = ROOT / "scripts" / "check_paper_artifact.py"
-
-
-def _load():
-    spec = importlib.util.spec_from_file_location("check_paper_artifact", SCRIPT)
-    module = importlib.util.module_from_spec(spec)
-    assert spec.loader is not None
-    spec.loader.exec_module(module)
-    return module
-
 
 FILLER = "\n".join(
     f"Remark 3.{i}. The estimate is uniform in the truncation level and the proof is routine."
@@ -53,20 +38,20 @@ MUTATIONS = {
 
 
 class TestTextSequence:
-    def test_identical_text_is_identical(self):
-        gate = _load()
+    def test_identical_text_is_identical(self, load_script):
+        gate = load_script("check_paper_artifact")
         ok, report = gate.compare_text(BASE, BASE)
         assert ok, report
 
-    def test_rewrapped_lines_are_the_same_sequence(self):
-        gate = _load()
+    def test_rewrapped_lines_are_the_same_sequence(self, load_script):
+        gate = load_script("check_paper_artifact")
         rewrapped = BASE.replace("if and only if λ1 < 0.", "if and only if\nλ1 < 0.")
         ok, _ = gate.compare_text(BASE, rewrapped)
         assert ok
 
     @pytest.mark.parametrize("name", sorted(MUTATIONS))
-    def test_each_statement_change_is_detected_and_located(self, name):
-        gate = _load()
+    def test_each_statement_change_is_detected_and_located(self, load_script, name):
+        gate = load_script("check_paper_artifact")
         old, new = MUTATIONS[name]
         assert BASE.count(old) == 1, name
         mutated = BASE.replace(old, new)
@@ -77,8 +62,8 @@ class TestTextSequence:
         page = "p2" if name == "dropped sentence" else "p1"
         assert located[0].startswith(f"  {page}/"), report
 
-    def test_a_dropped_page_is_detected(self):
-        gate = _load()
+    def test_a_dropped_page_is_detected(self, load_script):
+        gate = load_script("check_paper_artifact")
         ok, report = gate.compare_text(BASE, BASE.replace("\f" + FILLER, "", 1))
         assert not ok
         assert report[0].startswith("text: 2 pages") and "vs 1 pages" in report[0]
@@ -89,8 +74,8 @@ def _pgm(width: int, height: int, fill: int) -> bytes:
 
 
 class TestPageRenders:
-    def test_identical_pages_report_no_difference(self, tmp_path):
-        gate = _load()
+    def test_identical_pages_report_no_difference(self, load_script, tmp_path):
+        gate = load_script("check_paper_artifact")
         a = tmp_path / "a-01.pgm"
         b = tmp_path / "b-01.pgm"
         a.write_bytes(_pgm(4, 3, 255))
@@ -98,8 +83,8 @@ class TestPageRenders:
         report = gate.compare_pages([a], [b])
         assert report[-1] == "render: all common pages identical"
 
-    def test_a_single_changed_pixel_is_reported_with_its_page(self, tmp_path):
-        gate = _load()
+    def test_a_single_changed_pixel_is_reported_with_its_page(self, load_script, tmp_path):
+        gate = load_script("check_paper_artifact")
         a = tmp_path / "a-01.pgm"
         b = tmp_path / "b-01.pgm"
         a.write_bytes(_pgm(4, 3, 255))
@@ -108,8 +93,8 @@ class TestPageRenders:
         assert "  page 1: 1/12 pixels differ" in report[1]
         assert report[-1] == "render: 1 page(s) differ"
 
-    def test_different_page_counts_are_reported(self, tmp_path):
-        gate = _load()
+    def test_different_page_counts_are_reported(self, load_script, tmp_path):
+        gate = load_script("check_paper_artifact")
         a = tmp_path / "a-01.pgm"
         a.write_bytes(_pgm(2, 2, 0))
         report = gate.compare_pages([a], [])
@@ -146,8 +131,8 @@ def _minimal_pdf(text: str) -> bytes:
 
 
 class TestByteIdentityGate:
-    def test_identical_files_pass(self, tmp_path, capsys):
-        gate = _load()
+    def test_identical_files_pass(self, load_script, tmp_path, capsys):
+        gate = load_script("check_paper_artifact")
         a = tmp_path / "a.pdf"
         b = tmp_path / "b.pdf"
         a.write_bytes(_minimal_pdf("lambda_1 < 0"))
@@ -155,8 +140,8 @@ class TestByteIdentityGate:
         assert gate.main([str(a), str(b)]) == 0
         assert "ARTIFACT IDENTICAL" in capsys.readouterr().out
 
-    def test_any_byte_difference_fails_and_is_explained(self, tmp_path, capsys):
-        gate = _load()
+    def test_any_byte_difference_fails_and_is_explained(self, load_script, tmp_path, capsys):
+        gate = load_script("check_paper_artifact")
         a = tmp_path / "a.pdf"
         b = tmp_path / "b.pdf"
         a.write_bytes(_minimal_pdf("lambda_1 < 0"))
@@ -166,9 +151,9 @@ class TestByteIdentityGate:
         assert "ARTIFACT MISMATCH" in out
         assert "diagnostics unavailable" in out or "differing run(s)" in out
 
-    def test_metadata_only_difference_still_fails(self, tmp_path, capsys):
+    def test_metadata_only_difference_still_fails(self, load_script, tmp_path, capsys):
         """Byte identity is the rule: a change confined to metadata is not accepted."""
-        gate = _load()
+        gate = load_script("check_paper_artifact")
         a = tmp_path / "a.pdf"
         b = tmp_path / "b.pdf"
         a.write_bytes(_minimal_pdf("same text"))

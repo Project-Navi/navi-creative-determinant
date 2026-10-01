@@ -1,126 +1,230 @@
-digraph CDStack {
-  rankdir=TB;
-  bgcolor="white";
-  graph [
-    fontname="Helvetica",
-    fontsize=18,
-    labelloc="t",
-    label="CD Stack: PDE Core → Witnesses → Debt/Resilience → Dynamic Closure → Predictions",
-    pad="0.2",
-    nodesep="0.35",
-    ranksep="0.45"
-  ];
-  node [
-    fontname="Helvetica",
-    fontsize=11,
-    shape=box,
-    style="rounded,filled",
-    margin="0.18,0.10",
-    color="#333333"
-  ];
-  edge [
-    fontname="Helvetica",
-    fontsize=10,
-    color="#333333",
-    arrowsize=0.8
-  ];
+// The Creative Determinant stack: one source for the docs diagram and the paper figures.
+//
+// Structure and labels live here; statement numbers are paper numbers. paper/stack_figures.py
+// renders this file as the brand-themed SVG for the docs site and, with a print palette, as the
+// two paper figures (cluster L1 for Figure 1; clusters L2, L3, L4 and EXT plus the Layer 1
+// context nodes FIELDS, OP and LAM for Figure 2).
+//
+// `label` is the full text shown on the docs site; `plabel`, where present, is the compact
+// text used in the paper figures, whose captions and surrounding text carry the details.
+// The other `p` attributes (plabeljust, ptailport, pconstraint) likewise apply only to the
+// paper figures, whose node order differs from the docs layout.
+// Regenerate with `make -C paper` after editing (renders in the pinned image of
+// paper/figures.Dockerfile; needs docker), then rebuild the paper.
+//
+// Styling follows the Project Navi brand guide (background #141414, text #e8e4de, accent
+// #7eb8a8; tiers #7eb8a8 positive, #d4a574 neutral, #9a958e muted), as in the
+// takens-formalization proof-architecture diagram.
+//
+// Expected statement headers, read by scripts/check_stack_citations.py. Every statement or
+// section cited below (and on docs/explanation/cd-stack.md) has one line here, giving its
+// title as pdftotext prints it. A statement title runs through the character that closes it
+// (")" or, for Theorem 3.26, ";"), so a shortened or lengthened title fails the check.
+// Section titles run on into the text and are matched by their start.
+// cites: Definition 2.1 = Semiotic manifold)
+// cites: Definition 2.3 = Characteristic fields)
+// cites: Definition 3.1 = Autonomous viability model with saturation (V1’))
+// cites: Definition 3.3 = Canonical viability closure)
+// cites: Theorem 3.12 = Existence of a nonnegative weak coherent configuration)
+// cites: Definition 3.13 = Principal eigenvalue and viability threshold)
+// cites: Theorem 3.16 = Existence of a positive weak coherent configuration)
+// cites: Proposition 3.19 = Exact threshold without a gradient term)
+// cites: Proposition 3.21 = A positive continuum solution below the linear threshold)
+// cites: Definition 3.25 = Finite-graph CD problem)
+// cites: Theorem 3.26 = Positive solution on a finite graph;
+// cites: Remark 3.33 = Three models that must not be identified)
+// cites: Definition 3.34 = Base temporal resilience factor)
+// cites: Definition 3.36 = Spectral capacity witness)
+// cites: Remark 3.37 = Meaning of ψs)
+// cites: Definition 3.38 = Coherence debt dynamics)
+// cites: Remark 3.39 = Interpretation: asymmetric cost of mismatch)
+// cites: Definition 3.40 = Total resilience and effective contradiction cost)
+// cites: Remark 3.41 = Burnout spiral as feedback)
+// cites: Definition 3.42 = Dynamical viability closure)
+// cites: Remark 3.43 = Architectural interpretation)
+// cites: Remark 3.44 = Capacity erosion as a future-work extension)
+// cites: Section 2 = Mathematical setup
+// cites: Section 3 = Main PDE Results
+// cites: Section 3.6 = The finite-graph model
+// cites: Section 3.7 = Temporal resilience and coherence debt
+// cites: Section 5.2 = Falsifiability protocols
 
-  // ---------- Layer 1 ----------
+digraph cd_stack {
+  rankdir=TB
+  newrank=true
+  bgcolor="transparent"
+  forcelabels=true
+  nodesep=0.35
+  ranksep=0.5
+  node [fontname="DM Sans" fontsize=11 style=filled fillcolor="#1a1a1a"
+        fontcolor="#e8e4de" color="#2a2a2a" shape=box margin="0.15,0.08"
+        penwidth=1.5]
+  edge [fontname="DM Sans" fontsize=10 fontcolor="#9a958e" color="#7eb8a8"
+        arrowsize=0.6 penwidth=1.2]
+
+  // ---------- L1 ----------
   subgraph cluster_L1 {
-    label="Layer 1 — Mathematical Core (PDE + Spectral Viability)";
-    color="#2b6cb0"; fontcolor="#1a365d";
-    style="rounded";
+    label="Layer 1: mathematical core (Sections 2–3, static coefficients)"
+    plabel="Mathematical core (Sections 2–3)"
+    labeljust=l
+    fontname="Fraunces"
+    fontsize=14
+    fontcolor="#7eb8a8"
+    color="#2a2a2a"
+    style=dashed
+    margin=16
 
-    PDE [fillcolor="#eef6ff", color="#2b6cb0",
-      label="Saturated CD PDE (V1′)\n−ΔΦ = a(x)|∇Φ| + b(x,t)Φ − c(x)Φᵖ\nΦ|∂M = 0"];
-    ADEF [fillcolor="#eef6ff", color="#2b6cb0",
-      label="Creative drive\n a(x)=κ(x,t)·γ(x,t)·μ(x,t) ∈ [0,1]"];
-    SYS [fillcolor="#eef6ff", color="#2b6cb0",
-      label="Effective system definition\n M(t), ∂M(t), boundary conditions\n(Dirichlet / Robin / geometry)"];
-    OP [fillcolor="#eef6ff", color="#2b6cb0",
-      label="Viability operator\nL(t)= −Δ − b(·,t) on M(t)"];
-    LAM [fillcolor="#eef6ff", color="#2b6cb0",
-      label="Principal eigenvalue\nλ₁(t)=λ₁(L(t))"];
+    FIELDS [label="Characteristic fields (Definition 2.3)\nκ, γ, μ : M → [0,1]\ncare, coherence, contradiction"
+            plabel="Characteristic fields\n(Definition 2.3)\nκ, γ, μ ∈ [0,1]"]
+    ADEF [label="Creative drive (Definition 2.3)\na(x) = κ(x) γ(x) μ(x) ∈ [0,1]\nCD choice for the coefficient a of V1′"
+          plabel="Creative drive (Definition 2.3)\na = κγμ (CD choice for a)"]
+    BDEF0 [label="Canonical viability closure (Definition 3.3)\nb(x) = κ(x) γ(x) − λ μ(x),   λ > 0 contradiction cost\nCD choice for the coefficient b of V1′"
+           plabel="Canonical closure (Definition 3.3)\nb = κγ − λμ (CD choice for b)"]
+    SYS [label="Semiotic manifold (Definition 2.1)\ncompact, connected, ∂M ≠ ∅\nDirichlet condition Φ = 0 on ∂M"
+         plabel="Semiotic manifold (Definition 2.1)\ncompact, connected, ∂M ≠ ∅\nΦ = 0 on ∂M"]
+    PDE [label="Saturated CD model V1′ (Definition 3.1)\n−ΔΦ = a(x)|∇Φ| + b(x)Φ − c(x)Φᵖ in M,   Φ = 0 on ∂M\n0 ≤ a ≤ 1,   c ≥ c₀ > 0,   p > 1"
+         plabel="Model V1′ (Definition 3.1)\n−ΔΦ = a|∇Φ| + bΦ − cΦᵖ\n0 ≤ a ≤ 1,  c ≥ c₀ > 0,  p > 1"
+         color="#7eb8a8"]
+    OP [label="Viability operator\n−Δ − b on M (Dirichlet)"
+        plabel="Operator −Δ − b"]
+    LAM [label="Principal eigenvalue (Definition 3.13)\nλ₁(−Δ − b; M)"
+         plabel="λ₁(−Δ − b; M)\n(Definition 3.13)"
+         color="#7eb8a8"]
+    RESULTS [label="Existence (Theorem 3.12): a nonnegative weak coherent configuration exists;\nΦ ≡ 0 is always one\nPositive existence (Theorem 3.16): λ₁ < 0 ⇒ a solution positive in the interior\nExact threshold (Proposition 3.19): λ₁ < 0 is also necessary when a ≡ 0\nWith drive (Proposition 3.21): not necessary in general when a ≢ 0;\ncounterexample: a positive solution with λ₁ = +1/4 on an interval"
+             plabel="Theorem 3.12: a nonnegative solution exists (Φ ≡ 0 is one)\nTheorem 3.16: λ₁ < 0 ⇒ a solution with Φ > 0 in M°\nProposition 3.19: also necessary when a ≡ 0\nProposition 3.21: not necessary in general when a ≢ 0"
+             color="#7eb8a8"]
+    FGRAPH [label="Finite-graph model (Definition 3.25)\nTheorem 3.26: interior graph connected, λ₁ᴳ < 0\nand the edge condition a(x), a(y) ≤ √w(x,y)\nfor all distinct interior vertices x, y with w(x,y) > 0\n⇒ a solution with u(x) > 0 at every interior vertex x\nproved outright in Lean"
+           plabel="Finite-graph model (Definition 3.25)\nTheorem 3.26: interior graph connected, λ₁ᴳ < 0,\nedge condition a(x), a(y) ≤ √w(x,y)\nfor all distinct x, y ∈ I with w(x,y) > 0\n⇒ a solution with u(x) > 0 for all x ∈ I (Lean)"
+           color="#7eb8a8"]
 
-    PDE -> ADEF;
-    PDE -> OP;
-    SYS -> OP;
-    OP  -> LAM;
+    FIELDS -> ADEF
+    FIELDS -> BDEF0
+    ADEF -> PDE
+    BDEF0 -> PDE
+    BDEF0 -> OP
+    SYS -> PDE
+    SYS -> OP
+    PDE -> RESULTS
+    LAM -> RESULTS
+    RESULTS -> FGRAPH [style=dashed dir=none label="  analogue; distinct models (Remark 3.33)" plabel="  analogue (Remark 3.33)"]
   }
 
-  // ---------- Layer 2 ----------
+  // ---------- L2 ----------
   subgraph cluster_L2 {
-    label="Layer 2 — Witnesses (Observed vs Capacity)";
-    color="#2f855a"; fontcolor="#22543d";
-    style="rounded";
+    label="Layer 2: witnesses (Section 3.7), observed versus capacity"
+    plabel="Witnesses (Section 3.7)"
+    labeljust=l
+    plabeljust=r
+    fontname="Fraunces"
+    fontsize=14
+    fontcolor="#7eb8a8"
+    color="#2a2a2a"
+    style=dashed
+    margin=16
 
-    PSI [fillcolor="#f0fff4", color="#2f855a",
-      label="Empirical witness\nψ(t) ∈ [0,1]\n(domain-specific: clinical/AI/org)"];
-    DER [fillcolor="#f0fff4", color="#2f855a",
-      label="Temporal derivatives\nψ′, ψ″, ψ‴\n(volatility / acceleration / jerk)"];
-    PSIS [fillcolor="#f0fff4", color="#2f855a",
-      label="Spectral witness (capacity envelope)\nψₛ(t)=1/(1+exp(λ₁/s)) ∈ (0,1)"];
+    PSI [label="Temporal witness (empirical)\nψ(t) ∈ [0,1],   ψ ∈ C³ or declared estimators"
+         plabel="Temporal witness\nψ(t) ∈ [0,1]"]
+    DER [label="Temporal derivatives\nψ′ (volatility),   ψ″ (acceleration),   ψ‴ (jerk)"
+         plabel="ψ′, ψ″, ψ‴"]
+    PSIS [label="Spectral capacity witness (Definition 3.36)\nψₛ(t) = 1 / (1 + exp(λ₁(t) / s)) ∈ (0,1),   s > 0\nproposed proxy; comparing it with ψ\nneeds a stated calibration (Remark 3.37)"
+          plabel="Spectral capacity witness\n(Definition 3.36)\nψₛ = 1 / (1 + exp(λ₁/s))"
+          color="#7eb8a8"]
 
-    PSI -> DER;
-    LAM -> PSIS;
+    { rank=same; PSI; DER }
+    PSI -> DER
   }
 
-  // ---------- Layer 3 ----------
+  // ---------- L3 ----------
   subgraph cluster_L3 {
-    label="Layer 3 — Debt / Resilience / Effective Cost (Bridge)";
-    color="#b7791f"; fontcolor="#744210";
-    style="rounded";
+    label="Layer 3: debt, resilience and effective cost\l(Definitions 3.34, 3.38, 3.40 and 3.42)\l"
+    plabel="Debt, resilience,\leffective cost\l"
+    labeljust=l
+    plabeljust=r
+    labelloc=b
+    fontname="Fraunces"
+    fontsize=14
+    fontcolor="#7eb8a8"
+    color="#2a2a2a"
+    style=dashed
+    margin=16
 
-    DEBT [fillcolor="#fffaf0", color="#b7791f",
-      label="Coherence debt\nD(t) ≥ 0\nḊ = η[ψ−ψₛ]⁺ − ρD"];
-    RBASE [fillcolor="#fffaf0", color="#b7791f",
-      label="Base resilience\nRbase=(1+β[ψ″]⁺)/(1+α₁|ψ′|+α₃|ψ‴|)"];
-    RTOT [fillcolor="#fffaf0", color="#b7791f",
-      label="Total resilience\nR = Rbase/(1 + D)"];
-    LAMEFF [fillcolor="#fffaf0", color="#b7791f",
-      label="Effective contradiction cost\nλeff = λ₀ / R"];
-    BDEF [fillcolor="#fffaf0", color="#b7791f",
-      label="Dynamic viability closure\nb(x,t)= κγ − λeff·μ"];
+    RBASE [label="Base temporal resilience (Definition 3.34)\nR_base = (1 + β [ψ″]⁺) / (1 + α₁ |ψ′| + α₃ |ψ‴|)\nα₁, α₃ > 0,   β ≥ 0;   α₁, β, α₃ in units of time, time², time³"
+           plabel="Base resilience R_base\n(Definition 3.34)"]
+    DEBT [label="Coherence debt (Definition 3.38)\nḊ = η [ψ − ψₛ]⁺ − ρ D,   D(0) ≥ 0,   η, ρ > 0\n0 ≤ D(t) ≤ max{D(0), η/ρ}   (Remark 3.39)"
+          plabel="Coherence debt\n(Definition 3.38)\nḊ = η[ψ − ψₛ]⁺ − ρD"]
+    RTOT [label="Total resilience (Definition 3.40)\nR = R_base / (1 + D)"
+          plabel="R = R_base / (1 + D)\n(Definition 3.40)"]
+    LAMEFF [label="Effective contradiction cost (Definition 3.40)\nλ_eff = λ₀ / R,   λ₀ > 0 baseline cost"
+            plabel="λ_eff = λ₀ / R\n(Definition 3.40)"]
+    BDEF [label="Dynamical viability closure (Definition 3.42)\nb(x,t) = κ(x,t) γ(x,t) − λ_eff(t) μ(x,t)"
+          plabel="Dynamical closure\n(Definition 3.42)\nb(x,t) = κγ − λ_eff(t) μ"
+          color="#7eb8a8"]
 
-    PSI  -> DEBT;
-    PSIS -> DEBT;
-
-    PSI -> RBASE;
-    DER -> RBASE;
-
-    DEBT -> RTOT;
-    RBASE -> RTOT;
-
-    RTOT -> LAMEFF;
-    LAMEFF -> BDEF;
+    PSI -> DEBT
+    PSIS -> DEBT
+    DER -> RBASE
+    DEBT -> RTOT
+    RBASE -> RTOT
+    { rank=same; RTOT; LAMEFF }
+    RTOT -> LAMEFF
+    LAMEFF -> BDEF
   }
 
-  // ---------- Layer 4 ----------
+  // ---------- L4 ----------
   subgraph cluster_L4 {
-    label="Layer 4 — Loop + Predictions";
-    color="#c53030"; fontcolor="#742a2a";
-    style="rounded";
+    label="Layer 4: feedback and interpretation (not analysed)"
+    plabel="Feedback and interpretation (not analysed)"
+    labeljust=l
+    labelloc=b
+    fontname="Fraunces"
+    fontsize=14
+    fontcolor="#9a958e"
+    color="#2a2a2a"
+    style=dotted
+    margin=16
 
-    LOOP [fillcolor="#fff5f5", color="#c53030",
-      label="Closed loop (burnout / recovery)\nb → λ₁ → ψₛ → D → R → λeff → b"];
-    PRED [fillcolor="#fff5f5", color="#c53030",
-      label="Predictions / Tests\n• Hysteresis under slow λ or boundary sweeps\n• Debt accumulation predicts fragility\n• ψ vs ψₛ divergence predicts burnout\n• Interventions shift M(t), κ, γ, μ or reduce jerk/volatility"];
+    LOOP [label="Feedback loop (Remark 3.41)\nψ > ψₛ sustained ⇒ D ↑ ⇒ R ↓ ⇒ λ_eff ↑ ⇒ b ↓ ⇒ λ₁ ↑ ⇒ ψₛ ↓\nD rises only while D < (η/ρ) [ψ − ψₛ]⁺   (Remark 3.39)\na fragility tendency; convergence, oscillation or saturation is not analysed"
+          plabel="Feedback loop\n(Remark 3.41)\na tendency, not analysed"
+          style="filled,dotted" fontcolor="#9a958e" color="#9a958e"]
+    INTERP [label="Architectural interpretation (Remark 3.43)\nsmooth, stabilizing ψ (large R_base) lowers λ_eff\nchronic overcapacity (large D) raises λ_eff\nchanges of M(t) or of the fields shift ψₛ through λ₁(t)\nno prediction theorem; the falsifiability tests are separate proposals (Section 5.2)"
+            plabel="Architectural interpretation\n(Remark 3.43)"
+            style="filled,dotted" fontcolor="#9a958e" color="#9a958e"]
 
-    BDEF -> OP [label="updates b"];
-    BDEF -> LOOP;
-    LOOP -> PRED;
+    { rank=same; LOOP; INTERP }
   }
 
-  // ---------- Deferred Extension ----------
+  // ---------- EXT ----------
   subgraph cluster_EXT {
-    label="Extension (Deferred) — Capacity Erosion";
-    color="#6b46c1"; fontcolor="#44337a";
-    style="rounded,dashed";
+    label="Deferred extension (Remark 3.44):\lcapacity erosion, not analysed\l"
+    plabel="Deferred\l(Remark 3.44)\l"
+    labeljust=l
+    labelloc=b
+    fontname="Fraunces"
+    fontsize=14
+    fontcolor="#d4a574"
+    color="#2a2a2a"
+    style=dashed
+    margin=16
 
-    EROSION [fillcolor="#faf5ff", color="#6b46c1",
-      label="Optional slow damage\nwhen D > Dcrit:\nκ̇, γ̇ ↓ and/or μ̇ ↑\n(\"burning the furniture\")"];
-
-    DEBT -> EROSION;
-    EROSION -> BDEF [style=dashed, label="feeds back"];
+    EROSION [label="Thresholded degradation of the fields\nκ̇ = −δ_κ [D − D_crit]⁺,   γ̇ = −δ_γ [D − D_crit]⁺,   μ̇ = +δ_μ [D − D_crit]⁺\nwith κ, γ, μ projected onto [0,1]\nor erosion through the effective manifold M(t)"
+             plabel="Capacity erosion\nof κ, γ, μ or M(t)"
+             style="filled,dashed" fontcolor="#d4a574" color="#d4a574"]
   }
+
+  // ---------- cross-layer edges ----------
+  // The two feedback edges into OP are written head first with dir=back, so each is drawn as an
+  // arrow into OP. OP -> BDEF takes part in the ranking of the paper figure, where OP is in the
+  // top row, and not in the docs diagram (constraint=false), where OP is inside Layer 1. In the
+  // docs diagram both leave OP from its east side, and EROSION -> BDEF leaves from the south-east
+  // corner, below the left-justified title of the deferred cluster; the paper figure resets the
+  // OP ports to the centre (ptailport=c), which keeps its edge labels clear of the other edges.
+  OP -> LAM
+  LAM -> PSIS [label="  λ₁(t) = λ₁(−Δ − b(·, t); M(t))" plabel="  λ₁(t)"]
+  FIELDS -> BDEF [label="  κ(·, t), γ(·, t), μ(·, t)" plabel="  κ, γ, μ at time t"]
+  OP -> BDEF [dir=back constraint=false pconstraint=true tailport=e ptailport=c label="  b(·, t) re-evaluated at each t" plabel="  updates\l  b(·, t)\l"]
+  BDEF -> LOOP
+  BDEF -> INTERP
+  DEBT -> EROSION [style=dashed color="#d4a574"]
+  EROSION -> BDEF [tailport=se style=dashed color="#d4a574" label="  via κ, γ, μ"]
+  OP -> EROSION [dir=back tailport=e ptailport=c style=dashed color="#d4a574" label="  via M(t)"]
 }

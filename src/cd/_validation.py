@@ -1,7 +1,10 @@
 """Input validation shared by the numerical modules.
 
 All checks fail fast with ``ValueError`` at the system boundary: nonfinite inputs, wrong shapes,
-non-integer grid sizes, and coefficients outside their mathematical domain never reach a solver.
+non-integer grid sizes and the domain violations each function documents (for example ``p <= 1``
+or ``c <= 0``) never reach a solver. The scalar checks reject strings and bools. Array inputs are
+converted with ``np.asarray(value, dtype=float)``, which accepts numeric strings and bools; only
+their finiteness and shape are checked unless a function documents more.
 """
 
 from __future__ import annotations
@@ -47,6 +50,14 @@ def check_nonnegative_scalar(name: str, value: object) -> float:
     return fvalue
 
 
+def check_unit_interval_scalar(name: str, value: object) -> float:
+    """Return ``value`` as a finite ``float`` in ``[0, 1]`` (the care / coherence intensities)."""
+    fvalue = check_finite_scalar(name, value)
+    if not 0.0 <= fvalue <= 1.0:
+        raise ValueError(f"{name} must lie in [0, 1], got {value!r}")
+    return fvalue
+
+
 def check_exponent(name: str, value: object) -> float:
     """Return the saturation exponent as a finite ``float`` with ``p > 1``."""
     fvalue = check_finite_scalar(name, value)
@@ -66,13 +77,28 @@ def check_damping(name: str, value: object) -> float:
 def check_finite_array(
     name: str, value: object, shape: tuple[int, ...] | None = None
 ) -> np.ndarray:
-    """Return ``value`` as a finite float array, optionally of the given shape."""
+    """Return ``value`` as a finite float array, optionally of the given shape.
+
+    The conversion is ``np.asarray(value, dtype=float)``: numeric strings and bools are coerced,
+    and the values are not range-checked.
+    """
     arr = np.asarray(value, dtype=float)
     if not np.all(np.isfinite(arr)):
         raise ValueError(f"{name} must be finite everywhere")
     if shape is not None and arr.shape != shape:
         raise ValueError(f"{name} must have shape {shape}, got {arr.shape}")
     return arr
+
+
+def check_finite_field(name: str, value: object) -> float | np.ndarray:
+    """A finite real scalar (never a ``bool`` or a string) or a finite float array of any shape.
+
+    The shape-free counterpart of ``coefficient_1d`` / ``coefficient_2d`` for quantities that
+    are reduced by ``max`` / ``min`` rather than placed on a grid.
+    """
+    if np.isscalar(value):
+        return check_finite_scalar(name, value)
+    return check_finite_array(name, value)
 
 
 def coefficient_1d(name: str, value: object, N: int) -> float | np.ndarray:

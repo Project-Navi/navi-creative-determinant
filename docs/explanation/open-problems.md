@@ -1,18 +1,18 @@
 # Open Problems in Creative Determinant Theory
 
-This document lists explicit theoretical gaps, unresolved questions, and conjectures in the Creative Determinant (CD) framework. These are **honest admissions of what is not yet known**, not weaknesses to hide. Contributions addressing any of these are highly valuable.
+Theoretical gaps, unresolved questions and conjectures in the Creative Determinant (CD) framework.
 
 ---
 
 ## 1. Relationship Between Weak and Strong Coherence
 
-**Status**: Open; one obstruction is now proved. Proposition 4.11 of the paper shows that on a compact manifold with zero boundary data (or a closed manifold) no nonnegative \(C^1\) field satisfies the strong pointwise constraint except \(\Phi \equiv 0\), so the strong ideal is unattainable in that setting and only weak configurations are reachable.
+**Status**: Open; one obstruction is proved. Proposition 4.11 of the paper shows that on a compact manifold with zero boundary data (or a closed manifold) no nonnegative \(C^1\) field satisfies the strong pointwise constraint except \(\Phi \equiv 0\), so the strong ideal is unattainable in that setting and only weak configurations are reachable.
 
 **Problem**: The paper distinguishes "weak coherent configurations" (solutions to the PDE) from "strong coherent configurations" (fields satisfying the pointwise CD constraint \(\Phi(x) = \Phi(\kappa(x), \gamma(x), \mu(x))\)). Under what conditions are these equivalent? When does strong coherence imply weak, and vice versa?
 
-**Why it matters**: This gap determines whether the PDE is a faithful representation of the underlying semiotic/enactivist intuition or merely an analytically tractable approximation.
+**Why it matters**: This gap decides whether the PDE represents the semiotic and enactivist intuition or only a tractable approximation of it.
 
-**Starting point**: Assume a specific functional form for the pointwise constraint and derive the resulting PDE. Check consistency with the V1 model.
+**Starting point**: Assume a specific functional form for the pointwise constraint and derive the resulting PDE. Check consistency with the V1′ model.
 
 ---
 
@@ -42,11 +42,11 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 ## 4. Master Equation with Exogenous Forcing
 
-**Status**: Defined (Remark 3.17), not analyzed.
+**Status**: Defined (Remark 3.17), not analysed.
 
-**Problem**: The driven case \(-\Delta u + a(x)|\nabla u| + b(x)u - c(x)u^p = f(x)\) encodes external input or environmental significance. How does nonzero \(f\) affect existence, stability, and multiplicity of equilibria?
+**Problem**: The driven case \(-\Delta u = a(x)|\nabla u| + b(x)u - c(x)u^p + f(x)\) (Remark 3.17) encodes external input or environmental significance. How does nonzero \(f\) affect existence, stability, and multiplicity of equilibria?
 
-**Why it matters**: Real cognitive systems are open, not closed. Understanding the driven case is essential for applications.
+**Why it matters**: Real cognitive systems are open, not closed. Applications need the driven case.
 
 **Starting point**: Analyze perturbative effects of small \(f\) on known equilibria; numerical experiments with localized forcing.
 
@@ -72,7 +72,7 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 **Why it matters**: If the PDE can be derived from a Lagrangian or energy functional, it would connect to physics and provide additional analytic tools.
 
-**Starting point**: Investigate whether the V1 equation is the Euler--Lagrange equation of some action functional.
+**Starting point**: Investigate whether the V1′ equation is the Euler--Lagrange equation of some action functional.
 
 ---
 
@@ -82,7 +82,7 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 **Problem**: How do you map a trained neural network (discrete layers, finite weights) onto a continuous semiotic manifold \((M, g)\)? How do you extract \(\kappa\), \(\gamma\), \(\mu\) from activations or gradients?
 
-**Why it matters**: Without a concrete mapping, the framework remains abstract. A worked example on even a toy network would be a major advance.
+**Why it matters**: Without a concrete mapping, the framework remains abstract. A worked example on a toy network would be the first instantiation.
 
 **Starting point**: Apply manifold learning to a 2-layer MLP; hand-label regions as high/low coherence and fit simple \(\gamma\) fields.
 
@@ -114,13 +114,13 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 ## 10. Time-Dependent Dynamics
 
-**Status**: Not addressed.
+**Status**: Defined (Section 3.7), not analysed.
 
-**Problem**: The current framework studies equilibria (time-independent solutions). What about transient dynamics, approach to equilibrium, or oscillatory/chaotic regimes?
+**Problem**: Section 3.7 of the paper defines a time-dependent closure: coherence debt \(D(t)\) evolves by the ODE of Definition 3.38 and raises the effective contradiction cost \(\lambda_{\mathrm{eff}}(t)\) (Definition 3.40), which enters the dynamical viability closure \(b(x,t) = \kappa(x,t)\gamma(x,t) - \lambda_{\mathrm{eff}}(t)\mu(x,t)\) (Definition 3.42) and so moves \(\lambda_1(t)\). The well-posedness and dynamics of this loop are not analysed, and the existence theorems concern equilibria (time-independent solutions). Is the closed loop well posed? What are its transient dynamics, its approach to equilibrium, and its oscillatory or chaotic regimes?
 
 **Why it matters**: Real cognitive processes are temporal. A dynamical (not just static) CD theory would be more realistic.
 
-**Starting point**: Formulate the parabolic PDE \(\partial_t u = -\Delta u + a(x)|\nabla u| + b(x)u - c(x)u^p\) and study stability of equilibria.
+**Starting point**: Formulate the parabolic PDE \(\partial_t u = \Delta u + a(x)|\nabla u| + b(x)u - c(x)u^p\) and study stability of equilibria.
 
 ---
 
@@ -128,7 +128,7 @@ This document lists explicit theoretical gaps, unresolved questions, and conject
 
 **Status**: Settled: exact for \(a \equiv 0\); sufficient only for \(a > 0\), in the continuum and on finite graphs.
 
-**Problem**: For \(a \equiv 0\), a positive solution exists if and only if \(\lambda_1(-\Delta - b; M) < 0\) (paper Proposition 3.19). With a gradient term the spectral condition is sufficient (Theorem 3.16) but not necessary: Proposition 3.21 gives an explicit positive solution on an interval with \(\lambda_1 = +1/4\) (a classical barrier construction, not Lean-verified), and the finite-graph model has its own counterexample (Proposition 3.32, \(\lambda_1 = +1/2\)). What remains open is a characterization of the positive-existence region for \(a > 0\): what is the correct nonlinear spectral problem?
+**Problem**: For \(a \equiv 0\), a positive solution exists if and only if \(\lambda_1(-\Delta - b; M) < 0\) (paper Proposition 3.19). With a gradient term the spectral condition is sufficient (Theorem 3.16) but not necessary: Proposition 3.21 gives a positive solution on an interval with \(\lambda_1 = +1/4\), enclosed between an explicit subsolution and a constant supersolution (a classical barrier construction, not Lean-verified; the solution itself is not given in closed form), and the finite-graph model has its own counterexample (Proposition 3.32, \(\lambda_1 = +1/2\)). What remains open is a characterization of the positive-existence region for \(a > 0\): what is the correct nonlinear spectral problem?
 
 **Why it matters**: The linear indicator is used throughout the numerics; knowing where it is exact tells us when a zero result is a proof of collapse and when it is only an observation.
 
@@ -144,7 +144,7 @@ If you make progress on any of these, please:
 2. Share your results (even partial, even negative).
 3. If you resolve a problem, open a PR adding your result to the appropriate section of the repo or a linked document.
 
-**Negative results count.** If you show a problem is harder than expected, or a proposed approach doesn't work, that is valuable information.
+**Negative results count.** A proof that a problem is harder than expected, or that an approach fails, is a contribution.
 
 ---
 

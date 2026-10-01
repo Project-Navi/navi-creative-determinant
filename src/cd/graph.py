@@ -26,19 +26,23 @@ interior block of the *full-degree* Laplacian minus ``diag(b)``.
 
 Status of the statements used here
 ----------------------------------
-* Theorem (Lean, ``SemioticGraph.exists_pos_graph``): if the interior graph is connected, the
-  principal eigenvalue is negative, and ``a(x) <= sqrt(w(x,y))`` at both ends of every
+* Theorem 3.26 (Lean, ``SemioticGraph.exists_pos_graph``): if the interior graph is connected,
+  the principal eigenvalue is negative, and ``a(x) <= sqrt(w(x,y))`` at both ends of every
   positive-weight edge between distinct interior vertices, then a solution positive at every
   interior vertex exists. The edge condition is sufficient for that proof, not necessary.
-* Theorem (Lean, ``triangle_isSolution``, ``triangle_gradNorm``): ``u = (0, 2, 2)`` solves the
-  triangle example with gradient norm 2 at both interior vertices.
-* Proposition (classical, this repository): a nonnegative solution satisfies
-  ``max u <= max_x ((b(x) + a(x)²/4)_+ / c(x))^{1/(p-1)}`` (``linfty_bound_graph``); the bound is
-  attained and differs from the continuum cap ``(b/c)^{1/(p-1)}``.
-* Observation (numerical): iterating the Jacobi map from the sub- or supersolution barrier
-  converges monotonically in the runs recorded by the tests. Convergence of the iteration is a
-  classical consequence of monotonicity in finite dimensions; it is not part of the Lean
-  development, which proves existence only, and no rate is claimed.
+* Example 3.29 (Lean, ``triangle_isSolution``, ``triangle_gradNorm``): ``u = (0, 2, 2)`` solves
+  the triangle example with gradient norm 2 at both interior vertices.
+* Proposition 3.30 (classical proof in the paper; not a Lean declaration): a nonnegative
+  solution satisfies ``max u <= max_x ((b(x) + a(x)²/4)_+ / c(x))^{1/(p-1)}``
+  (``linfty_bound_graph``); the bound is attained and differs from the continuum cap
+  ``(b/c)^{1/(p-1)}`` (Remark 3.31).
+* Proposition 3.32: ``λ₁ < 0`` is not necessary on graphs (the triangle with ``b = 1/2`` has a
+  positive solution and ``λ₁ = +1/2``).
+* Observation (numerical; Remark 3.28): iterating the Jacobi map from the sub- or
+  supersolution barrier converges monotonically in the runs recorded by the tests.
+  Convergence of the iteration is a classical consequence of monotonicity in finite
+  dimensions; it is not part of the Lean development, which proves existence only, and no
+  rate is claimed.
 """
 
 from __future__ import annotations
@@ -52,9 +56,12 @@ import numpy as np
 from ._validation import (
     check_exponent,
     check_finite_array,
+    check_nonnegative_scalar,
     check_positive_int,
     check_positive_scalar,
+    require_positive_coefficient,
 )
+from .analysis import _monotone_label
 
 __all__ = [
     "SemioticGraph",
@@ -133,8 +140,7 @@ class SemioticGraph:
         a = _unit_interval_field("a", self.a, n)
         b = check_finite_array("b", self.b, shape=(n,))
         c = check_finite_array("c", self.c, shape=(n,))
-        if np.any(c <= 0.0):
-            raise ValueError("carrying capacity c must be positive at every vertex")
+        require_positive_coefficient("c", c)
         p = check_exponent("p", self.p)
         for name, value in (
             ("w", w),
@@ -237,6 +243,13 @@ def interior_connected(G: SemioticGraph) -> bool:
     return len(seen) == len(interior)
 
 
+def _off_diagonal(w: np.ndarray) -> np.ndarray:
+    """Copy of the weight matrix with the diagonal (self weights) set to zero."""
+    off = w.copy()
+    np.fill_diagonal(off, 0.0)
+    return off
+
+
 def _dirichlet_block(G: SemioticGraph) -> tuple[np.ndarray, np.ndarray]:
     """Interior block of ``diag(d') - w' - diag(b)`` where ``w'`` is ``w`` with the diagonal
     removed and ``d'`` its row sums (boundary edges included).
@@ -247,8 +260,7 @@ def _dirichlet_block(G: SemioticGraph) -> tuple[np.ndarray, np.ndarray]:
     swamp the off-diagonal contributions in floating point and corrupt the operator.
     """
     interior = np.flatnonzero(G.interior)
-    off = G.w.copy()
-    np.fill_diagonal(off, 0.0)
+    off = _off_diagonal(G.w)
     full = np.diag(off.sum(axis=1)) - off - np.diag(G.b)
     return interior, full[np.ix_(interior, interior)]
 
@@ -260,8 +272,9 @@ def principal_eigenpair(G: SemioticGraph) -> tuple[float, np.ndarray]:
     Laplacian ``diag(d') - w' - diag(b)`` (degrees include boundary edges; self weights are
     removed before summation because they do not enter ``L_G``; nothing is recomputed after
     removing boundary vertices). The returned vector vanishes on the boundary, has unit
-    Euclidean norm, is nonnegative, and is positive at every interior vertex when the interior
-    graph is connected (Lean ``SemioticGraph.exists_pos_eigenvector``).
+    Euclidean norm and is nonnegative; Theorem (Lean ``SemioticGraph.exists_pos_eigenvector``,
+    used in the proof of Theorem 3.26): it is positive at every interior vertex when the
+    interior graph is connected.
 
     Use ``spectral_report`` for the independent verification of the pair against the direct
     operator and the Rayleigh quotient.
@@ -286,8 +299,9 @@ def spectral_report(G: SemioticGraph) -> dict[str, Any]:
     """Principal eigendata checked against independently evaluated quantities.
 
     Returns ``lam1`` (from the assembled block), ``phi``, ``rayleigh`` (the energy of ``phi``
-    evaluated directly from pair differences divided by ``sum phi^2``; an upper bound for the
-    exact ``lambda_1``), ``defect`` (``max |L_G phi - b phi - lam1 phi|`` on the interior, with
+    evaluated directly from pair differences divided by ``sum phi^2``; Theorem (Rayleigh
+    quotient, the infimum in Definition 3.25): an upper bound for the exact ``lambda_1``),
+    ``defect`` (``max |L_G phi - b phi - lam1 phi|`` on the interior, with
     ``L_G`` evaluated from pair differences), ``margin`` (a floating-point margin, see below)
     and ``status``:
 
@@ -303,8 +317,7 @@ def spectral_report(G: SemioticGraph) -> dict[str, Any]:
     """
     lam1, phi = principal_eigenpair(G)
     interior = G.interior
-    off = G.w.copy()
-    np.fill_diagonal(off, 0.0)
+    off = _off_diagonal(G.w)
     scale = float(off.sum(axis=1).max() + np.abs(G.b).max())
     margin = 1e3 * G.n * np.finfo(float).eps * max(1.0, scale)
     rayleigh = energy(G, phi) / float(np.sum(phi**2))
@@ -343,8 +356,8 @@ def edge_condition(G: SemioticGraph) -> np.ndarray:
 
 def edge_condition_holds(G: SemioticGraph) -> bool:
     """``a(x) <= sqrt(w(x,y))`` for every ordered pair of distinct interior vertices with
-    ``w(x,y) > 0``. For weights in ``{0, 1}`` this follows from ``0 <= a <= 1``
-    (``exists_pos_graph_of_unweighted``)."""
+    ``w(x,y) > 0``. Corollary 3.27 (Lean ``exists_pos_graph_of_unweighted``): for weights in
+    ``{0, 1}`` this follows from ``0 <= a <= 1``."""
     return not bool(edge_condition(G).any())
 
 
@@ -392,9 +405,9 @@ def jacobi_map(G: SemioticGraph, u: np.ndarray, K: float) -> np.ndarray:
         F_K(u)(x) = [Σ_y w(x,y) u(y) + a(x)|∇u|(x) + (b(x)+K) u(x) - c(x) max(u(x),0)^p]
                     / [Σ_y w(x,y) + K]      on the interior,  0 on the boundary.
 
-    For ``K > 0`` its fixed points are exactly the solutions
-    (``fixedPointMap_eq_iff_isSolution``), and ``(d(x) + K)(u(x) - F_K(u)(x))`` equals the
-    equation residual (``mul_sub_numer``).
+    Theorem (Lean ``fixedPointMap_eq_iff_isSolution``): for ``K > 0`` its fixed points are
+    exactly the solutions. Lemma (Lean ``mul_sub_numer``): ``(d(x) + K)(u(x) - F_K(u)(x))``
+    equals the equation residual.
     """
     K = check_positive_scalar("K", K)
     u = _field(G, u)
@@ -406,13 +419,15 @@ def jacobi_map(G: SemioticGraph, u: np.ndarray, K: float) -> np.ndarray:
 def proof_constants(G: SemioticGraph) -> dict[str, Any]:
     """The constants constructed inside the proof of ``exists_pos_graph`` for this graph.
 
-    With ``λ₁ < 0`` and the positive unit eigenvector ``φ``::
+    Theorem 3.26 (Lean ``SemioticGraph.exists_pos_graph``, proof constants): with ``λ₁ < 0``
+    and the positive unit eigenvector ``φ``::
 
         t   = -λ₁ / (-λ₁ + Σ_x c(x)),         ε = t^{1/(p-1)}      (so c ε^{p-1} <= -λ₁)
         M   = (1 + Σ_y (|b(y)| + a(y)²/4) / c(y))^{1/(p-1)}        (so a²/4 + b <= c M^{p-1})
         K   = 1 + Σ_x (a(x) Σ_y sqrt(w(x,y)) + c(x) p M^{p-1} + |b(x)|)
 
-    ``sub = ε φ`` is the subsolution and ``sup = plateau(M)`` the supersolution.
+    ``sub = ε φ`` is a subsolution (Lean ``smul_subsolution``) and ``sup = plateau(M)`` a
+    supersolution (Lean ``plateau_supersolution``).
 
     Raises
     ------
@@ -442,30 +457,19 @@ def linfty_bound_graph(G: SemioticGraph) -> float:
     """Upper bound for nonnegative solutions on the graph:
     ``max_{x interior} ((b(x) + a(x)²/4)_+ / c(x))^{1/(p-1)}``.
 
-    Proposition (classical; proof in the paper's finite-graph section). At a positive maximum
-    ``M`` of a nonnegative solution, attained at an interior vertex ``x``, ``S = L_G u(x) >= 0``
-    and ``|∇u|(x)² <= M S``; the completed square ``a sqrt(M S) <= S + (a²/4) M``
-    (Lean ``mul_sqrt_mul_le``) then gives ``c(x) M^{p-1} <= b(x) + a(x)²/4``. The bound is not
-    itself a Lean declaration at the pinned revision. It differs materially from the continuum
-    cap ``(b/c)^{1/(p-1)}``, which uses ``∇u = 0`` at an interior maximum.
+    Proposition 3.30 (classical proof in the paper's finite-graph section). At a positive
+    maximum ``M`` of a nonnegative solution, attained at an interior vertex ``x``,
+    ``S = L_G u(x) >= 0`` and ``|∇u|(x)² <= M S``; the completed square
+    ``a sqrt(M S) <= S + (a²/4) M`` (Lean ``mul_sqrt_mul_le``) then gives
+    ``c(x) M^{p-1} <= b(x) + a(x)²/4``. The bound is not itself a Lean declaration at the
+    pinned revision. Remark 3.31: it differs materially from the continuum cap
+    ``(b/c)^{1/(p-1)}`` (Lemma 3.10), which uses ``∇u = 0`` at an interior maximum.
     """
     interior = G.interior
     if not interior.any():
         return 0.0
     ratio = np.maximum(G.b + G.a**2 / 4.0, 0.0) / G.c
     return float(np.max(ratio[interior]) ** (1.0 / (G.p - 1.0)))
-
-
-def _monotone_label(min_step: float, max_step: float, tol: float) -> str:
-    nondecreasing = min_step >= -tol
-    nonincreasing = max_step <= tol
-    if nondecreasing and nonincreasing:
-        return "constant"
-    if nondecreasing:
-        return "nondecreasing"
-    if nonincreasing:
-        return "nonincreasing"
-    return "non-monotone"
 
 
 def solve_graph(
@@ -509,10 +513,8 @@ def solve_graph(
     failure, never an accepted solution.
     """
     max_iter = check_positive_int("max_iter", max_iter)
-    atol = float(atol)
-    rtol = float(rtol)
-    if not (np.isfinite(atol) and np.isfinite(rtol) and atol >= 0.0 and rtol >= 0.0):
-        raise ValueError("atol and rtol must be finite and nonnegative")
+    atol = check_nonnegative_scalar("atol", atol)
+    rtol = check_nonnegative_scalar("rtol", rtol)
     consts: dict[str, Any] | None = None
     if isinstance(start, str):
         if start not in ("subsolution", "plateau"):
@@ -600,12 +602,13 @@ def solve_graph(
 
 
 def triangle() -> SemioticGraph:
-    """The verified example ``SemioticGraph.triangle``: complete graph on three vertices with
-    all weights equal to 1 (diagonal included), boundary ``{0}``, ``κ = γ = μ = 1`` (so
-    ``a = 1``), ``b = 2``, ``c = 1``, ``p = 2``. ``u = (0, 2, 2)`` solves it with gradient norm
-    2 at both interior vertices; ``(0, 1, 1)`` has energy ``-2``; its principal eigenvalue is
-    ``-1``. The independent ``b = 2`` here is a free admissible coefficient; it is not the
-    canonical closure ``κγ - λμ`` with ``λ > 0``."""
+    """Example 3.29, the verified Lean example ``SemioticGraph.triangle``: complete graph on
+    three vertices with all weights equal to 1 (diagonal included), boundary ``{0}``,
+    ``κ = γ = μ = 1`` (so ``a = 1``), ``b = 2``, ``c = 1``, ``p = 2``. Theorem (Lean
+    ``triangle_isSolution``, ``triangle_gradNorm``, ``triangle_energy``): ``u = (0, 2, 2)``
+    solves it with gradient norm 2 at both interior vertices, ``(0, 1, 1)`` has energy ``-2``,
+    and its principal eigenvalue is ``-1``. The independent ``b = 2`` here is a free admissible
+    coefficient; it is not the canonical closure ``κγ - λμ`` with ``λ > 0``."""
     return SemioticGraph(
         w=np.ones((3, 3)),
         boundary=np.array([True, False, False]),

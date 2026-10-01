@@ -7,7 +7,11 @@
 # identity (scripts/check_paper_artifact.py). Change the image digest and the epoch only
 # together with a rebuilt and recommitted PDF.
 #
-# Usage: paper/build_paper.sh [OUTPUT_DIR]      (default: paper/build, git-ignored)
+# Usage: paper/build_paper.sh [OUTPUT_DIR [FIGURE_DIR]]
+#   OUTPUT_DIR  default paper/build (git-ignored)
+#   FIGURE_DIR  where the stack figures cd_stack_{core,loop}.pdf are taken from; default paper/.
+#               The paper workflow passes the directory that paper/build_figures.sh rendered and
+#               checked against the committed figures.
 # Needs: docker. The build runs as the calling user; nothing is written outside OUTPUT_DIR.
 set -euo pipefail
 
@@ -16,9 +20,10 @@ EPOCH="1767225600"   # 2026-01-01T00:00:00Z: fixed PDF creation/modification dat
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT="${1:-$HERE/build}"
+FIG="${2:-$HERE}"
 mkdir -p "$OUT"
 OUT="$(cd "$OUT" && pwd)"
-cp "$HERE/creative_determinant.tex" "$HERE/cd_refs.bib" "$OUT/"
+cp "$HERE/creative_determinant.tex" "$HERE/cd_refs.bib" "$FIG/cd_stack_core.pdf" "$FIG/cd_stack_loop.pdf" "$OUT/"
 
 docker run --rm \
   --user "$(id -u):$(id -g)" \

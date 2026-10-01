@@ -86,6 +86,13 @@ class TestInputValidation:
         with pytest.raises(ValueError):
             solve_2d_picard(1.0, 1.0, 4, 5, 0.0, 20.0, 10.0, residual_rtol=np.nan)
 
+    @pytest.mark.parametrize("guess", ["subsolution", "plateau", "nonsense"])
+    def test_2d_string_initial_guess_is_rejected_with_a_clear_message(self, guess):
+        """The 2D solver has no named barriers; a string start is rejected by the solver's own
+        message, not by NumPy's cast error."""
+        with pytest.raises(ValueError, match="initial_guess must be None or an array of shape"):
+            solve_2d_picard(1.0, 1.0, 4, 5, 0.0, 20.0, 10.0, initial_guess=guess)
+
 
 class TestTerminationReasons:
     def test_nonfinite_iterate_terminates_and_is_not_accepted(self):
@@ -181,17 +188,11 @@ class TestAnalysisFailClosed:
     def test_unconverged_is_unresolved_not_trivial(self):
         assert solution_type({"maxPhi": 1e-9, "converged": False}) == "unresolved"
 
-    def test_converged_labels_kept_for_compatibility(self):
+    def test_converged_run_is_labelled_by_amplitude(self):
+        """``solution_type`` labels a converged run ``trivial`` or ``nontrivial`` by its
+        amplitude alone; the sign-checked classification is ``classify_branch``."""
         assert solution_type({"maxPhi": 1e-9, "converged": True}) == "trivial"
         assert solution_type({"maxPhi": 0.5, "converged": True}) == "nontrivial"
-
-
-@pytest.fixture(scope="module")
-def converged_1d_report():
-    """Report of an ordinary converged 1D run (positive branch, iters > 0)."""
-    _, _, info = solve_1d_picard(1.0, 31, 0.0, 15.0, 10.0, tol=1e-10)
-    assert info["converged"] and info["iters"] > 0
-    return info
 
 
 class TestConvergenceReportContract:
@@ -295,8 +296,8 @@ class TestConvergenceReportContract:
         assert "update" in msg and "tolerance" in msg
 
     def test_report_without_tol_is_unvalidated_not_accepted(self, converged_1d_report):
-        """Reports produced before ``tol`` was recorded cannot be re-validated: they are
-        reported as unvalidated / incomplete, never as accepted."""
+        """A report without the recorded ``tol`` cannot have its update criterion
+        re-validated: it is unvalidated / incomplete, never accepted."""
         info = {k: v for k, v in converged_1d_report.items() if k != "tol"}
         ok, msg = check_convergence(info)
         assert ok is False
@@ -312,6 +313,14 @@ class TestResidualValidation:
     def test_residual_1d_rejects_shape_mismatch(self):
         with pytest.raises(ValueError):
             residual_1d(np.linspace(0, 1, 5), np.zeros(4), 0.0, 1.0, 1.0, 2.0)
+
+    @pytest.mark.parametrize("bad", ["0.1", True, np.nan, 0.0, -0.1])
+    def test_residual_2d_spacings_must_be_positive_numbers(self, bad):
+        Phi = np.zeros((4, 5))
+        with pytest.raises(ValueError):
+            residual_2d(Phi, 0.0, 1.0, 1.0, p=2.0, hx=bad, hy=0.1)
+        with pytest.raises(ValueError):
+            residual_2d(Phi, 0.0, 1.0, 1.0, p=2.0, hx=0.1, hy=bad)
 
 
 class TestTwoDimensionalCoefficientShapes:

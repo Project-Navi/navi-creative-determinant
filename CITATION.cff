@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions"
+title: "The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with a Lean 4 Formalization"
 message: "If you use this framework, please cite it using the metadata from this file."
 type: software
 authors:
@@ -15,11 +15,10 @@ abstract: >-
   A finite-graph positive-existence theorem with an explicit example, and the
   algebraic and order-theoretic lemmas, are machine-checked in Lean 4 against
   Mathlib; the continuum existence theorems are formalized conditionally on an
-  explicit analytic interface and proved classically in the paper. The
-  framework bridges mathematical rigor (elliptic
-  PDEs, fixed-point theorems), philosophical depth (enactivist and semiotic
-  foundations), and empirical testability (the CD condition with explicit
-  falsifiability criteria).
+  analytic interface (`PDEInfra`) and proved classically in the paper. The
+  framework combines the mathematics (elliptic PDEs, fixed-point theorems)
+  with enactivist and semiotic foundations and an empirical layer (the CD
+  condition and its falsifiability criteria).
 keywords:
   - autopoiesis
   - elliptic PDE
@@ -39,7 +38,7 @@ preferred-citation:
   authors:
     - family-names: Spence
       given-names: Nelson
-  title: "The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions"
+  title: "The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with a Lean 4 Formalization"
   year: 2026
   institution:
     name: Project Navi LLC

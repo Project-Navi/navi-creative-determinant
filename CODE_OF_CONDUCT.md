@@ -39,7 +39,7 @@ The Creative Determinant framework itself models how coherent presence emerges w
 - Maintainers explain why PRs are accepted or rejected
 - We say "I don't know" when we don't know
 - Attribution is never optional
-- The [OPEN_PROBLEMS.md](docs/OPEN_PROBLEMS.md) exists because we're honest about gaps
+- The [Open Problems page](https://docs.projectnavi.ai/navi-creative-determinant/explanation/open-problems/) exists because we're honest about gaps
 
 ### 3. Peer Support and Mutuality
 

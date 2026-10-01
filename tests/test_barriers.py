@@ -1,6 +1,6 @@
 """Ordered barriers and monotone iteration for the finite-difference lane with a = 0.
 
-Discrete analogue of the repaired paper argument (Theorem 3.16 route): eps*phi_1 is a
+Discrete analogue of the paper's barrier argument for Theorem 3.16: eps*phi_1 is a
 subsolution when lambda_1 < 0 and c eps^{p-1} <= -lambda_1; the plateau M is a supersolution
 when c M^{p-1} >= q_+. With the shift K >= c p M^{p-1} - q the shifted Picard map is monotone on
 [0, M], so the iterates from below are nondecreasing and the iterates from above nonincreasing.
@@ -89,13 +89,14 @@ class TestExactDiscreteThresholdForZeroDrive:
     (necessity by testing against the positive eigenvector; sufficiency by the barriers)."""
 
     @pytest.mark.parametrize("ratio", [0.6, 0.8, 0.95, 1.05, 1.2, 1.5])
-    def test_branch_agrees_with_eigenvalue_sign_away_from_threshold(self, ratio):
+    def test_branch_agrees_with_eigenvalue_sign_away_from_threshold(
+        self, ratio, discrete_lambda1_1d
+    ):
         from cd.analysis import classify_branch
         from cd.eigenvalues import principal_eigenvalue_1d
 
         L, N, c, p = 1.0, 200, 10.0, 2.0
-        h = L / (N + 1)
-        q_star = 4 / h**2 * np.sin(np.pi * h / (2 * L)) ** 2
+        q_star = discrete_lambda1_1d(N, L, 0.0)
         q = ratio * q_star
         lam = principal_eigenvalue_1d(N, L, q)
         x, u, info = solve_1d_picard(L, N, 0.0, q, c, p=p)
@@ -106,12 +107,11 @@ class TestExactDiscreteThresholdForZeroDrive:
         else:
             assert branch == "zero"
 
-    def test_near_threshold_with_small_budget_is_unresolved_not_a_label(self):
+    def test_near_threshold_with_small_budget_is_unresolved_not_a_label(self, discrete_lambda1_1d):
         from cd.analysis import classify_branch
 
         L, N, c, p = 1.0, 200, 10.0, 2.0
-        h = L / (N + 1)
-        q_star = 4 / h**2 * np.sin(np.pi * h / (2 * L)) ** 2
+        q_star = discrete_lambda1_1d(N, L, 0.0)
         x, u, info = solve_1d_picard(L, N, 0.0, 1.001 * q_star, c, p=p, max_iter=5)
         assert not info["converged"]
         assert classify_branch(u, info) == "unresolved"

@@ -18,6 +18,8 @@ import numpy as np
 from ._validation import (
     check_exponent,
     check_finite_array,
+    check_finite_field,
+    check_positive_scalar,
     coefficient_1d,
     coefficient_2d,
     require_positive_coefficient,
@@ -102,9 +104,9 @@ def _interior_2d(name: str, value: object, Ny: int, Nx: int) -> float | np.ndarr
 
 def residual_2d(
     Phi: np.ndarray,
-    a_full: np.ndarray,
-    beta_b_full: np.ndarray,
-    c_full: np.ndarray,
+    a_full: float | np.ndarray,
+    beta_b_full: float | np.ndarray,
+    c_full: float | np.ndarray,
     p: float,
     hx: float,
     hy: float,
@@ -139,8 +141,8 @@ def residual_2d(
     bb_int = _interior_2d("beta_b_full", beta_b_full, Ny, Nx)
     c_int = _interior_2d("c_full", c_full, Ny, Nx)
     p = check_exponent("p", p)
-    if not (np.isfinite(hx) and np.isfinite(hy) and hx > 0 and hy > 0):
-        raise ValueError("hx and hy must be positive")
+    hx = check_positive_scalar("hx", hx)
+    hy = check_positive_scalar("hy", hy)
     require_positive_coefficient("c_full", c_int)
 
     Phi_xx = (Phi[1:-1, 2:] - 2 * Phi[1:-1, 1:-1] + Phi[1:-1, :-2]) / hx**2
@@ -154,6 +156,24 @@ def residual_2d(
     Phi_int = Phi[1:-1, 1:-1]
     rhs = a_int * gmag + bb_int * Phi_int - c_int * np.maximum(Phi_int, 0.0) ** p
     return -lap - rhs
+
+
+def _monotone_label(min_step: float, max_step: float, tol: float) -> str:
+    """Monotonicity of an iterate sequence from the extreme entrywise steps it recorded.
+
+    Shared by the finite-difference solvers and the finite-graph solver, which record
+    ``min_step`` / ``max_step`` over their own (different) iterations; the label itself is a
+    property of the recorded steps only.
+    """
+    nondecreasing = min_step >= -tol
+    nonincreasing = max_step <= tol
+    if nondecreasing and nonincreasing:
+        return "constant"
+    if nondecreasing:
+        return "nondecreasing"
+    if nonincreasing:
+        return "nonincreasing"
+    return "non-monotone"
 
 
 def _finite(value: Any) -> bool:
@@ -253,9 +273,8 @@ def check_convergence(info: dict) -> tuple[bool, str]:
     Iteration exhaustion, stagnation and nonfinite iterates are never accepted. There is no
     "nearly converged" category.
 
-    Compatibility: reports produced before the solvers recorded ``tol`` cannot have their
-    update criterion re-validated, so they are reported as unvalidated / incomplete rather
-    than accepted. Re-run the solver to obtain a complete report.
+    A report without ``tol`` cannot have its update criterion re-validated and is reported
+    as unvalidated / incomplete, never accepted; re-run the solver for a complete report.
 
     Parameters
     ----------
@@ -339,8 +358,8 @@ def solution_type(info: dict, threshold: float = _ZERO_BRANCH_TOL) -> str:
 
     Notes
     -----
-    This keeps the historical amplitude labels. It is not a validated solution
-    classification: a missing ``converged`` flag is treated as not converged, and
+    This is an amplitude label only, not a validated solution classification: a missing
+    ``converged`` flag is treated as not converged, and
     ``classify_branch`` gives the finer, sign-checked classification used by the notebook
     (``zero`` / ``positive`` / ``nonnegative`` / ``unresolved`` / ``invalid``).
     """
@@ -431,7 +450,9 @@ def presence_statistics(
         - ``max``: maximum of the field over the full grid
         - ``mean``: mean over the *interior* nodes, zeros included
         - ``total``: integral by the composite (tensor) trapezoid rule on the given coordinates
-        - ``support_fraction``: fraction of interior nodes with ``Phi > 0.01 * max``
+        - ``support_fraction``: fraction of interior nodes with ``Phi > 0.01 * max``, or
+          ``0.0`` when ``max <= 1e-10``. This floor is not the zero-branch tolerance of
+          ``classify_branch``: a positive field below that tolerance keeps its support.
         - ``dimension``: 1 or 2
         - ``interior_count``: number of interior nodes
 
@@ -486,13 +507,13 @@ def linfty_bound(beta_b: float | np.ndarray, c: float | np.ndarray, p: float) ->
     """
     Theoretical L-infinity bound for nonnegative solutions of the continuum equation.
 
-    From Lemma 3.10 (corrected form): any nonnegative C² solution satisfies
-    ``max(Phi) <= (B/c0)^(1/(p-1))`` where ``B = max(beta_b)_+`` and ``c0 = min(c)``.
-    The argument uses ``∇Φ = 0`` at an interior maximum, so it holds for every ``a ≥ 0`` in the
-    continuum. For the *discrete* centered-difference model it is exact when ``a ≡ 0``
-    (discrete maximum principle); with ``a > 0`` the discrete gradient need not vanish at a
-    grid maximum, so the value is a heuristic reference there. For the finite-graph model use
-    ``cd.graph.linfty_bound_graph`` instead (different bound).
+    Lemma 3.10: any nonnegative C² solution satisfies ``max(Phi) <= (B/c0)^(1/(p-1))`` where
+    ``B = max(beta_b)_+`` and ``c0 = min(c)``. The argument uses ``∇Φ = 0`` at an interior
+    maximum, so it holds for every ``a ≥ 0`` in the continuum. Theorem (discrete maximum
+    principle): for the *discrete* centered-difference model the same bound holds when
+    ``a ≡ 0``. Heuristic: with ``a > 0`` the discrete gradient need not vanish at a grid
+    maximum, so the value is only a reference there. For the finite-graph model use
+    ``cd.graph.linfty_bound_graph`` instead (Proposition 3.30, a different bound).
 
     Algebraic step verified in Lean: ``linfty_bound_algebraic`` (CdFormal/LinftyAlgebraic.lean).
 
@@ -509,13 +530,17 @@ def linfty_bound(beta_b: float | np.ndarray, c: float | np.ndarray, p: float) ->
     -------
     K : float
         Upper bound on max(Phi); ``0.0`` when ``beta_b <= 0`` everywhere.
+
+    Raises
+    ------
+    ValueError
+        If ``beta_b`` or ``c`` is a string, a bool or a nonfinite number, has a nonfinite entry
+        after conversion to a float array, ``c`` is not positive everywhere, or ``p <= 1``.
     """
-    B = float(np.max(beta_b))
-    c0 = float(np.min(c))
-    if not np.isfinite(B) or not np.isfinite(c0):
-        raise ValueError("beta_b and c must be finite")
-    if c0 <= 0:
-        raise ValueError(f"Saturation c must be positive, got min(c)={c0}")
+    B = float(np.max(check_finite_field("beta_b", beta_b)))
+    c_field = check_finite_field("c", c)
+    require_positive_coefficient("c", c_field)
+    c0 = float(np.min(c_field))
     p = check_exponent("p", p)
     if B <= 0:
         return 0.0

@@ -8,7 +8,7 @@ description = "The Creative Determinant — autopoietic closure as a nonlinear e
 site_url = "https://docs.projectnavi.ai/navi-creative-determinant"
 repo_url = "https://github.com/Project-Navi/navi-creative-determinant"
 repo_name = "Project-Navi/navi-creative-determinant"
-copyright = "Copyright 2024-2026 Nelson Spence"
+copyright = "Copyright 2025-2026 Nelson Spence"
 extra_css = ["stylesheets/navi.css"]
 extra_javascript = [
     "javascripts/mathjax.js",
@@ -25,6 +25,7 @@ nav = [
   ]},
   {"Explanation" = [
     {"Conceptual Primer" = "explanation/conceptual-primer.md"},
+    {"The CD Stack" = "explanation/cd-stack.md"},
     {"Author's Note" = "explanation/authors-note.md"},
     {"Open Problems" = "explanation/open-problems.md"},
     {"Ethical Covenant" = "explanation/ethical-covenant.md"},

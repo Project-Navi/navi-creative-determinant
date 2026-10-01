@@ -1,12 +1,15 @@
 # Paper artifact check
 #
-# Rebuilds paper/creative_determinant.pdf from source in the pinned TeX Live image used by
-# paper/build_paper.sh (the same image, epoch and command that produced the committed PDF),
-# fails on unresolved references or citations, and requires the committed PDF to be the
-# byte-identical build of the source (scripts/check_paper_artifact.py). When the bytes differ
-# the gate prints an order-preserving text diff and a page-by-page render comparison so the
-# drift can be located. The rebuilt PDF is uploaded as an artifact; the committed file is never
-# modified here.
+# Re-renders the stack diagram (paper/cd_stack.dot through paper/stack_figures.py) in the pinned
+# image of paper/figures.Dockerfile and requires the committed SVGs and figure PDFs to be
+# byte-identical to the render (paper/build_figures.sh). Then rebuilds
+# paper/creative_determinant.pdf from source and the re-rendered figures in the pinned TeX Live
+# image used by paper/build_paper.sh (the same image, epoch and command that produced the
+# committed PDF), fails on unresolved references or citations, and requires the committed PDF to
+# be the byte-identical build (scripts/check_paper_artifact.py). When the bytes differ the gate
+# prints an order-preserving text diff and a page-by-page render comparison so the drift can be
+# located. The rebuilt PDF is uploaded as an artifact; the committed files are never modified
+# here.
 
 name: Paper
 
@@ -19,12 +22,18 @@ on:
     paths:
       - 'paper/**'
       - 'scripts/check_paper_artifact.py'
+      - 'scripts/check_stack_citations.py'
+      - 'docs/explanation/cd-stack.md'
+      - 'docs/assets/cd-stack.svg'
       - '.github/workflows/paper.yml'
   pull_request:
     branches: [main]
     paths:
       - 'paper/**'
       - 'scripts/check_paper_artifact.py'
+      - 'scripts/check_stack_citations.py'
+      - 'docs/explanation/cd-stack.md'
+      - 'docs/assets/cd-stack.svg'
       - '.github/workflows/paper.yml'
   workflow_dispatch:
 
@@ -35,7 +44,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # poppler is used only by the gate's diagnostics (pdftotext, pdftoppm, pdfinfo); the
       # PDF itself is produced inside the pinned image.
@@ -44,8 +53,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends poppler-utils
 
+      # The figure PDFs are inputs to the paper: build it from the re-rendered, verified copies.
+      - name: Render the stack diagram and require the committed outputs to be identical
+        run: paper/build_figures.sh check build/figures
+
       - name: Build in the pinned TeX Live image
-        run: paper/build_paper.sh build
+        run: paper/build_paper.sh build build/figures/paper
 
       - name: Check the build log and page count
         run: |
@@ -63,6 +76,14 @@ jobs:
             echo "::error::paper/creative_determinant.pdf is not the build of the source in the pinned image; run paper/build_paper.sh and commit build/creative_determinant.pdf"
             exit 1
           }
+
+      # Every statement or section cited by the stack diagram (paper/cd_stack.dot, Figures 1
+      # and 2) or the CD Stack page must have a header with the expected number and title in
+      # the rebuilt PDF.
+      - name: Check the statements cited by the stack diagram
+        run: |
+          pdftotext build/creative_determinant.pdf rebuilt.txt
+          python3 scripts/check_stack_citations.py paper/cd_stack.dot rebuilt.txt --also docs/explanation/cd-stack.md
 
       - name: Upload rebuilt PDF
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

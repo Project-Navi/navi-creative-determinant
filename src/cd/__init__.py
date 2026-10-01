@@ -21,7 +21,9 @@ Key results (status labelled as in the paper):
       positive in the interior. The Lean statement of this theorem is conditional on the
       `PDEInfra` interface; the finite-graph analogue `SemioticGraph.exists_pos_graph` is
       proved outright in Lean and implemented in `cd.graph`.
-    - Proposition (a ≡ 0): λ₁ < 0 is also necessary, so the threshold is exact in that regime.
+    - Proposition 3.19 (a ≡ 0): λ₁ < 0 is also necessary, so the threshold is exact in that
+      regime. Proposition 3.21: with a gradient term it is not necessary; a positive continuum
+      solution exists below the linear threshold (and Proposition 3.32 on a finite graph).
 """
 
 from .analysis import (
@@ -56,7 +58,7 @@ from .operators import (
 )
 from .solvers import barriers_1d, solve_1d_picard, solve_2d_picard
 
-__version__ = "0.1.0"
+__version__ = "1.2.0.dev0"
 __author__ = "Nelson Spence"
 __email__ = "nelson@projectnavi.ai"
 

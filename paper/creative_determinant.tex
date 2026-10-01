@@ -4,10 +4,11 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm,mathrsfs}
 \usepackage{mathtools}
-\usepackage{hyperref}
+\usepackage{graphicx}
 \usepackage{enumitem}
 \usepackage{booktabs}
 \usepackage{float}
+\usepackage{hyperref}
 \setlength{\emergencystretch}{2em}
 \urlstyle{tt}
 
@@ -36,11 +37,11 @@
 
 \title{The Creative Determinant: Autopoietic Closure as a\\
 Nonlinear Elliptic Boundary Value Problem\\
-with Lean~4-Verified Existence Conditions}
+with a Lean~4 Formalization}
 \author{Nelson Spence\\
 Project Navi LLC, Austin, Texas\\
 \texttt{nelson@projectnavi.ai}}
-\date{January 2026}
+\date{January 2026; revised October 2026}
 
 \begin{document}
 \maketitle
@@ -55,7 +56,7 @@ On a compact Riemannian manifold \(M\) (the \emph{semiotic manifold}), we study 
 where \(a(x)=\kappa(x)\gamma(x)\mu(x)\in[0,1]\) encodes the \emph{creative drive} (care \(\times\) coherence \(\times\) contradiction), \(b(x)\) is the \emph{viability potential} (autopoietic support minus dissolution, with canonical closure \(b=\kappa\gamma - \lambda\mu\)), and \(c(x)\Phi^p\) enforces \emph{carrying capacity}.
 The principal eigenvalue condition \(\lambda_1(-\Delta - b; M) < 0\) provides a computable criterion for the emergence of self-sustaining coherent configurations: it is sufficient in general and exact when the gradient coefficient vanishes---formalizing the transition from incoherence to autopoietic organization.
 We set up a Schaefer fixed-point framework with explicit a priori bounds for nonnegative \emph{weak coherent configurations}, and prove by an ordered-barrier argument that when viability exceeds dissipation the BVP admits a solution that is positive throughout the interior, so coherent presence can be self-maintained.
-Beyond the PDE core, we distinguish weak from strong coherence (a gap we treat as the framework's central generative tension), formulate conditional geometric statements, and propose an operational \emph{Creative Determinant condition} \(CD(\alpha,\varepsilon,\delta)\) with five explicit falsifiability criteria.
+Beyond the PDE core, we distinguish weak from strong coherence (a gap we treat as the framework's central generative tension), formulate conditional geometric statements, and propose an operational \emph{Creative Determinant condition} \(CD(\varepsilon,\delta)\) with five explicit falsifiability criteria.
 The core definitions, the algebraic and order-theoretic lemmas, and a finite-graph version of the positive-existence theorem with an explicit worked example are machine-checked in Lean~4 against the Mathlib library; the continuum existence theorems are formalized only as implications from an explicit abstract interface, and this paper gives an independent classical proof of the intended continuum results while recording that its concrete operator does not instantiate that interface. Numerical validation confirms second-order grid convergence and reproduces the verified finite-graph example. All proofs, computations, and verification artifacts are open source.
 \end{abstract}
 
@@ -88,7 +89,7 @@ This gap is not a limitation---it is the \emph{core philosophical commitment}. R
 \begin{enumerate}[label=(\roman*)]
 \item \textbf{Existence framework (Theorem~\ref{thm:existenceV1prime}):} Under mild coefficient assumptions, the autonomous viability model with saturation has a compact fixed-point formulation with explicit a priori bounds for nonnegative weak coherent configurations; the zero field is always one of them.
 \item \textbf{Positive existence (Theorem~\ref{thm:nontrivialV1prime}):} When the viability threshold is exceeded (\(\lambda_1(-\Delta - b; M) < 0\)), there exists a solution positive throughout the interior, enclosed between a small multiple of the principal eigenfunction and a constant---coherent presence can be self-maintained.
-\item \textbf{Exact threshold without drive (Proposition~\ref{prop:exactThreshold}):} When \(a\equiv 0\) the spectral condition is also necessary, so the threshold is exact in that regime; with a gradient term it is sufficient only, and Proposition~\ref{prop:continuumConverse} gives an explicit positive solution on an interval with \(\lambda_1=+\tfrac14\).
+\item \textbf{Exact threshold without drive (Proposition~\ref{prop:exactThreshold}):} When \(a\equiv 0\) the spectral condition is also necessary, so the threshold is exact in that regime; with a gradient term it is sufficient only, and Proposition~\ref{prop:continuumConverse} gives a positive solution on an interval with \(\lambda_1=+\tfrac14\), enclosed between an explicit subsolution and a constant supersolution.
 \item \textbf{Finite-graph theorem (Theorem~\ref{thm:graphExistence}):} A finite-graph version of the positive-existence theorem, proved without analytic hypotheses and machine-checked, with an explicit example, a maximum bound (Proposition~\ref{prop:graphBound}), and a counterexample to the converse (Proposition~\ref{prop:graphConverse}).
 \item \textbf{Canonical viability closure (Definition~\ref{def:canonicalClosure}):} The viability potential \(b = \kappa\gamma - \lambda\mu\) provides a principled link between the PDE coefficient and the CD characteristic fields.
 \end{enumerate}
@@ -144,6 +145,15 @@ Neumann conditions are discussed only as a secondary variant.
 \noindent\textbf{Guiding intuition.}
 Before the formal machinery, here is the central question: \emph{when can coherent presence sustain itself?}
 The answer involves a spectral condition---when the viability potential \(b(x) = \kappa\gamma - \lambda\mu\) (care-coherence support minus contradiction cost) is strong enough to overcome boundary dissipation. This is made precise by the condition \(\lambda_1(-\Delta - b; M) < 0\), which we call the \emph{viability threshold}. The theorems below establish that crossing this threshold guarantees the existence of non-trivial coherent configurations. The proofs use classical fixed-point machinery, but the conceptual payoff is immediate: \emph{viability exceeds dissipation} $\Rightarrow$ \emph{coherent presence can be self-maintained}.
+
+Figure~\ref{fig:stackCore} shows how the objects of this section fit together.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth,height=0.75\textheight,keepaspectratio]{cd_stack_core}
+\caption{The mathematical core. The characteristic fields (Definition~\ref{def:fields}) define the creative drive \(a=\kappa\gamma\mu\) and, through the canonical closure (Definition~\ref{def:canonicalClosure}), the viability potential \(b=\kappa\gamma-\lambda\mu\), which enter the saturated model V1\('\) (Definition~\ref{def:V1prime}); the operator \(-\Delta-b\) on \(M\) with Dirichlet data has the principal eigenvalue \(\lambda_1(-\Delta-b;M)\) (Definition~\ref{def:lambda1}). Under the coefficient hypotheses of the model, a nonnegative weak coherent configuration exists and the zero field is one (Theorem~\ref{thm:existenceV1prime}); \(\lambda_1<0\) gives a solution positive in the interior (Theorem~\ref{thm:nontrivialV1prime}); the condition is also necessary when \(a\equiv 0\) (Proposition~\ref{prop:exactThreshold}), and a counterexample shows that it is not necessary in general when \(a\not\equiv 0\) (Proposition~\ref{prop:continuumConverse}). The finite-graph model (Definition~\ref{def:graphModel}) is a separate problem (Remark~\ref{rem:threeModels}); its existence theorem (Theorem~\ref{thm:graphExistence}), which assumes a connected interior graph, \(\lambda_1^G<0\) and the edge condition, is proved outright and machine-checked. Highlighted boxes are the model, the eigenvalue and the results.}
+\label{fig:stackCore}
+\end{figure}
 
 \subsection{Primary model: autonomous viability with logistic saturation (V1')}
 Let
@@ -570,6 +580,15 @@ We distinguish:
 \item $\lambda$ in \eqref{eq:canonical_closure_static}, a \emph{closure parameter} multiplying contradiction $\mu$. In \eqref{eq:canonical_closure_static}, increasing $\lambda$ decreases $b$ for fixed $\mu>0$ and thus makes spectral viability harder to satisfy. Consequently, $\lambda$ functions as a \emph{contradiction cost/sensitivity parameter} (high $\lambda$ = contradiction costly/fragile; low $\lambda$ = contradiction less costly/resilient).
 \end{enumerate}
 
+Figure~\ref{fig:stackLoop} summarises the closure developed below and its feedback into the operator of Figure~\ref{fig:stackCore}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth,height=0.75\textheight,keepaspectratio]{cd_stack_loop}
+\caption{The temporal closure of Section~\ref{sec:temporal_resilience_debt}. The derivatives of the empirical witness \(\psi\) enter the base resilience (Definition~\ref{def:Rbase}), and \(\psi\) itself enters the debt; the spectral capacity witness \(\psi_s\) (Definition~\ref{def:psispectral}) is computed from the principal eigenvalue of the current operator; only operation above capacity, \(\psi>\psi_s\), feeds the coherence debt (Definition~\ref{def:debt}), which rises only while \(D<(\eta/\rho)[\psi-\psi_s]^+\) and is bounded by \(\max\{D(0),\eta/\rho\}\) (Remark~\ref{rem:debtInterpretation}); the debt lowers the total resilience and raises the effective contradiction cost (Definition~\ref{def:Reff}); the effective cost and the fields \(\kappa,\gamma,\mu\) at time \(t\) enter the dynamical closure (Definition~\ref{def:dynamical_closure}). The closure supplies \(b(\cdot,t)\), so the operator and \(\lambda_1(t)\) are re-evaluated. The loop is a tendency, not an analysed dynamical system; the dashed capacity-erosion extension (Remark~\ref{rem:capacity_erosion}) is deferred.}
+\label{fig:stackLoop}
+\end{figure}
+
 \subsubsection*{Temporal witness function and resilience factor}
 Let $\psi(t)\in[0,1]$ denote a \emph{temporal witness function} measuring instantaneous coherence at time $t$, with higher values indicating greater coherence and temporal integration. We assume \(\psi\in C^3\) on the time interval considered, or, for sampled data, that \(\psi'\), \(\psi''\) and \(\psi'''\) denote declared finite-difference (or smoothing-spline) estimators at a stated sampling step; the quantities below are not defined otherwise. Following a temporal-coherence framework developed in companion work, we interpret derivatives as dynamical signatures:
 $\psi'(t)$ (volatility), $\psi''(t)$ (stabilizing vs destabilizing acceleration), and $\psi'''(t)$ (jerk/rupture).
@@ -609,9 +628,9 @@ Fix a scale parameter $s>0$ and define the \emph{spectral capacity witness}
 The mapping \eqref{eq:psispectral} converts the real-valued spectral margin $\lambda_1(t)$ into a bounded witness comparable to $\psi(t)$:
 more negative $\lambda_1$ (deeper viability) yields $\psi_s$ closer to $1$, while $\lambda_1$ near or above $0$ yields $\psi_s$ near $1/2$ or below.
 Other monotone maps $\mathbb{R}\to(0,1)$ are possible; \eqref{eq:psispectral} is chosen for smoothness.
-\end{remark}
 
 We interpret $\psi_s(t)$ as a \emph{capacity envelope}: what the current system can sustain given its current structural conditions. This is a proposed proxy; the sigmoid score is not shown to be an upper envelope of an independently measured coherence witness $\psi$, and the comparison $\psi>\psi_s$ below is meaningful only under a stated calibration of the two scales. In contrast, $\psi(t)$ is an empirical witness of what the system is actually doing.
+\end{remark}
 
 \subsubsection*{Coherence debt: chronic operation beyond capacity}
 The central burnout/recovery phenomenon motivating this section is the possibility that a system can temporarily \emph{perform coherence beyond sustainable capacity}. Formally, this corresponds to $\psi(t)>\psi_s(t)$. Acute excursions are not necessarily pathological; the pathological regime is \emph{sustained} overcapacity operation. We encode this temporally via a debt variable.
@@ -654,7 +673,7 @@ and the \emph{effective contradiction cost}
 \end{definition}
 
 \begin{remark}[Burnout spiral as feedback]
-When $\psi>\psi_s$ persists, debt $D(t)$ increases, reducing $R(t)$ and therefore increasing $\lambda_{\mathrm{eff}}(t)$.
+When $\psi>\psi_s$ persists, debt $D(t)$ accumulates while \(D<(\eta/\rho)[\psi-\psi_s]^+\) (Remark~\ref{rem:debtInterpretation}), reducing $R(t)$ and therefore increasing $\lambda_{\mathrm{eff}}(t)$.
 Through the viability closure below, this reduces $b(\cdot,t)$, which pushes the spectral indicator $\lambda_1(t)$ upward (toward $0$) and lowers $\psi_s(t)$.
 Thus sustained overcapacity operation is a self-reinforcing fragility \emph{tendency}: capacity declines while debt accumulates. By the bound in Remark~\ref{rem:debtInterpretation} the loop is neither automatically monotone nor unbounded; whether it converges, oscillates or saturates depends on the parameters and on the closure, which is not analysed here.
 \end{remark}
@@ -690,7 +709,7 @@ A natural extension is to let prolonged debt degrade the characteristic fields o
 \dot\gamma = -\delta_\gamma [D-D_{\mathrm{crit}}]^+,\qquad
 \dot\mu = +\delta_\mu [D-D_{\mathrm{crit}}]^+,
 \]
-or alternatively encode erosion by time-dependent boundary/geometry changes in $M(t)$.
+with \(\kappa,\gamma,\mu\) projected (clipped) onto \([0,1]\), the range of Definition~\ref{def:fields}, or alternatively encode erosion by time-dependent boundary/geometry changes in $M(t)$.
 We do not analyze such extended dynamics here; the present contribution is the minimal debt-resilience closure \eqref{eq:debtODE}--\eqref{eq:dynamical_closure}.
 \end{remark}
 
@@ -860,7 +879,7 @@ The saturation term \(-c\Phi^p\) is necessary to break positive homogeneity and 
 The pointwise CD constraint and the PDE proxy are not proven equivalent; this gap is treated as a structural feature (the ``generative tension'') rather than a deficiency. The canonical viability closure \(b = \kappa\gamma - \lambda\mu\) is a modeling choice grounded in observed support-versus-cost dynamics; alternative closures remain open for investigation.
 
 \subsection*{Validating the linear closure}
-The canonical closure \(b = \kappa\gamma - \lambda\mu\) is a modeling choice, but one that can be empirically tested. The accompanying computational notebooks (see \texttt{cd\_pde\_demo.ipynb}) include parameter sweeps showing how the bifurcation structure---the ``cliff edge'' where systems transition from nontrivial to trivial equilibria---depends on the closure form.
+The canonical closure \(b = \kappa\gamma - \lambda\mu\) is a modeling choice, but one that can be empirically tested. The accompanying computational notebook (\texttt{cd\_pde\_demo.ipynb}) sweeps the contradiction cost \(\lambda\) under the canonical closure and records where the positive branch gives way to the zero branch; it does not compare alternative closure forms, which remains future work.
 
 Future work should:
 \begin{enumerate}

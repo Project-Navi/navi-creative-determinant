@@ -74,5 +74,14 @@ site/
 # Claude-Flow runtime metrics (ephemeral per-machine state)
 .claude-flow/
 
-# Local experimental notebook variants (per CLAUDE.md: untracked workspace)
+# Local experimental notebook variants (untracked workspace)
 notebooks/alternates/
+
+# Serena (local code-intelligence tool state)
+.serena/
+
+# Claude Code worktrees created by background agents
+.claude/worktrees/
+
+# intermediate dot files written by paper/stack_figures.py
+paper/*.dot.generated

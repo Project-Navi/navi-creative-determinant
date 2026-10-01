@@ -2,7 +2,8 @@
 Discrete Laplacian operators for the Creative Determinant framework.
 
 Provides sparse matrix constructors for -Δ with Dirichlet boundary conditions
-in 1D and 2D domains.
+in 1D, 2D and 3D domains (centered second-order stencils, Kronecker structure in 2D and
+3D), and the matching coordinate grids.
 """
 
 from __future__ import annotations
@@ -45,8 +46,9 @@ def laplacian_1d_dirichlet(N: int, L: float) -> tuple[csr_matrix, float]:
     by only solving for interior points: the first and last rows see a single
     interior neighbour and the (zero) boundary value.
 
-    The exact principal eigenvalue of ``A`` is ``(4/h²) sin²(πh/(2L))``, which tends to
-    ``(π/L)²`` at second order in ``h``.
+    Theorem (closed form for the tridiagonal matrix; validated in ``tests/test_spectra.py``):
+    the exact principal eigenvalue of ``A`` is ``(4/h²) sin²(πh/(2L))``, which tends to the
+    continuum value ``(π/L)²`` (Definition 3.13 with ``q = 0``) at second order in ``h``.
 
     Example
     -------
@@ -198,27 +200,6 @@ def grid_1d(N: int, L: float) -> np.ndarray:
     N = check_positive_int("N", N)
     L = check_positive_scalar("L", L)
     return np.linspace(0, L, N + 2)
-
-
-def grid_2d(Nx: int, Ny: int, Lx: float, Ly: float) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Generate 2D meshgrid including boundary points.
-
-    Parameters
-    ----------
-    Nx, Ny : int
-        Number of interior points in each direction.
-    Lx, Ly : float
-        Domain lengths.
-
-    Returns
-    -------
-    X, Y : ndarray
-        Meshgrid arrays of shape (Ny+2, Nx+2).
-    """
-    x = grid_1d(Nx, Lx)
-    y = grid_1d(Ny, Ly)
-    return np.meshgrid(x, y)
 
 
 def grid_3d(

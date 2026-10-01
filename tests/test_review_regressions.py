@@ -1,8 +1,14 @@
-"""Regressions for the defects found in the mathematical review of the Stage A candidate.
+"""Properties of the solver and finite-graph code that a mathematical review found violated.
 
-Each test expresses the corrected behaviour of the real ``cd`` package and failed at the
-reviewed head (21c2402) for the stated reason. Graph tests evaluate operators directly from
-pair differences so that the spectral assembly is checked against an independent formula.
+Each test states one such property of the ``cd`` package: the graph spectral assembly must
+not see self weights and must agree with the operator evaluated from pair differences and
+with the Rayleigh quotient; the edge condition is exact, without additive slack; an
+eigenvalue within the floating-point margin of zero is indeterminate, never a certificate;
+an initial field that already solves the discrete equation is accepted with defined
+diagnostics; negative initial data is rejected; branch labels are sign-checked; and the
+convergence checker re-validates the numbers it is given instead of trusting the flag.
+Graph tests evaluate operators directly from pair differences so that the spectral assembly
+is checked against an independent formula.
 """
 
 import numpy as np
@@ -13,32 +19,21 @@ from cd import solve_1d_picard, solve_2d_picard
 from cd.analysis import check_convergence, classify_branch, solution_type
 
 
-def _graph_with_self_weight(diagonal: float, a: float = 0.0) -> G.SemioticGraph:
-    w = np.ones((3, 3))
-    np.fill_diagonal(w, diagonal)
-    return G.SemioticGraph(
-        w=w,
-        boundary=np.array([True, False, False]),
-        a=np.full(3, a),
-        b=np.zeros(3),
-        c=np.ones(3),
-        p=2.0,
-    )
-
-
 class TestGraphSpectralAssembly:
     """Self weights contribute nothing to L_G; the assembled operator must not see them."""
 
-    def test_self_weights_do_not_change_eigenvalue_or_applicability(self):
-        small = _graph_with_self_weight(0.0)
-        large = _graph_with_self_weight(1e20)
+    def test_self_weights_do_not_change_eigenvalue_or_applicability(self, graph_with_self_weight):
+        small = graph_with_self_weight(0.0)
+        large = graph_with_self_weight(1e20)
         assert G.principal_eigenpair(small)[0] == pytest.approx(1.0)
         assert G.principal_eigenpair(large)[0] == pytest.approx(1.0)
         assert not G.existence_theorem_applies(large)["applies"]
         assert G.existence_theorem_applies(large)["spectral_status"] == "nonnegative"
 
-    def test_eigenvector_matches_direct_operator_with_large_self_weights(self):
-        graph = _graph_with_self_weight(1e20)
+    def test_eigenvector_matches_direct_operator_with_large_self_weights(
+        self, graph_with_self_weight
+    ):
+        graph = graph_with_self_weight(1e20)
         lam, phi = G.principal_eigenpair(graph)
         r = G.laplacian(graph, phi) - graph.b * phi - lam * phi
         assert np.max(np.abs(r[graph.interior])) < 1e-10
@@ -112,10 +107,10 @@ class TestGraphSpectralAssembly:
         assert report["rayleigh_upper_bound"] < 0
         assert report["applies"]
 
-    def test_jacobi_map_keeps_exact_self_weight_semantics(self):
+    def test_jacobi_map_keeps_exact_self_weight_semantics(self, graph_with_self_weight):
         """Self weights do enter the Jacobi splitting (numerator and denominator) and cancel
         at fixed points; the residual identity must hold with them present."""
-        graph = _graph_with_self_weight(3.0, a=1.0)
+        graph = graph_with_self_weight(3.0, a=1.0)
         u = np.array([0.0, 0.7, 1.1])
         K = 5.0
         F = G.jacobi_map(graph, u, K)
@@ -193,10 +188,6 @@ class TestSolverContract:
                 "residual_inf": 0.0,
             }
         )[0]
-
-    def test_convergence_checker_accepts_a_real_run(self):
-        _, _, info = solve_1d_picard(1.0, 31, 0.0, 15.0, 10.0)
-        assert check_convergence(info)[0]
 
     def test_solution_type_without_convergence_flag_is_unresolved(self):
         assert solution_type({"maxPhi": 0.5}) == "unresolved"

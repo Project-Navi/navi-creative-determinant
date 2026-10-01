@@ -1,104 +1,82 @@
 # Creative Determinant (CD): A Field Theory of Coherence and Meaning
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Mathematical Validation](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/ci.yml/badge.svg)](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/ci.yml)
+[![CI](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/ci.yml/badge.svg)](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/ci.yml)
 [![Notebook Validation](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/notebooks.yml/badge.svg)](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/notebooks.yml)
 [![Figure Validation](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/figures.yml/badge.svg)](https://github.com/Project-Navi/navi-creative-determinant/actions/workflows/figures.yml)
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](notebooks/cd_pde_demo.ipynb)
+![Lean v4.34.1](https://img.shields.io/badge/Lean-v4.34.1-blue)
+![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 
-**Creative Determinant (CD)** is a framework for understanding how coherent presence emerges and sustains itself in cognitive and computational systems. It bridges three traditionally separate domains:
+Coherent presence as the solution of a nonlinear elliptic boundary value problem on a semiotic manifold: a positive-existence theorem with a spectral viability threshold, a machine-checked finite-graph analogue, and a residual-validated numerical companion.
 
-- **Mathematical rigor**: Nonlinear elliptic PDEs on Riemannian manifolds, with existence theorems, spectral viability thresholds, and numerical validation.
-- **Philosophical depth**: Enactivist and semiotic foundations connecting care, coherence, contradiction, and autopoiesis.
-- **Empirical testability**: The CD condition—a measurable correlation between coherence observables and phase-space volume dynamics—with explicit falsifiability criteria.
+> Nelson Spence, *The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with a Lean 4 Formalization*, Project Navi LLC, 2026. [PDF](paper/creative_determinant.pdf)
 
-The goal is a cognitive theory that is **not three separate things, but one integrated whole**.
+## What is proved
 
----
+The model is the Dirichlet problem
 
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [What's in This Repository](#whats-in-this-repository)
-- [Entry Ramps by Background](#entry-ramps-by-background)
-- [Core Concepts](#core-concepts-30-second-version)
-- [Citation](#citation)
-- [Get Involved](#get-involved)
-- [License and Ethical Use](#license-and-ethical-use)
-- [Contact](#contact)
-
----
-
-## Quick Start
-
-**Requirements:** Python 3.10+, [uv](https://docs.astral.sh/uv/)
-
-```bash
-# Clone the repository
-git clone https://github.com/Project-Navi/navi-creative-determinant.git
-cd navi-creative-determinant
-
-# Install all dependencies (creates venv, installs package + deps)
-uv sync
-
-# Run the tests
-uv run pytest tests/ -v
-
-# Open the notebook
-uv run jupyter lab notebooks/
+```
+−ΔΦ = a(x)|∇Φ| + b(x)Φ − c(x)Φ^p   in M,      Φ = 0 on ∂M
 ```
 
----
+on a compact Riemannian manifold with boundary, with creative drive `a = κγμ ∈ [0,1]` (care × coherence × contradiction), viability potential `b = κγ − λμ`, saturation `c ≥ c₀ > 0` and `p > 1`.
 
-## What's in This Repository
+| Result | Statement | Status |
+|---|---|---|
+| Existence | Theorem 3.12: a nonnegative weak coherent configuration exists; `Φ ≡ 0` is always one | classical proof; Lean, conditional on `PDEInfra` |
+| Positive existence | Theorem 3.16: `λ₁(−Δ − b; M) < 0` gives a solution positive in the interior, enclosed between `εφ₁` and a constant | classical proof; Lean, conditional on `PDEInfra`, only a nonnegative solution positive at one interior point |
+| Exact threshold | Proposition 3.19: for `a ≡ 0` the spectral condition is also necessary | classical proof |
+| Converse fails with drive | Proposition 3.21: `a = 1, b = 3/4, c = 1, p = 2` on `(0, π)` has a positive solution with `λ₁ = +1/4` | classical proof |
+| Finite-graph theorem | Theorem 3.26, `SemioticGraph.exists_pos_graph`: a positive solution on a finite graph, with the explicit triangle example | proved outright, machine-checked |
+| Strong ideal unattainable | Proposition 4.11: no nonzero `C¹` field of either sign satisfies the pointwise ideal with zero boundary data | classical proof |
 
-- **[`creative_determinant.pdf`](paper/creative_determinant.pdf)**: The core paper, presenting the mathematical framework, interpretive layer, and operational proposals.
-- **[`cd_formalization/`](cd_formalization/)**: Lean 4 formalization against Mathlib (v4.34.1, pinned at revision `ad65a64`). Definitions (semiotic manifold model, operators, BVP, weak coherent configuration), the algebraic and order-theoretic lemmas, and the finite-graph positive-existence theorem with its explicit example are machine-checked. The continuum existence theorems (3.12, 3.16) are proved conditionally on the `PDEInfra` hypotheses — structure fields standing in for classical elliptic results not yet in Mathlib, which the paper's concrete operator does not instantiate (paper Appendix A). See the [formalization README](cd_formalization/README.md) for build instructions and the assumption boundary.
-- **[`cd_pde_demo.ipynb`](notebooks/cd_pde_demo.ipynb)**: Jupyter notebook with residual-validated numerical demonstrations of viability thresholds, equilibrium emergence and canonical closure in 1D and 2D, the verified finite-graph example, and a 3D eigenvalue illustration. Every numerical claim in it is asserted.
-- **[Research Roadmap](https://docs.projectnavi.ai/navi-creative-determinant/reference/roadmap/)**: Research directions and open questions—invitations for others to contribute.
-- **[CONTRIBUTING.md](CONTRIBUTING.md)**: How to participate, extend, or challenge the framework.
-- **[Open Problems](https://docs.projectnavi.ai/navi-creative-determinant/explanation/open-problems/)**: Explicit gaps and unresolved theoretical questions.
-- **[experiments/](experiments/)**: Scaffolding for empirical instantiations and tests.
-- **[FAQ](https://docs.projectnavi.ai/navi-creative-determinant/reference/faq/)**: Short answers to common questions.
-- **[Conceptual Primer](https://docs.projectnavi.ai/navi-creative-determinant/explanation/conceptual-primer/)**: A gentle introduction for non-technical audiences.
-- **[Author's Note](https://docs.projectnavi.ai/navi-creative-determinant/explanation/authors-note/)**: Origin story and motivation behind the framework.
-- **[figures/](figures/)**: Publication-quality visualizations of framework dynamics.
+Uniqueness of the positive solution and the exact threshold with a gradient term are open ([Open Problems](https://docs.projectnavi.ai/navi-creative-determinant/explanation/open-problems/)).
 
-## Entry Ramps by Background
+## Assumption boundary
 
-### If you're a **PDE / analysis person**:
-Start with **Sections 2–3** of the paper (existence and nontriviality theorems) and the **eigenvalue verification** in the notebook (Part 1). Treat Sections 4–5 as motivation and proposed applications.
+Lean 4 against Mathlib v4.34.1; the submodule `cd_formalization/` is pinned at `ad65a64`. The finite-graph theorem is unconditional. The continuum theorems are conditional on the `PDEInfra` hypotheses, structure fields standing in for the classical elliptic results the paper cites and transfers to the manifold (Appendix B); the paper's operator does not instantiate that interface (Appendix A). Zero `sorry`. The axiom audit in `CdFormal/Verify.lean` requires every audited declaration to depend only on `propext`, `Classical.choice` and `Quot.sound`; hypotheses such as `PDEInfra` appear in the theorem signatures, not as axioms. Details: [cd_formalization/README.md](cd_formalization/README.md).
 
-### If you're an **AI / interpretability researcher**:
-Start with **Section 5** (the CD condition and falsifiability criteria) and skim the notebook plots showing bifurcations at viability thresholds. Then read Section 3 to see the spectral foundation.
+## Numerics
 
-### If you're a **Lean / formal verification person**:
-Start with **[`cd_formalization/README.md`](cd_formalization/README.md)** for the axiom boundary and what's proved. Then read `CdFormal/Theorems.lean` for the existence proofs and `CdFormal/Verify.lean` for the axiom audit.
+`src/cd` implements the continuum problem by centered finite differences (1D, 2D, 3D operators; residual-validated Picard iteration; discrete barriers), the Lean finite-graph model exactly (`cd.graph`), and the spectral tools. The finite-difference problem, the graph model and the 3D eigenvalue illustration are distinct models. A solver run counts as converged only when the returned field satisfies the discrete equation to a recorded tolerance. The notebook `notebooks/cd_pde_demo.ipynb` asserts every numerical claim it makes; the tests compare the numerics with analytic and exact discrete values.
 
-### If you're a **cognitive scientist / philosopher**:
-Start with **Sections 1 and 4** (introduction and interpretive layer), which connect the framework to enactivism, semiotics, and phenomenology. Then glance at **Theorem 3.16** (nontriviality) to see how "viability exceeds dissipation" is made mathematically precise.
+## Building
 
----
+Requires Python 3.10+ and [uv](https://docs.astral.sh/uv/); the paper and diagram builds require Docker, the Lean build [elan](https://github.com/leanprover/elan).
 
-## Core Concepts (30-Second Version)
+```bash
+uv sync
+uv run pytest tests/ -v
+uv run jupyter lab notebooks/
+uv run python figures/generate_figures.py
+make -C paper                                   # stack diagram (Figures 1-2, docs), in a pinned image
+paper/build_paper.sh                            # writes paper/build/creative_determinant.pdf
+cd cd_formalization && lake build --wfail       # fails on any warning, including sorry
+```
 
-- **Semiotic manifold** $M$: a space of possible meanings or interpretations.
-- **Presence field** $Φ(x)$: intensity of coherent "presence" at each point on $M$.
-- **Characteristic fields**: care $κ$, coherence $γ$, contradiction $μ$ — dimensionless fields in $[0,1]$.
-- **Creative drive** $a(x) = κγμ$: gradient activity contributes to presence where all three fields jointly support it.
-- **Viability potential** $b(x) = κγ - λμ$: where care-coherence support dominates contradiction cost.
-- **Viability threshold**: when the principal eigenvalue $λ_1(-Δ - b; M) < 0$, a coherent configuration positive throughout the interior exists (Theorem 3.16); the condition is exact when the creative drive vanishes (Proposition 3.19) and sufficient in general (Proposition 3.21 gives a positive solution with λ₁ > 0 when the drive is active).
-- **CD condition**: coherence observables correlate with Jacobian volume dynamics in structured regimes.
+## Project structure
 
-The paper is grounded in PDE theory (Gilbarg–Trudinger, Evans, Schaefer, Leray–Schauder), dynamical systems (Oseledets, Lyapunov, Pesin), and conceptual foundations (Maturana–Varela, Friston, Thompson, Prigogine).
+```
+paper/                 creative_determinant.tex/.pdf, cd_refs.bib, cd_stack.dot (Figures 1-2 and the docs diagram), build_paper.sh
+src/cd/                operators, solvers, eigenvalues, fields, graph, analysis
+tests/                 package tests (ship in the sdist); tests/repo/ covers scripts, notebook and paper
+notebooks/             cd_pde_demo.ipynb
+figures/               generate_figures.py and its seven figures
+scripts/               validate_notebook.py, check_paper_artifact.py, check_stack_citations.py
+cd_formalization/      Lean 4 submodule (Project-Navi/cd-formalization)
+docs/                  documentation site (zensical)
+```
 
----
+## Where to start
+
+- [Documentation site](https://docs.projectnavi.ai/navi-creative-determinant/): entry ramps by background and the core concepts.
+- [The CD Stack](https://docs.projectnavi.ai/navi-creative-determinant/explanation/cd-stack/): one diagram of the fields, the operator, the threshold and the temporal closure, with what is proved, defined, interpretive or deferred.
+- [Conceptual Primer](https://docs.projectnavi.ai/navi-creative-determinant/explanation/conceptual-primer/) and [Author's Note](https://docs.projectnavi.ai/navi-creative-determinant/explanation/authors-note/).
+- [Research Roadmap](https://docs.projectnavi.ai/navi-creative-determinant/reference/roadmap/), [Open Problems](https://docs.projectnavi.ai/navi-creative-determinant/explanation/open-problems/), [FAQ](https://docs.projectnavi.ai/navi-creative-determinant/reference/faq/).
 
 ## Citation
 
-If you build on this work, please cite:
-
-> Nelson Spence. *The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions.* Project Navi LLC, 2026.
+[CITATION.cff](CITATION.cff) holds the citation metadata; GitHub renders it as BibTeX or APA.
 
 ---
 
@@ -110,31 +88,19 @@ See **[CONTRIBUTING.md](CONTRIBUTING.md)** for how to participate. See the **[Re
 
 Please read our **[Code of Conduct](CODE_OF_CONDUCT.md)**—a trauma-informed, peer support-based community covenant that reflects how we work together.
 
-**This is a research seed, not a finished theory.** The goal is for knowledge to flourish through collective engagement.
+This is a research seed, not a finished theory. The goal is for knowledge to flourish through collective engagement.
 
 ---
 
 ## Development Process
 
-**What the author did**: The original equations, mathematical framework, and theory —
-semiotic manifold formulation, the nonlinear elliptic BVP (V1'), existence/nontriviality
-proof strategy, canonical closure, the CD condition, and the connection between
-enactivist philosophy and PDE theory — are original research by Nelson Spence,
-developed over 12 months (April 2025 – March 2026).
+**Original framework (April 2025 – March 2026)**: Nelson Spence developed the semiotic manifold formulation, the saturated model V1′, the original existence argument (Schaefer's fixed-point theorem with sub- and supersolutions and the maximum principle), the canonical closure, the temporal debt–resilience closure, the CD condition, and the connection between enactivist philosophy and PDE theory.
 
-**What AI tools did**: Claude Opus assisted with implementation — Python numerics,
-test infrastructure, notebook pedagogy, documentation, and Lean 4 formalization
-(Mathlib API navigation, proof term synthesis, project scaffolding). Aristotle
-(Harmonic.fun) automated proving of algebraic lemmas in Lean.
+**2026 revision**: A later mathematical review found errors and gaps in that manuscript. The current version reconstructs the existence proofs (the truncated Schaefer framework, ordered barriers and the maximum-principle comparison), states the spectral threshold as sufficient in general and exact without drive, adds a continuum counterexample below the threshold, and brings in the finite-graph model of the Lean development. The review and the reconstruction were done with contributor input and AI assistance. Nelson Spence is responsible for the final claims and presentation. The classical elliptic theory is cited from Gilbarg–Trudinger and Evans.
 
-**Why this isn't slop**: The intellectual contribution (theory, equations, proof
-strategy) is human-originated. AI helped transcribe those ideas into Python and
-Lean 4. The results are independently verifiable:
-- **Lean proofs**: `lake build --wfail` — type-checks or it doesn't. Zero `sorry`; the continuum theorems are conditional on explicit hypotheses, the finite-graph theorem is not.
-- **Numerical code**: 191 test functions (167 package tests plus 24 repository-artefact tests) against analytic and exact discrete solutions, O(h²) convergence, independent `solve_bvp` cross-checks, and the verified finite-graph example.
-- **Axiom surface**: Every assumption is explicit in `PdeInfra` — nothing is hidden.
+**Other contributors**: Andrew Edmark (@aedmark) proposed the finite-graph formulation and its proof route (finite-dimensional inverse positivity and positive principal eigendata, then the order-theoretic fixed-point core). Yongxi (Aaron) Lin suggested the bornological form of `PDEInfra.T_compact` on the Lean Zulip.
 
-The math doesn't care who typed it. Clone the repo and verify.
+**What AI tools did**: AI tools assisted with the numerics, tests, notebook, documentation and Lean development, and with the 2026 mathematical review and reconstruction of the proofs.
 
 ---
 
@@ -145,30 +111,15 @@ Project Navi LLC
 nelson@projectnavi.ai
 Austin, Texas
 
-**I've carried this as far as I could alone. African wisdom provides our community principle, "If you want to go fast, go alone. If you want to go far, go together." Let's go far.**
+I've carried this as far as I could alone. African wisdom provides our community principle, "If you want to go fast, go alone. If you want to go far, go together." Let's go far.
 
 ## License and Ethical Use
 
-The Creative Determinant framework is licensed under **[Apache 2.0](LICENSE)** to maximize accessibility for research, education, and innovation.
-
-### Why Apache 2.0?
-
-We want this framework to be freely usable by:
-- Academic researchers exploring cognitive science, AI interpretability, or formal theories of meaning
-- AI safety organizations testing new approaches to coherence and alignment
-- Independent researchers and students learning at the intersection of math, philosophy, and computation
-
-Apache 2.0 allows you to use, modify, and build upon this work—even commercially—with minimal restrictions. You must preserve copyright notices and include the LICENSE file, but you are not required to release your modifications or derivatives.
+Copyright 2025-2026 Nelson Spence. Licensed under **[Apache 2.0](LICENSE)**: use, modification and redistribution, including commercial use, with the copyright notices and the LICENSE file preserved.
 
 ### Ethical Covenant (Voluntary)
 
-While the license grants you broad rights, we invite you to honor the **[Ethical Covenant](https://docs.projectnavi.ai/navi-creative-determinant/explanation/ethical-covenant/)**—a voluntary commitment to:
-- Use CD responsibly in systems that affect people
-- Be intellectually honest about what CD does and doesn't prove
-- Contribute back to the research community where feasible
-- Consider humanitarian alignment if your work generates commercial value
-
-**This invitation is voluntary.** It cannot be enforced legally. Its power comes from community norms and scholarly integrity.
+While the license grants you broad rights, we invite you to honor the **[Ethical Covenant](https://docs.projectnavi.ai/navi-creative-determinant/explanation/ethical-covenant/)**. This invitation is voluntary. It cannot be enforced legally. Its power comes from community norms and scholarly integrity.
 
 ### Commercial Services
 
@@ -183,4 +134,4 @@ Such agreements are available under our standard PNEUL-D dual-license structure 
 
 ---
 
-**The goal is simple: let knowledge flourish through collective engagement, not extraction.**
+The goal is simple: let knowledge flourish through collective engagement, not extraction.
