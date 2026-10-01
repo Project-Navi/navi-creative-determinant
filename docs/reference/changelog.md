@@ -4,7 +4,7 @@ The full release history, with release notes, is on [GitHub Releases](https://gi
 
 ## Documentation and metadata (PR #98, 2026-09-29)
 
-No change to the mathematics. Package version set to 1.2.0.dev0 (unreleased; the code differs from the v1.1.0 tag); new CD Stack page, also Figures 1 and 2 of the paper; README rewritten; one contributing guide; directory READMEs corrected; sign errors and stale labels fixed in Open Problems and the Roadmap; experiments scaffold folded into the Roadmap; SECURITY, NOTICE and CITATION.cff updated.
+No change to the mathematics. Package version set to 1.2.0.dev0 (unreleased; the code differs from the v1.1.0 tag); paper retitled "...with a Lean 4 Formalization" and dated "January 2026; revised October 2026"; new CD Stack page, also Figures 1 and 2 of the paper; README rewritten; one contributing guide; directory READMEs corrected; sign errors and stale labels fixed in Open Problems and the Roadmap; experiments scaffold folded into the Roadmap; SECURITY, NOTICE and CITATION.cff updated.
 
 ## Mathematical revision (PR #97, 2026-09-29)
 

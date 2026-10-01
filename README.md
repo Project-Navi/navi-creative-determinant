@@ -9,7 +9,7 @@
 
 Coherent presence as the solution of a nonlinear elliptic boundary value problem on a semiotic manifold: a positive-existence theorem with a spectral viability threshold, a machine-checked finite-graph analogue, and a residual-validated numerical companion.
 
-> Nelson Spence, *The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions*, Project Navi LLC, 2026. [PDF](paper/creative_determinant.pdf)
+> Nelson Spence, *The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with a Lean 4 Formalization*, Project Navi LLC, 2026. [PDF](paper/creative_determinant.pdf)
 
 ## What is proved
 

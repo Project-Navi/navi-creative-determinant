@@ -4,7 +4,7 @@ The core theoretical paper for the Creative Determinant framework.
 
 ## Contents
 
-**creative_determinant.pdf** — *The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions*
+**creative_determinant.pdf** — *The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with a Lean 4 Formalization*
 
 ## Structure
 

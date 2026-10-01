@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions"
+title: "The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with a Lean 4 Formalization"
 message: "If you use this framework, please cite it using the metadata from this file."
 type: software
 authors:
@@ -38,7 +38,7 @@ preferred-citation:
   authors:
     - family-names: Spence
       given-names: Nelson
-  title: "The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions"
+  title: "The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with a Lean 4 Formalization"
   year: 2026
   institution:
     name: Project Navi LLC

@@ -71,12 +71,12 @@ CD is intended for:
 
 ## How do I cite this work?
 
-> Nelson Spence. *The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions.* Project Navi LLC, 2026.
+> Nelson Spence. *The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with a Lean 4 Formalization.* Project Navi LLC, 2026.
 
 ```bibtex
 @techreport{spence2026creative,
   author = {Spence, Nelson},
-  title = {The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with Lean 4-Verified Existence Conditions},
+  title = {The Creative Determinant: Autopoietic Closure as a Nonlinear Elliptic Boundary Value Problem with a Lean 4 Formalization},
   institution = {Project Navi LLC},
   year = {2026},
   address = {Austin, Texas}
